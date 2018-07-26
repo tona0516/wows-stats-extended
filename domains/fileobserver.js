@@ -1,29 +1,41 @@
 const fs = require('fs');
+const log4js = require('log4js');
 
-var FileObserver = function(filepath) {
+const logger = log4js.getLogger();
+logger.level = 'DEBUG';
+
+const FileObserver = function(dataFetcher, filepath) {
+  this.dataFetcher = dataFetcher;
   this.filepath = filepath;
 }
 
 FileObserver.prototype.start = function(callback, interval) {
-  var weakthis = this;
+  const _this = this;
 
   // 定期実行開始
   setInterval(function() {
-    fs.readFile(weakthis.filepath, 'utf8', function (err, text) {
+    fs.readFile(_this.filepath, 'utf8', function (error, text) {
       // エラー時はコールバックしない
-      if (err) {
+      if(error) {
+        logger.info('error is caused: ' + error);
         return;
       }
 
       // 同一ファイルでないときもコールバックしない
-      if (weakthis.latest === text) {
+      if(_this.latest == text) {
+        logger.info('no need to update data');
         return;
       }
-      weakthis.latest = text;
 
-      // jsonを返却
-      var json = JSON.parse(text);
-      return callback(json);
+      // データ取得中の時もコールバックしない
+      if(_this.dataFetcher.isRunning) {
+        logger.info('no need to update data');
+        return;
+      }
+
+      // 最新の状態を保存してjsonを返却
+      _this.latest = text;
+      return callback(JSON.parse(text));
     });
   }, interval);
 }

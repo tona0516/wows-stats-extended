@@ -1,13 +1,14 @@
-var request = require('request');
-var express = require('express');
-var log4js = require('log4js');
+const request = require('request');
+const express = require('express');
+const log4js = require('log4js');
+const dotenv = require('dotenv');
 
-var router = express.Router();
-var logger = log4js.getLogger();
+const router = express.Router();
+const logger = log4js.getLogger();
 logger.level = 'DEBUG';
 
-require('dotenv').config();
-var appid = process.env.APP_ID;
+dotenv.config();
+const appid = process.env.APP_ID;
 console.log("APP_ID: " + appid);
 
 /* GET users listing. */
@@ -21,14 +22,14 @@ router.get('/playerid', function(req, res, next) {
       search: req.query.playername
     }
   }, function(error, response, body) {
-    var json = JSON.parse(body);
+    const json = JSON.parse(body);
     if (json.status == 'error') {
       logger.error('request: ' + JSON.stringify(req.query) + ' error: ' + json.error.message);
       res.send('{"playerid": null}');
       return;
     }
-    playerid = json.data[0].account_id;
-    res.send('{"playerid": ' + playerid + '}');
+    const playerId = json.data[0].account_id;
+    res.send('{"playerid": ' + playerId + '}');
   });
 });
 
@@ -41,7 +42,7 @@ router.get('/stat/player', function(req, res, next) {
       account_id: req.query.playerid
     }
   }, function(error, response, body) {
-    var json = JSON.parse(body);
+    const json = JSON.parse(body);
     if (json.status == 'error') {
       logger.error('request: ' + JSON.stringify(req.query) + ' error: ' + json.error.message);
       res.send('{"playerstat": null}');
@@ -61,7 +62,7 @@ router.get('/stat/ship', function(req, res, next) {
       ship_id: req.query.shipid
     }
   }, function(error, response, body) {
-    var json = JSON.parse(body);
+    const json = JSON.parse(body);
     if (json.status == 'error') {
       logger.error('request: ' + JSON.stringify(req.query) + ' error: ' + json.error.message);
       res.send('{"shipstat": null}');
@@ -80,7 +81,7 @@ router.get('/info/ship', function(req, res, next) {
       ship_id: req.query.shipid
     }
   }, function(error, response, body) {
-    var json = JSON.parse(body);
+    const json = JSON.parse(body);
     if (json.status == 'error') {
       logger.error('request: ' + JSON.stringify(req.query) + ' error: ' + json.error.message);
       res.send('{"shipinfo": null}');

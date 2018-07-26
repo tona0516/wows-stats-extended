@@ -43,10 +43,10 @@ app.use(function(err, req, res, next) {
 });
 
 // start observing file 'tempArenaInfo.json'
-var fileObserver = new FileObserver('./tmp/tempArenaInfo.json')
+const dataFetcher = new DataFetcher();
+const fileObserver = new FileObserver(dataFetcher, './tmp/tempArenaInfo.json')
 fileObserver.start(function(json) {
-  var dataFetcher = new DataFetcher(json);
-  dataFetcher.fetch(function() {
+  dataFetcher.fetch(json, function() {
     console.log("-----done!-----");
   });
 }, 1000);
