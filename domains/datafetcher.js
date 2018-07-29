@@ -18,7 +18,7 @@ DataFetcher.prototype.fetch = async function(json, callback) {
     await this.fetchPlayerShipStat();
     await this.fetchShipInfo();
     this.isRunning = false;
-    return callback();
+    return callback(this.players);
 }
 
 DataFetcher.prototype.fetchPlayer = function(json) {

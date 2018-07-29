@@ -10,9 +10,6 @@ var apiRouter = require('./routes/apis');
 
 var app = express();
 
-var FileObserver = require('./domains/fileobserver');
-var DataFetcher = require('./domains/datafetcher');
-
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -41,14 +38,5 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
-
-// start observing file 'tempArenaInfo.json'
-const dataFetcher = new DataFetcher();
-const fileObserver = new FileObserver(dataFetcher, './tmp/tempArenaInfo.json')
-fileObserver.start(function(json) {
-  dataFetcher.fetch(json, function() {
-    console.log("-----done!-----");
-  });
-}, 1000);
 
 module.exports = app;

@@ -9,35 +9,28 @@ const FileObserver = function(dataFetcher, filepath) {
   this.filepath = filepath;
 }
 
-FileObserver.prototype.start = function(callback, interval) {
+FileObserver.prototype.start = function(callback) {
   const _this = this;
 
-  // 定期実行開始
-  setInterval(function() {
-    fs.readFile(_this.filepath, 'utf8', function (error, text) {
-      // エラー時はコールバックしない
-      if(error) {
-        logger.info('error is caused: ' + error);
-        return;
-      }
+  fs.readFile(_this.filepath, 'utf8', function (error, text) {
+    // エラー
+    if(error) {
+      const body = 'error is caused: ' + error;
+      logger.info(body);
+      return callback(body, 500);
+    }
 
-      // 同一ファイルでないときもコールバックしない
-      if(_this.latest == text) {
-        logger.info('no need to update data');
-        return;
-      }
+    // 同一ファイルの時
+    if(_this.latest == text) {
+      const body = 'no need to update data'
+      logger.info(body);
+      return callback(body, 201);
+    }
 
-      // データ取得中の時もコールバックしない
-      if(_this.dataFetcher.isRunning) {
-        logger.info('no need to update data');
-        return;
-      }
-
-      // 最新の状態を保存してjsonを返却
-      _this.latest = text;
-      return callback(JSON.parse(text));
-    });
-  }, interval);
+    // 最新の状態を保存してjsonを返却
+    _this.latest = text;
+    return callback(JSON.parse(text), 200);
+  });
 }
 
 // これを書くことでrequire先でFileObserverが使えるようになる
