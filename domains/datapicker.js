@@ -15,7 +15,7 @@ DataPicker.prototype.pick = function(data) {
         // プレイヤーに関する成績
         var playerStat = {};
         playerStat.name = player.info.name;
-        // TODO クラン名
+        playerStat.clan_tag = player.clan_info != null ? "[" + player.clan_info.tag + "]" : "";
         if (!player.playerstat.hidden_profile) {
             const stat = player.playerstat.statistics
             playerStat.battles = stat.battles;

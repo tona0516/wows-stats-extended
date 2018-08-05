@@ -8,7 +8,7 @@ const FileObserver = require('../domains/fileobserver');
 const dataFetcher = new DataFetcher()
 const dataPicker = new DataPicker();
 const fileObserver = new FileObserver(dataFetcher, './tmp/tempArenaInfo.json');
-var lastFetchedJson;
+var lastPickedJson;
 
 const router = express.Router();
 const logger = log4js.getLogger();
@@ -27,17 +27,16 @@ router.get('/fetch', function(req, res, next) {
       case 200:
         // 更新があった時はAPIコールして取得したデータを返却する
         dataFetcher.fetch(body, function(json) {
-          lastFetchedJson = json;
           const picked = dataPicker.pick(json);
+          lastPickedJson = picked;
           res.status(status);
           res.send(picked);
         });
         break;
       case 201:
-        // 同一ファイルの時は最後にfetchしたデータを返却する
-        const picked = dataPicker.pick(lastFetchedJson);
+        // 同一ファイルの時は最後にpickしたデータを返却する
         res.status(status);
-        res.send(picked);
+        res.send(lastPickedJson);
         break;
       default:
         res.status(status);
@@ -64,6 +63,44 @@ router.get('/playerid', function(req, res, next) {
     }
     const playerId = json.data[0].account_id;
     res.send('{"playerid": ' + playerId + '}');
+  });
+});
+
+// プレイヤー所属クランのIDを取得
+router.get('/clanid', function(req, res, next) {
+  request.get({
+    url: 'https://api.worldofwarships.asia/wows/clans/accountinfo/',
+    qs: {
+      application_id: appid,
+      account_id: req.query.playerid
+    }
+  }, function(error, response, body) {
+      const json = JSON.parse(body);
+      if (json.status == 'error') {
+        logger.error('request: ' + JSON.stringify(req.query) + ' error: ' + json.error.message);
+        res.send('{"clanid": null}');
+        return;
+      }
+      res.send(json);
+  });
+});
+
+// クラン情報の取得
+router.get('/info/clan', function(req, res, next) {
+  request.get({
+    url: 'https://api.worldofwarships.asia/wows/clans/info/',
+    qs: {
+      application_id: appid,
+      clan_id: req.query.clanid
+    }
+  }, function(error, response, body) {
+      const json = JSON.parse(body);
+      if (json.status == 'error') {
+        logger.error('request: ' + JSON.stringify(req.query) + ' error: ' + json.error.message);
+        res.send('{"clan": null}');
+        return;
+      }
+      res.send(json);
   });
 });
 
