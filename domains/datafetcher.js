@@ -62,7 +62,7 @@ DataFetcher.prototype.fetchPlayerStat = function() {
                 playerid: playerIdsString
             }
         }, function(error, response, json) {
-            const data = JSON.parse(json)['data'];
+            const data = JSON.parse(json).data;
             for (const id in data) {
                 _this.players[id].playerstat = data[id];
             }

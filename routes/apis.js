@@ -3,8 +3,10 @@ const express = require('express');
 const log4js = require('log4js');
 const dotenv = require('dotenv');
 const DataFetcher = require('../domains/datafetcher');
+const DataPicker = require('../domains/datapicker');
 const FileObserver = require('../domains/fileobserver');
 const dataFetcher = new DataFetcher()
+const dataPicker = new DataPicker();
 const fileObserver = new FileObserver(dataFetcher, './tmp/tempArenaInfo.json');
 var lastFetchedJson;
 
@@ -26,14 +28,16 @@ router.get('/fetch', function(req, res, next) {
         // 更新があった時はAPIコールして取得したデータを返却する
         dataFetcher.fetch(body, function(json) {
           lastFetchedJson = json;
+          const picked = dataPicker.pick(json);
           res.status(status);
-          res.send(json);
+          res.send(picked);
         });
         break;
       case 201:
         // 同一ファイルの時は最後にfetchしたデータを返却する
+        const picked = dataPicker.pick(lastFetchedJson);
         res.status(status);
-        res.send(lastFetchedJson);
+        res.send(picked);
         break;
       default:
         res.status(status);

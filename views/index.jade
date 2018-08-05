@@ -2,6 +2,140 @@ extends layout
 
 block content
   h1= title
-  p Welcome to #{title}
-  div#app {{ message }}
+  div#app
+    h2 ステータス: {{ status }}
+    div#friends
+      h2 味方
+      table(border="1")
+        tr
+          th(colspan="6") 艦艇情報
+          th(colspan="4") 艦艇統計
+          th(colspan="1") プレイヤー情報
+          th(colspan="4") プレイヤー統計
+        
+        tr
+          td 艦艇名
+          td 艦種
+          td Tier
+          td 国籍
+          td 艦艇隠蔽距離
+          td 魚雷射程
+
+          td 戦闘数
+          td 勝率
+          td ダメージ
+          td K/D
+
+          td プレイヤー名
+
+          td 戦闘数
+          td 勝率
+          td ダメージ
+          td K/D
+          
+        tr(v-for="player of friends")
+          // 艦艇情報
+          td
+            {{ player.ship_info.name }}
+          td
+            {{ player.ship_info.type }}
+          td
+            {{ player.ship_info.tier }}
+          td
+            {{ player.ship_info.nation }}
+          td
+            {{ player.ship_info.detect_distance_by_ship }}
+          td
+            {{ player.ship_info.torpedoes_distance }}
+
+          // 艦艇統計
+          td
+            {{ player.ship_stat.battles }}
+          td
+            {{ player.ship_stat.win_rate }}
+          td
+            {{ player.ship_stat.average_damage }}
+          td
+            {{ player.ship_stat.kill_death_rate }}
+
+          // プレイヤー情報
+          td
+            {{ player.player_stat.name }}
+          
+          // プレイヤー統計
+          td
+            {{ player.player_stat.battles }}
+          td
+            {{ player.player_stat.win_rate }}
+          td
+            {{ player.player_stat.average_damage }}
+          td
+            {{ player.player_stat.kill_death_rate }}
+    div#enemies
+      h2 敵
+      table(border="1")
+        tr
+          th(colspan="6") 艦艇情報
+          th(colspan="4") 艦艇統計
+          th(colspan="1") プレイヤー情報
+          th(colspan="4") プレイヤー統計
+        
+        tr
+          td 艦艇名
+          td 艦種
+          td Tier
+          td 国籍
+          td 艦艇隠蔽距離
+          td 魚雷射程
+
+          td 戦闘数
+          td 勝率
+          td ダメージ
+          td K/D
+
+          td プレイヤー名
+
+          td 戦闘数
+          td 勝率
+          td ダメージ
+          td K/D
+          
+        tr(v-for="player of enemies")
+          // 艦艇情報
+          td
+            {{ player.ship_info.name }}
+          td
+            {{ player.ship_info.type }}
+          td
+            {{ player.ship_info.tier }}
+          td
+            {{ player.ship_info.nation }}
+          td
+            {{ player.ship_info.detect_distance_by_ship }}
+          td
+            {{ player.ship_info.torpedoes_distance }}
+
+          // 艦艇統計
+          td
+            {{ player.ship_stat.battles }}
+          td
+            {{ player.ship_stat.win_rate }}
+          td
+            {{ player.ship_stat.average_damage }}
+          td
+            {{ player.ship_stat.kill_death_rate }}
+
+          // プレイヤー情報
+          td
+            {{ player.player_stat.name }}
+          
+          // プレイヤー統計
+          td
+            {{ player.player_stat.battles }}
+          td
+            {{ player.player_stat.win_rate }}
+          td
+            {{ player.player_stat.average_damage }}
+          td
+            {{ player.player_stat.kill_death_rate }}
   script(src='/javascripts/vue.js')
