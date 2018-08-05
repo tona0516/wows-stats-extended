@@ -8,16 +8,20 @@ var app = new Vue({
 })
 
 var request = null;
+var lastResponseBody = null;
 var fetch = function() {
   if (request == null) {
     app.status = "読み込み中...";
     request = new XMLHttpRequest();
     request.open("GET", 'http://localhost:3000/apis/fetch');
     request.addEventListener("load", (event) => {
-      if (event.target.status == 200) {
-        const json = JSON.parse(event.target.responseText);
+      const statusCode = event.target.status;
+      const responseBody = event.target.responseText;
+      if (statusCode == 200 || (statusCode = 201 && lastResponseBody != null && lastResponseBody != responseBody)) {
+        const json = JSON.parse(responseBody);
         app.friends = json.friends.sort(sort_by_type_and_tier());
         app.enemies = json.enemies.sort(sort_by_type_and_tier());
+        lastResponseBody = responseBody;
       }
       request = null;
       app.status = "完了";
