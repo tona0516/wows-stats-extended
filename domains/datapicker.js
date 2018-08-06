@@ -3,6 +3,19 @@ const log4js = require('log4js');
 const logger = log4js.getLogger();
 logger.level = 'DEBUG';
 
+const TIER_ROMAN = {
+    1: "Ⅰ",
+    2: "Ⅱ",
+    3: "Ⅲ",
+    4: "Ⅳ",
+    5: "Ⅴ",
+    6: "Ⅵ",
+    7: "Ⅶ",
+    8: "Ⅷ",
+    9: "Ⅸ",
+    10: "Ⅹ",
+}
+
 const DataPicker = function() {
 }
 
@@ -48,7 +61,7 @@ DataPicker.prototype.pick = function(data) {
         var shipInfo = {}
         shipInfo.name = player.shipinfo.name;
         shipInfo.type = player.shipinfo.type;
-        shipInfo.tier = player.shipinfo.tier;
+        shipInfo.tier = TIER_ROMAN[player.shipinfo.tier];
         shipInfo.nation = player.shipinfo.nation;
         shipInfo.detect_distance_by_ship = player.shipinfo.default_profile.concealment.detect_distance_by_ship;
         const camouflage_coefficient = 1 - 0.03;

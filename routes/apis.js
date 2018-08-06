@@ -162,4 +162,24 @@ router.get('/info/ship', function(req, res, next) {
   });
 });
 
+router.get('/info/ship/image', function(req, res, next) {
+  request.get({
+    url: 'https://api.worldofwarships.asia/wows/encyclopedia/info/',
+    qs: {
+      application_id: appid,
+      fields: "ship_type_images"
+    }
+  }, function(error, response, body) {
+    const json = JSON.parse(body);
+    if (json.status == 'error') {
+      logger.error('request: ' + JSON.stringify(req.query) + ' error: ' + json.error.message);
+      res.status(500);
+      res.send('{"ship_type_images": null}');
+      return;
+    }
+    res.status(200);
+    res.send(json.data);
+  });
+})
+
 module.exports = router;

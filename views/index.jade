@@ -3,11 +3,11 @@ extends layout
 block content
   h1= title
   div#app
-    h2 ステータス: {{ status }}
+    div#status
+      ステータス: {{ status }}
     div#friends
-      h2 味方
-      table(border="1")
-        tr
+      table(class="table table-sm")
+        thead
           th(colspan="6") 艦艇情報
           th(colspan="4") 艦艇統計
           th(colspan="1") プレイヤー情報
@@ -38,7 +38,16 @@ block content
           td
             {{ player.ship_info.name }}
           td
-            {{ player.ship_info.type }}
+            div(v-if="player.ship_info.type === 'AirCarrier'")
+              img(v-bind:src="images.ship_type_images.AirCarrier.image")
+            div(v-else-if="player.ship_info.type === 'Battleship'")
+              img(v-bind:src="images.ship_type_images.Battleship.image")
+            div(v-else-if="player.ship_info.type === 'Cruiser'")
+              img(v-bind:src="images.ship_type_images.Cruiser.image")
+            div(v-else-if="player.ship_info.type === 'Destroyer'")
+              img(v-bind:src="images.ship_type_images.Destroyer.image")
+            div(v-else)
+              {{ player.ship_info.type }}
           td
             {{ player.ship_info.tier }}
           td
@@ -72,9 +81,8 @@ block content
           td
             {{ player.player_stat.kill_death_rate }}
     div#enemies
-      h2 敵
-      table(border="1")
-        tr
+      table(class="table table-sm")
+        thead
           th(colspan="6") 艦艇情報
           th(colspan="4") 艦艇統計
           th(colspan="1") プレイヤー情報
@@ -105,7 +113,16 @@ block content
           td
             {{ player.ship_info.name }}
           td
-            {{ player.ship_info.type }}
+            div(v-if="player.ship_info.type === 'AirCarrier'")
+              img(v-bind:src="images.ship_type_images.AirCarrier.image")
+            div(v-else-if="player.ship_info.type === 'Battleship'")
+              img(v-bind:src="images.ship_type_images.Battleship.image")
+            div(v-else-if="player.ship_info.type === 'Cruiser'")
+              img(v-bind:src="images.ship_type_images.Cruiser.image")
+            div(v-else-if="player.ship_info.type === 'Destroyer'")
+              img(v-bind:src="images.ship_type_images.Destroyer.image")
+            div(v-else)
+              {{ player.ship_info.type }}
           td
             {{ player.ship_info.tier }}
           td
