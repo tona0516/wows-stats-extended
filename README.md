@@ -4,6 +4,7 @@
 
 ## Introduction
 - A XVM for World of Warships.
+- **UNDER DEVELOPMENT**
 
 ## Usage
 1. Install [Node.js](https://nodejs.org/)
