@@ -37,19 +37,19 @@ block content
             {{ player.ship_info.name }}
           td
             div(v-if="player.ship_info.type === 'AirCarrier'")
-              img(v-bind:src="images.ship_type_images.AirCarrier.image")
+              img(v-bind:src="images.AirCarrier.image")
             div(v-else-if="player.ship_info.type === 'Battleship'")
-              img(v-bind:src="images.ship_type_images.Battleship.image")
+              img(v-bind:src="images.Battleship.image")
             div(v-else-if="player.ship_info.type === 'Cruiser'")
-              img(v-bind:src="images.ship_type_images.Cruiser.image")
+              img(v-bind:src="images.Cruiser.image")
             div(v-else-if="player.ship_info.type === 'Destroyer'")
-              img(v-bind:src="images.ship_type_images.Destroyer.image")
+              img(v-bind:src="images.Destroyer.image")
             div(v-else)
               {{ player.ship_info.type }}
           td
             {{ player.ship_info.tier }}
           td
-            {{ player.ship_info.nation }}
+            {{ nations[player.ship_info.nation] }}
           td
             {{ player.ship_info.detect_distance_by_ship }}
           td
@@ -112,19 +112,19 @@ block content
             {{ player.ship_info.name }}
           td
             div(v-if="player.ship_info.type === 'AirCarrier'")
-              img(v-bind:src="images.ship_type_images.AirCarrier.image")
+              img(v-bind:src="images.AirCarrier.image")
             div(v-else-if="player.ship_info.type === 'Battleship'")
-              img(v-bind:src="images.ship_type_images.Battleship.image")
+              img(v-bind:src="images.Battleship.image")
             div(v-else-if="player.ship_info.type === 'Cruiser'")
-              img(v-bind:src="images.ship_type_images.Cruiser.image")
+              img(v-bind:src="images.Cruiser.image")
             div(v-else-if="player.ship_info.type === 'Destroyer'")
-              img(v-bind:src="images.ship_type_images.Destroyer.image")
+              img(v-bind:src="images.Destroyer.image")
             div(v-else)
               {{ player.ship_info.type }}
           td
             {{ player.ship_info.tier }}
           td
-            {{ player.ship_info.nation }}
+            {{ nations[player.ship_info.nation] }}
           td
             {{ player.ship_info.detect_distance_by_ship }}
           td

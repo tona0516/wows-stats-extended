@@ -3,18 +3,22 @@ var app = new Vue({
   data: {
     friends: [],
     enemies: [],
-    images: []
+    images: [],
+    nations: []
   }
 })
 
 var fetchImage = function () {
   var imageRequest = new XMLHttpRequest();
-  imageRequest.open("GET", 'http://localhost:3000/apis/info/ship/image');
+  imageRequest.open("GET", 'http://localhost:3000/apis/info/encyclopedia');
   imageRequest.addEventListener("load", (event) => {
     if (event.target.status == 200) {
-      app.images = JSON.parse(event.target.responseText);
+      const json = JSON.parse(event.target.responseText);
+      app.images = json.ship_type_images;
+      app.nations = json.ship_nations;
     } else {
       app.images = null;
+      app.nations = null;
     }
   });
   imageRequest.send();
@@ -32,8 +36,8 @@ var fetch = function () {
       const responseBody = event.target.responseText;
       if (statusCode == 200 || (statusCode = 201 && lastResponseBody != null && lastResponseBody != responseBody)) {
         const json = JSON.parse(responseBody);
-        app.friends = json.friends.sort(sort_by_type_and_tier());
-        app.enemies = json.enemies.sort(sort_by_type_and_tier());
+        app.friends = json.friends;
+        app.enemies = json.enemies;
         lastResponseBody = responseBody;
       }
       request = null;
@@ -43,22 +47,3 @@ var fetch = function () {
 }
 setInterval(fetch, 1000);
 
-var sort_by_type_and_tier = function () {
-  return function (a, b) {
-    var a_type = a.ship_info.type;
-    var b_type = b.ship_info.type;
-    a_type = a_type.toUpperCase();
-    b_type = b_type.toUpperCase();
-    if (a_type < b_type) return -1;
-    if (a_type > b_type) return 1;
-    if (a_type == b_type) {
-      var a_tier = a.ship_info.tier;
-      var b_tier = b.ship_info.tier;
-      a_tier = parseInt(a_tier);
-      b_tier = parseInt(b_tier);
-      if (a_tier < b_tier) return 1;
-      if (a_tier > b_tier) return -1;
-    }
-    return 0;
-  }
-}

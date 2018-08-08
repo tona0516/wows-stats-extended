@@ -61,7 +61,7 @@ DataPicker.prototype.pick = function(data) {
         var shipInfo = {}
         shipInfo.name = player.shipinfo.name;
         shipInfo.type = player.shipinfo.type;
-        shipInfo.tier = TIER_ROMAN[player.shipinfo.tier];
+        shipInfo.tier = player.shipinfo.tier;
         shipInfo.nation = player.shipinfo.nation;
         shipInfo.detect_distance_by_ship = player.shipinfo.default_profile.concealment.detect_distance_by_ship;
         const camouflage_coefficient = 1 - 0.03;
@@ -100,9 +100,29 @@ DataPicker.prototype.pick = function(data) {
         relation == 0 || relation == 1 ? friends.push(allStat) : enemies.push(allStat);
     }
     outputData = {};
-    outputData.friends = friends;
-    outputData.enemies = enemies;
+    outputData.friends = friends.sort(sort_by_type_and_tier());
+    outputData.enemies = enemies.sort(sort_by_type_and_tier());
     return outputData;
 }
+
+const sort_by_type_and_tier = function () {
+    return function (a, b) {
+      var a_type = a.ship_info.type;
+      var b_type = b.ship_info.type;
+      a_type = a_type.toUpperCase();
+      b_type = b_type.toUpperCase();
+      if (a_type < b_type) return -1;
+      if (a_type > b_type) return 1;
+      if (a_type == b_type) {
+        var a_tier = a.ship_info.tier;
+        var b_tier = b.ship_info.tier;
+        a_tier = parseInt(a_tier);
+        b_tier = parseInt(b_tier);
+        if (a_tier < b_tier) return 1;
+        if (a_tier > b_tier) return -1;
+      }
+      return 0;
+    }
+  }
 
 module.exports = DataPicker;
