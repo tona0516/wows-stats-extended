@@ -32,9 +32,9 @@ DataPicker.prototype.pick = function(data) {
         if (!player.playerstat.hidden_profile) {
             const stat = player.playerstat.statistics
             playerStat.battles = stat.battles;
-            playerStat.win_rate = (stat.pvp.wins / stat.pvp.battles * 100).toFixed(2)
+            playerStat.win_rate = (stat.pvp.wins / stat.pvp.battles * 100).toFixed(1)
             playerStat.average_damage = (stat.pvp.damage_dealt / stat.battles).toFixed(0);
-            playerStat.kill_death_rate = (stat.pvp.frags / (stat.pvp.battles - stat.pvp.survived_battles)).toFixed(2);
+            playerStat.kill_death_rate = (stat.pvp.frags / (stat.pvp.battles - stat.pvp.survived_battles)).toFixed(1);
         } else {
             playerStat.battles = 'hidden';
             playerStat.win_rate = 'hidden';
@@ -47,9 +47,9 @@ DataPicker.prototype.pick = function(data) {
         if (player.shipstat != null) {
             const stat = player.shipstat;
             shipStat.battles = stat.battles;
-            shipStat.win_rate = (stat.pvp.wins / stat.pvp.battles * 100).toFixed(2)
+            shipStat.win_rate = (stat.pvp.wins / stat.pvp.battles * 100).toFixed(1)
             shipStat.average_damage = (stat.pvp.damage_dealt / stat.battles).toFixed(0);
-            shipStat.kill_death_rate = (stat.pvp.frags / (stat.pvp.battles - stat.pvp.survived_battles)).toFixed(2);
+            shipStat.kill_death_rate = (stat.pvp.frags / (stat.pvp.battles - stat.pvp.survived_battles)).toFixed(1);
         } else {
             shipStat.battles = 'hidden';
             shipStat.win_rate = 'hidden';
@@ -84,7 +84,7 @@ DataPicker.prototype.pick = function(data) {
                 break;
         }
         const gearing_coefiicient = shipStat.name == "Gearing" ? 1 - 0.15 : 1; 
-        shipInfo.detect_distance_by_ship = (shipInfo.detect_distance_by_ship * camouflage_coefficient * module_coefficient * commander_coefficient * gearing_coefiicient).toFixed(2);
+        shipInfo.detect_distance_by_ship = (shipInfo.detect_distance_by_ship * camouflage_coefficient * module_coefficient * commander_coefficient * gearing_coefiicient).toFixed(1);
         if (player.shipinfo.default_profile.torpedoes != null) {
             shipInfo.torpedoes_distance = player.shipinfo.default_profile.torpedoes.distance;
         } else {
