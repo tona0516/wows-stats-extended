@@ -1,7 +1,6 @@
 var app = new Vue({
   el: '#app',
   data: {
-    status: '',
     friends: [],
     enemies: [],
     images: []
@@ -26,7 +25,6 @@ var request = null;
 var lastResponseBody = null;
 var fetch = function () {
   if (request == null) {
-    app.status = "読み込み中...";
     request = new XMLHttpRequest();
     request.open("GET", 'http://localhost:3000/apis/fetch');
     request.addEventListener("load", (event) => {
@@ -39,7 +37,6 @@ var fetch = function () {
         lastResponseBody = responseBody;
       }
       request = null;
-      app.status = "完了";
     });
     request.send();
   }
