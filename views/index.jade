@@ -6,12 +6,13 @@ block content
     div#friends
       table(class="table table-sm")
         thead
+          th(colspan="1") プレイヤー情報
           th(colspan="6") 艦艇情報
           th(colspan="4") 艦艇統計
-          th(colspan="1") プレイヤー情報
           th(colspan="4") プレイヤー統計
-        
+
         tr
+          td プレイヤー名
           td 艦艇名
           td 艦種
           td Tier
@@ -24,14 +25,16 @@ block content
           td ダメージ
           td K/D
 
-          td プレイヤー名
-
           td 戦闘数
           td 勝率
           td ダメージ
           td K/D
           
         tr(v-for="player of friends")
+          // プレイヤー情報
+          td
+            {{ player.player_stat.clan_tag }}{{ player.player_stat.name }}
+
           // 艦艇情報
           td
             {{ player.ship_info.name }}
@@ -64,10 +67,6 @@ block content
             {{ player.ship_stat.average_damage }}
           td
             {{ player.ship_stat.kill_death_rate }}
-
-          // プレイヤー情報
-          td
-            {{ player.player_stat.clan_tag }}{{ player.player_stat.name }}
           
           // プレイヤー統計
           td
@@ -81,12 +80,13 @@ block content
     div#enemies
       table(class="table table-sm")
         thead
+          th(colspan="1") プレイヤー情報
           th(colspan="6") 艦艇情報
           th(colspan="4") 艦艇統計
-          th(colspan="1") プレイヤー情報
           th(colspan="4") プレイヤー統計
         
         tr
+          td プレイヤー名
           td 艦艇名
           td 艦種
           td Tier
@@ -99,14 +99,16 @@ block content
           td ダメージ
           td K/D
 
-          td プレイヤー名
-
           td 戦闘数
           td 勝率
           td ダメージ
           td K/D
           
         tr(v-for="player of enemies")
+          // プレイヤー情報
+          td
+            {{ player.player_stat.name }}
+
           // 艦艇情報
           td
             {{ player.ship_info.name }}
@@ -139,10 +141,6 @@ block content
             {{ player.ship_stat.average_damage }}
           td
             {{ player.ship_stat.kill_death_rate }}
-
-          // プレイヤー情報
-          td
-            {{ player.player_stat.name }}
           
           // プレイヤー統計
           td
