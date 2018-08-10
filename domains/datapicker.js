@@ -19,11 +19,11 @@ const TIER_ROMAN = {
 const DataPicker = function() {
 }
 
-DataPicker.prototype.pick = function(data) {
+DataPicker.prototype.pick = function(playersJson, tiersJson) {
     var friends = [];
     var enemies = [];
-    for (const id in data) {
-        const player = data[id];
+    for (const id in playersJson) {
+        const player = playersJson[id];
 
         // プレイヤーに関する成績
         var playerStat = {};

@@ -1,10 +1,11 @@
 var app = new Vue({
   el: '#app',
   data: {
-    friends: [],
-    enemies: [],
-    images: [],
-    nations: []
+    friends: {},
+    enemies: {},
+    images: {},
+    nations: {},
+    tier: {}
   }
 })
 
@@ -34,7 +35,7 @@ var fetch = function () {
     request.addEventListener("load", (event) => {
       const statusCode = event.target.status;
       const responseBody = event.target.responseText;
-      if (statusCode == 200 || (statusCode = 201 && lastResponseBody != null && lastResponseBody != responseBody)) {
+      if (statusCode == 200 || (statusCode = 209 && lastResponseBody != null && lastResponseBody != responseBody)) {
         const json = JSON.parse(responseBody);
         app.friends = json.friends;
         app.enemies = json.enemies;
