@@ -24,7 +24,7 @@ FileObserver.prototype.start = function(callback) {
     if(_this.latest == text) {
       const body = 'no need to update data'
       logger.info(body);
-      return callback(body, 201);
+      return callback(body, 209);
     }
 
     // 最新の状態を保存してjsonを返却

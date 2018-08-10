@@ -33,7 +33,7 @@ router.get('/fetch', function(req, res, next) {
           res.send(picked);
         });
         break;
-      case 201:
+      case 209:
         // 同一ファイルの時は最後にpickしたデータを返却する
         res.status(status);
         res.send(lastPickedJson);
@@ -174,13 +174,35 @@ router.get('/info/encyclopedia', function(req, res, next) {
     const json = JSON.parse(body);
     if (json.status == 'error') {
       logger.error('request: ' + JSON.stringify(req.query) + ' error: ' + json.error.message);
-      res.status(500);
       res.send('{"encyclopedia": null}');
       return;
     }
-    res.status(200);
     res.send(json.data);
   });
-})
+});
+
+router.get('/info/ship_tier', function(req, res, next) {
+  request.get({
+    url: "https://api.worldofwarships.asia/wows/encyclopedia/ships/",
+    qs: {
+      application_id: appid,
+      fields: "name, tier",
+      page_no: req.query.page_no
+    }
+  }, function(error, response, body) {
+    const json = JSON.parse(body);
+    if (json.status == 'error') {
+      logger.error('request: ' + JSON.stringify(req.query) + ' error: ' + json.error.message);
+      res.status(500);
+      res.send(json.error);
+      return;
+    }
+
+    // ~208は予約されているステータスコードなので209を返す
+    json.meta.page_total == json.meta.page ? res.status(200) : res.status(209)
+    res.send(json.data);
+  });
+});
 
 module.exports = router;
+

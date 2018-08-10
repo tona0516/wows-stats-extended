@@ -1,10 +1,11 @@
 var app = new Vue({
   el: '#app',
   data: {
-    friends: [],
-    enemies: [],
-    images: [],
-    nations: []
+    friends: {},
+    enemies: {},
+    images: {},
+    nations: {},
+    tier: {}
   }
 })
 
@@ -25,6 +26,30 @@ var fetchImage = function () {
 }
 fetchImage();
 
+var fetchTier = function (pageNo, json, callback) {
+  var request = new XMLHttpRequest();
+  request.open("GET", 'http://localhost:3000/apis/info/ship_tier?page_no=' + pageNo);
+  request.addEventListener("load", (event) => {
+    const statusCode = event.target.status;
+    if (statusCode == 209) {
+      const newJson = JSON.parse(event.target.responseText);
+      for (var id in newJson) {
+        json[id] = newJson[id];
+      }
+      fetchTier(pageNo + 1, json, callback);
+    } else {
+      statusCode == 200 ? callback(json, false) : callback(json, true);
+    }
+  })
+  request.send();
+}
+
+fetchTier(1, {}, function (json, isError) {
+  if (!isError) {
+    app.tier = json;
+  }
+});
+
 var request = null;
 var lastResponseBody = null;
 var fetch = function () {
@@ -34,7 +59,7 @@ var fetch = function () {
     request.addEventListener("load", (event) => {
       const statusCode = event.target.status;
       const responseBody = event.target.responseText;
-      if (statusCode == 200 || (statusCode = 201 && lastResponseBody != null && lastResponseBody != responseBody)) {
+      if (statusCode == 200 || (statusCode = 209 && lastResponseBody != null && lastResponseBody != responseBody)) {
         const json = JSON.parse(responseBody);
         app.friends = json.friends;
         app.enemies = json.enemies;
