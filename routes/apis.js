@@ -185,7 +185,7 @@ router.get('/info/ship_tier', function(req, res, next) {
     url: "https://api.worldofwarships.asia/wows/encyclopedia/ships/",
     qs: {
       application_id: appid,
-      fields: "name, tier",
+      fields: "tier",
       page_no: req.query.page_no
     }
   }, function(error, response, body) {

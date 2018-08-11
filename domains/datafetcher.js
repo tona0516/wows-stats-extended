@@ -9,7 +9,6 @@ const REQUEST_LIMIT = 10;
 
 const DataFetcher = function() {
     this.isRunning = false;
-    this.shipTierData = null;
 }
 
 DataFetcher.prototype.fetch = async function(json, callback) {
@@ -19,11 +18,11 @@ DataFetcher.prototype.fetch = async function(json, callback) {
     await this.fetchPlayerShipStat();
     await this.fetchShipInfo();
     await this.fetchClanInfo();
-    if (this.shipTierData == null) {
-        this.fetchShipTier();
+    if (this.tiersJson == null) {
+        await this.fetchShipTier();
     }
     this.isRunning = false;
-    return callback(this.players, this.shipTierData);
+    return callback(this.players, this.tiersJson);
 }
 
 DataFetcher.prototype.fetchPlayer = function(json) {
@@ -196,8 +195,8 @@ DataFetcher.prototype.fetchShipTier = async function(pageNO, json) {
     do {
         const body = await this.fetchShipTierByPage(++pageNo);
         const newJson = JSON.parse(body);
-        for (var id in newJson) {
-            json[id] = newJson[id];
+        for (var id in newJson.data) {
+            json[id] = newJson.data[id];
         }
         pageTotal = newJson.meta.page_total;
     } while(pageNo != pageTotal);

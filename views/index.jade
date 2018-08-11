@@ -9,10 +9,11 @@ block content
           th(colspan="1") プレイヤー情報
           th(colspan="6") 艦艇情報
           th(colspan="4") 艦艇統計
-          th(colspan="4") プレイヤー統計
+          th(colspan="5") プレイヤー統計
 
         tr
           td プレイヤー名
+
           td 艦艇名
           td 艦種
           td Tier
@@ -29,6 +30,7 @@ block content
           td 勝率
           td ダメージ
           td K/D
+          td 平均Tier
           
         tr(v-for="player of friends")
           // プレイヤー情報
@@ -77,13 +79,15 @@ block content
             {{ player.player_stat.average_damage }}
           td
             {{ player.player_stat.kill_death_rate }}
+          td
+            {{ player.player_stat.average_tier }}
     div#enemies
       table(class="table table-sm")
         thead
           th(colspan="1") プレイヤー情報
           th(colspan="6") 艦艇情報
           th(colspan="4") 艦艇統計
-          th(colspan="4") プレイヤー統計
+          th(colspan="5") プレイヤー統計
         
         tr
           td プレイヤー名
@@ -103,6 +107,7 @@ block content
           td 勝率
           td ダメージ
           td K/D
+          td 平均Tier
           
         tr(v-for="player of enemies")
           // プレイヤー情報
@@ -151,4 +156,6 @@ block content
             {{ player.player_stat.average_damage }}
           td
             {{ player.player_stat.kill_death_rate }}
+          td
+            {{ player.player_stat.average_tier }}
   script(src='/javascripts/vue.js')

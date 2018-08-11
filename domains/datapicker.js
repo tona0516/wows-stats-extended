@@ -24,38 +24,38 @@ DataPicker.prototype.pick = function(playersJson, tiersJson) {
     var enemies = [];
     for (const id in playersJson) {
         const player = playersJson[id];
+        const isHidden = (player.shipstat == null || player.playerstat.hidden_profile) ? true : false;
 
-        // プレイヤーに関する成績
+        var shipStat = {};
         var playerStat = {};
         playerStat.name = player.info.name;
         playerStat.clan_tag = player.clan_info != null ? "[" + player.clan_info.tag + "]" : "";
-        if (!player.playerstat.hidden_profile) {
-            const stat = player.playerstat.statistics
-            playerStat.battles = stat.battles;
-            playerStat.win_rate = (stat.pvp.wins / stat.pvp.battles * 100).toFixed(1)
-            playerStat.average_damage = (stat.pvp.damage_dealt / stat.battles).toFixed(0);
-            playerStat.kill_death_rate = (stat.pvp.frags / (stat.pvp.battles - stat.pvp.survived_battles)).toFixed(1);
-        } else {
-            playerStat.battles = 'hidden';
-            playerStat.win_rate = 'hidden';
-            playerStat.average_damage = 'hidden';
-            playerStat.kill_death_rate = 'hidden';
-        }
+        if (!isHidden) {
+            // プレイヤーが使用する艦艇の成績
+            const originShipStat = findShipStatById(player.shipstat, player.info.shipId);
+            shipStat.battles = originShipStat.pvp.battles;
+            shipStat.win_rate = (originShipStat.pvp.wins / originShipStat.pvp.battles * 100).toFixed(1);
+            shipStat.average_damage = (originShipStat.pvp.damage_dealt / originShipStat.battles).toFixed(0);
+            shipStat.kill_death_rate = (originShipStat.pvp.frags / (originShipStat.pvp.battles - originShipStat.pvp.survived_battles)).toFixed(1);
 
-        // プレイヤーが使用する艦艇の成績
-        var shipStat = {};
-        if (player.shipstat != null) {
-            logger.info(player.info.shipId);
-            const stat = findShipStatById(player.shipstat, player.info.shipId);
-            shipStat.battles = stat.battles;
-            shipStat.win_rate = (stat.pvp.wins / stat.pvp.battles * 100).toFixed(1)
-            shipStat.average_damage = (stat.pvp.damage_dealt / stat.battles).toFixed(0);
-            shipStat.kill_death_rate = (stat.pvp.frags / (stat.pvp.battles - stat.pvp.survived_battles)).toFixed(1);
+             // プレイヤーに関する成績
+            const originPlayerStat = player.playerstat.statistics
+            playerStat.battles = originPlayerStat.pvp.battles;
+            playerStat.win_rate = (originPlayerStat.pvp.wins / originPlayerStat.pvp.battles * 100).toFixed(1);
+            playerStat.average_damage = (originPlayerStat.pvp.damage_dealt / originPlayerStat.battles).toFixed(0);
+            playerStat.kill_death_rate = (originPlayerStat.pvp.frags / (originPlayerStat.pvp.battles - originPlayerStat.pvp.survived_battles)).toFixed(1);
+            playerStat.average_tier = calculateAverageTier(player.shipstat, tiersJson).toFixed(1);
         } else {
             shipStat.battles = 'hidden';
             shipStat.win_rate = 'hidden';
             shipStat.average_damage = 'hidden';
             shipStat.kill_death_rate = 'hidden';
+
+            playerStat.battles = 'hidden';
+            playerStat.win_rate = 'hidden';
+            playerStat.average_damage = 'hidden';
+            playerStat.kill_death_rate = 'hidden';
+            playerStat.average_tier = 'hidden';
         }
 
         // プレイヤーが使用する艦艇の情報
@@ -108,12 +108,24 @@ DataPicker.prototype.pick = function(playersJson, tiersJson) {
 
 const findShipStatById = function (shipStats, shipId) {
     for (var shipStat of shipStats) {
-        logger.info(shipStat.ship_id);
         if (shipId == shipStat.ship_id) {
             return shipStat;
         }
     }
     return null;
+}
+
+const calculateAverageTier = function (shipStats, tiers) {
+    var sum = 0;
+    var battles = 0;
+    for (var shipStat of shipStats) {
+        if (shipStat.pvp.battles != null && tiers[shipStat.ship_id] != null) {
+            battles += shipStat.pvp.battles;
+            sum += shipStat.pvp.battles * tiers[shipStat.ship_id].tier;
+        }
+    }
+    logger.debug("battles: " + battles);
+    return sum / battles;
 }
 
 const sort_by_type_and_tier = function () {
