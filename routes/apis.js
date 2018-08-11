@@ -129,8 +129,7 @@ router.get('/stat/ship', function(req, res, next) {
     url: 'https://api.worldofwarships.asia/wows/ships/stats/',
     qs: {
       application_id: appid,
-      account_id: req.query.playerid,
-      ship_id: req.query.shipid
+      account_id: req.query.playerid
     }
   }, function(error, response, body) {
     const json = JSON.parse(body);
