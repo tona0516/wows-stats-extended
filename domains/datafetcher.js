@@ -9,6 +9,7 @@ const REQUEST_LIMIT = 10;
 
 const DataFetcher = function() {
     this.isRunning = false;
+    this.shipTierData = null;
 }
 
 DataFetcher.prototype.fetch = async function(json, callback) {
@@ -18,8 +19,12 @@ DataFetcher.prototype.fetch = async function(json, callback) {
     await this.fetchPlayerShipStat();
     await this.fetchShipInfo();
     await this.fetchClanInfo();
+    if (this.shipTierData == null) {
+        this.shipTierData = this.fetchShipTier();
+    }
+    logger.debug(this.shipTierData);
     this.isRunning = false;
-    return callback(this.players);
+    return callback(this.players, this.shipTierData);
 }
 
 DataFetcher.prototype.fetchPlayer = function(json) {
@@ -182,6 +187,37 @@ DataFetcher.prototype.fetchClanInfo = function() {
                 }
                 return resolve();
             })
+        });
+    });
+}
+
+DataFetcher.prototype.fetchShipTier = async function(pageNO, json) {
+    var json = {};
+    var pageNo = 0;
+    var pageTotal = 0;
+    do {
+        const body = await this.fetchShipTierByPage(++pageNo);
+        const newJson = JSON.parse(body);
+        for (var id in newJson) {
+            json[id] = newJson[id];
+        }
+        pageTotal = newJson.meta.page_total;
+    } while(pageNo != pageTotal);
+    return json;
+}
+
+DataFetcher.prototype.fetchShipTierByPage = function(pageNo) {
+    return new Promise((resolve, reject) => {
+        request.get({
+            url: 'http://localhost:3000/apis/info/ship_tier',
+            qs: {
+                page_no: pageNo
+            }
+        }, function(error, response, body) {
+            if (error) {
+                return reject(error);
+            }
+            return resolve(body);
         });
     });
 }

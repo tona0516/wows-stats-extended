@@ -26,8 +26,8 @@ router.get('/fetch', function(req, res, next) {
     switch (status) {
       case 200:
         // 更新があった時はAPIコールして取得したデータを返却する
-        dataFetcher.fetch(body, function(json) {
-          const picked = dataPicker.pick(json);
+        dataFetcher.fetch(body, function(players, tiers) {
+          const picked = dataPicker.pick(players, tiers);
           lastPickedJson = picked;
           res.status(status);
           res.send(picked);
@@ -198,9 +198,7 @@ router.get('/info/ship_tier', function(req, res, next) {
       return;
     }
 
-    // ~208は予約されているステータスコードなので209を返す
-    json.meta.page_total == json.meta.page ? res.status(200) : res.status(209)
-    res.send(json.data);
+    res.send(json);
   });
 });
 
