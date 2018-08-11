@@ -45,7 +45,8 @@ DataPicker.prototype.pick = function(playersJson, tiersJson) {
         // プレイヤーが使用する艦艇の成績
         var shipStat = {};
         if (player.shipstat != null) {
-            const stat = player.shipstat;
+            logger.info(player.info.shipId);
+            const stat = findShipStatById(player.shipstat, player.info.shipId);
             shipStat.battles = stat.battles;
             shipStat.win_rate = (stat.pvp.wins / stat.pvp.battles * 100).toFixed(1)
             shipStat.average_damage = (stat.pvp.damage_dealt / stat.battles).toFixed(0);
@@ -103,6 +104,16 @@ DataPicker.prototype.pick = function(playersJson, tiersJson) {
     outputData.friends = friends.sort(sort_by_type_and_tier());
     outputData.enemies = enemies.sort(sort_by_type_and_tier());
     return outputData;
+}
+
+const findShipStatById = function (shipStats, shipId) {
+    for (var shipStat of shipStats) {
+        logger.info(shipStat.ship_id);
+        if (shipId == shipStat.ship_id) {
+            return shipStat;
+        }
+    }
+    return null;
 }
 
 const sort_by_type_and_tier = function () {

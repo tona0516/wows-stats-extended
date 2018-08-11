@@ -20,9 +20,8 @@ DataFetcher.prototype.fetch = async function(json, callback) {
     await this.fetchShipInfo();
     await this.fetchClanInfo();
     if (this.shipTierData == null) {
-        this.shipTierData = this.fetchShipTier();
+        this.fetchShipTier();
     }
-    logger.debug(this.shipTierData);
     this.isRunning = false;
     return callback(this.players, this.shipTierData);
 }
@@ -87,13 +86,12 @@ DataFetcher.prototype.fetchPlayerShipStat = function() {
             request.get({
                 url: 'http://localhost:3000/apis/stat/ship',
                 qs: {
-                    playerid: id,
-                    shipid: _this.players[id].info.shipId
+                    playerid: id
                 }
             }, function(error, response, json) {
                 const data = JSON.parse(json)['data'];
                 if(data[id] != undefined) {
-                    _this.players[id].shipstat = data[id][0];
+                    _this.players[id].shipstat = data[id];
                 } else {
                     _this.players[id].shipstat = null;
                 }
@@ -203,7 +201,7 @@ DataFetcher.prototype.fetchShipTier = async function(pageNO, json) {
         }
         pageTotal = newJson.meta.page_total;
     } while(pageNo != pageTotal);
-    return json;
+    this.tiersJson = json;
 }
 
 DataFetcher.prototype.fetchShipTierByPage = function(pageNo) {
