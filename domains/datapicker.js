@@ -124,7 +124,6 @@ const calculateAverageTier = function (shipStats, tiers) {
             sum += shipStat.pvp.battles * tiers[shipStat.ship_id].tier;
         }
     }
-    logger.debug("battles: " + battles);
     return sum / battles;
 }
 

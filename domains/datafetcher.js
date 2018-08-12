@@ -9,11 +9,12 @@ const REQUEST_LIMIT = 10;
 
 const DataFetcher = function() {
     this.isRunning = false;
+    this.players = {};
 }
 
 DataFetcher.prototype.fetch = async function(json, callback) {
     this.isRunning = true;
-    await this.fetchPlayer(json);
+    await this.fetchPlayerId(json);
     await this.fetchPlayerStat();
     await this.fetchPlayerShipStat();
     await this.fetchShipInfo();
@@ -25,27 +26,32 @@ DataFetcher.prototype.fetch = async function(json, callback) {
     return callback(this.players, this.tiersJson);
 }
 
-DataFetcher.prototype.fetchPlayer = function(json) {
+DataFetcher.prototype.fetchPlayerId = function(json) {
     const playersFromArenaInfo = extractPlayers(json);
-    const players = {}
     const _this = this;
     return new Promise((resolve, reject) => {
-        async.eachLimit(playersFromArenaInfo, REQUEST_LIMIT, function(playerFromArenaInfo, next) {
-            request.get({
-                url: 'http://localhost:3000/apis/playerid',
-                qs: {
-                    playername: playerFromArenaInfo.name
+        const playerNames = [];
+        for (const player of playersFromArenaInfo) {
+            playerNames.push(player.name);
+        }
+        const joinedPlayerNames = playerNames.join(",");
+        request.get({
+            url: 'http://localhost:3000/apis/playerid',
+            qs: {
+                search: joinedPlayerNames
+            }
+        }, function(error, response, body) {
+            const data = JSON.parse(body).data;
+            for (var player of data) {
+                const playerId = player.account_id;
+                const playerName = player.nickname;
+                _this.players[playerId] = {};
+                for (var playerFromArenaInfo of playersFromArenaInfo) {
+                    if (playerName == playerFromArenaInfo.name) {
+                        _this.players[playerId].info = playerFromArenaInfo;
+                        break;
+                    }
                 }
-            }, function(error, response, json) {
-                const id = JSON.parse(json)['playerid'];
-                players[id] = {};
-                players[id].info = playerFromArenaInfo;
-                next();
-            });
-        }, function(error) {
-            _this.players = players;
-            if (error != null) {
-                return reject(error);
             }
             return resolve();
         });

@@ -52,17 +52,17 @@ router.get('/playerid', function(req, res, next) {
     url: 'https://api.worldofwarships.asia/wows/account/list/',
     qs: {
       application_id: appid,
-      search: req.query.playername
+      search: req.query.search,
+      type: "exact"
     }
   }, function(error, response, body) {
     const json = JSON.parse(body);
     if (json.status == 'error') {
       logger.error('request: ' + JSON.stringify(req.query) + ' error: ' + json.error.message);
-      res.send('{"playerid": null}');
+      res.send(body);
       return;
     }
-    const playerId = json.data[0].account_id;
-    res.send('{"playerid": ' + playerId + '}');
+    res.send(body);
   });
 });
 
