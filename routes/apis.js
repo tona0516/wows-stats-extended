@@ -97,7 +97,7 @@ router.get('/info/clan', function(req, res, next) {
       const json = JSON.parse(body);
       if (json.status == 'error') {
         logger.error('request: ' + JSON.stringify(req.query) + ' error: ' + json.error.message);
-        res.send('{"clan": null}');
+        res.send(body);
         return;
       }
       res.send(json);
@@ -116,7 +116,7 @@ router.get('/stat/player', function(req, res, next) {
     const json = JSON.parse(body);
     if (json.status == 'error') {
       logger.error('request: ' + JSON.stringify(req.query) + ' error: ' + json.error.message);
-      res.send('{"playerstat": null}');
+      res.send(body);
       return;
     }
     res.send(json);
@@ -135,7 +135,7 @@ router.get('/stat/ship', function(req, res, next) {
     const json = JSON.parse(body);
     if (json.status == 'error') {
       logger.error('request: ' + JSON.stringify(req.query) + ' error: ' + json.error.message);
-      res.send('{"shipstat": null}');
+      res.send(body);
       return;
     }
     res.send(json);
@@ -154,7 +154,7 @@ router.get('/info/ship', function(req, res, next) {
     const json = JSON.parse(body);
     if (json.status == 'error') {
       logger.error('request: ' + JSON.stringify(req.query) + ' error: ' + json.error.message);
-      res.send('{"shipinfo": null}');
+      res.send(body);
       return;
     }
     res.send(json);
@@ -173,7 +173,7 @@ router.get('/info/encyclopedia', function(req, res, next) {
     const json = JSON.parse(body);
     if (json.status == 'error') {
       logger.error('request: ' + JSON.stringify(req.query) + ' error: ' + json.error.message);
-      res.send('{"encyclopedia": null}');
+      res.send(body);
       return;
     }
     res.send(json.data);

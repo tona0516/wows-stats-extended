@@ -46,20 +46,20 @@ DataPicker.prototype.pick = function(playersJson, tiersJson) {
             playerStat.kill_death_rate = (originPlayerStat.pvp.frags / (originPlayerStat.pvp.battles - originPlayerStat.pvp.survived_battles)).toFixed(1);
             playerStat.average_tier = calculateAverageTier(player.shipstat, tiersJson).toFixed(1);
         } else {
-            shipStat.battles = 'hidden';
-            shipStat.win_rate = 'hidden';
-            shipStat.average_damage = 'hidden';
-            shipStat.kill_death_rate = 'hidden';
+            shipStat.battles = '-';
+            shipStat.win_rate = '-';
+            shipStat.average_damage = '-';
+            shipStat.kill_death_rate = '-';
 
-            playerStat.battles = 'hidden';
-            playerStat.win_rate = 'hidden';
-            playerStat.average_damage = 'hidden';
-            playerStat.kill_death_rate = 'hidden';
-            playerStat.average_tier = 'hidden';
+            playerStat.battles = '-';
+            playerStat.win_rate = '-';
+            playerStat.average_damage = '-';
+            playerStat.kill_death_rate = '-';
+            playerStat.average_tier = '-';
         }
 
         // プレイヤーが使用する艦艇の情報
-        var shipInfo = {}
+        var shipInfo = {};
         shipInfo.name = player.shipinfo.name;
         shipInfo.type = player.shipinfo.type;
         shipInfo.tier = player.shipinfo.tier;
@@ -101,9 +101,51 @@ DataPicker.prototype.pick = function(playersJson, tiersJson) {
         relation == 0 || relation == 1 ? friends.push(allStat) : enemies.push(allStat);
     }
     outputData = {};
-    outputData.friends = friends.sort(sort_by_type_and_tier());
-    outputData.enemies = enemies.sort(sort_by_type_and_tier());
+    const sortedFriends = friends.sort(sort_by_type_and_tier());
+    sortedFriends.push(calculateTeamAverage(sortedFriends));
+    const sortedEnemies = enemies.sort(sort_by_type_and_tier());
+    sortedEnemies.push(calculateTeamAverage(sortedEnemies));
+
+    outputData.friends = sortedFriends;
+    outputData.enemies = sortedEnemies;
+
     return outputData;
+}
+
+const calculateTeamAverage = function (team) {
+    var shipStat = {};
+    shipStat.battles = average(team.map(x => x.ship_stat.battles)).toFixed(0);
+    shipStat.win_rate = average(team.map(x => x.ship_stat.win_rate)).toFixed(1);
+    shipStat.average_damage = average(team.map(x => x.ship_stat.average_damage)).toFixed(0);
+    shipStat.kill_death_rate = average(team.map(x => x.ship_stat.kill_death_rate)).toFixed(1);
+    var playerStat = {};
+    playerStat.name = "チーム平均";
+    playerStat.battles = average(team.map(x => x.player_stat.battles)).toFixed(0);
+    playerStat.win_rate = average(team.map(x => x.player_stat.win_rate)).toFixed(1);
+    playerStat.average_damage = average(team.map(x => x.player_stat.average_damage)).toFixed(0);
+    playerStat.kill_death_rate = average(team.map(x => x.player_stat.kill_death_rate)).toFixed(1);
+    playerStat.average_tier = average(team.map(x => x.player_stat.average_tier)).toFixed(1);
+    var shipInfo = {};
+    var allStat = {};
+    allStat.player_stat = playerStat;
+    allStat.ship_stat = shipStat;
+    allStat.ship_info = shipInfo;
+
+    return allStat;
+}
+
+const average = function(array) {
+    var sum = 0;
+    var ignoreCount = 0;
+    for (var item of array) {
+        if (item === '-') {
+            ignoreCount += 1;
+            continue;
+        }
+        sum += Number(item);
+    }
+    const average = sum / (array.length - ignoreCount);
+    return average;
 }
 
 const findShipStatById = function (shipStats, shipId) {
