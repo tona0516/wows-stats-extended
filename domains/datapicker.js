@@ -101,15 +101,24 @@ DataPicker.prototype.pick = function(playersJson, tiersJson) {
         relation == 0 || relation == 1 ? friends.push(allStat) : enemies.push(allStat);
     }
     outputData = {};
-    const sortedFriends = friends.sort(sort_by_type_and_tier());
+    var sortedFriends = friends.sort(sort_by_type_and_tier());
+    sortedFriends = convertToRomanNumber(sortedFriends);
     sortedFriends.push(calculateTeamAverage(sortedFriends));
-    const sortedEnemies = enemies.sort(sort_by_type_and_tier());
+    var sortedEnemies = enemies.sort(sort_by_type_and_tier());
+    sortedEnemies = convertToRomanNumber(sortedEnemies);
     sortedEnemies.push(calculateTeamAverage(sortedEnemies));
 
     outputData.friends = sortedFriends;
     outputData.enemies = sortedEnemies;
 
     return outputData;
+}
+
+const convertToRomanNumber = function(team) {
+    for (var player of team) {
+        player.ship_info.tier = TIER_ROMAN[player.ship_info.tier];
+    }
+    return team;
 }
 
 const calculateTeamAverage = function (team) {
