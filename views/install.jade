@@ -1,7 +1,6 @@
 extends layout
 
 block content
-  h1= title
   if isValid != null
     h2= message
   form(action='/install', method='post')
@@ -16,12 +15,7 @@ block content
         option NA
         option ASIA
     div(class='form-group')
-      label(for='application_id') インストールディレクトリ
+      label(for='application_id') インストール先
       input(type='text', class='form-control', id='directory', name='directory', placeholder="例) C:¥Games¥World_of_Warships")
     div(class='submit', style='margin-top: 25px')
       button(type='submit', class='btn btn-primary mb-2') 保存
-    
-
-    
-    
-      

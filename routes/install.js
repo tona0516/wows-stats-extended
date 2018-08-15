@@ -12,26 +12,39 @@ router.get('/', function(req, res, next) {
 });
 
 router.post('/', function(req, res, next) {
-    const isValid =  validateParameter(req.body) ? true : false;
-    const message = isValid ? "登録完了" : "パラメータが無効です";
-
-    res.render('install', { title: 'インストール', isValid: isValid, message: message});
+    const validateResult = validateParameter(req.body);
+    if (validateResult.isValid) {
+        saveParameter(req.body);
+    }
+    logger.debug(JSON.stringify(validateResult));
+    res.render('install', { title: 'インストール', isValid: validateResult.isValid, message: validateResult.message});
 });
 
 const validateParameter = function(parameter) {
     const appid = parameter.appid;
-    const region = parameter.region;
     const directory = parameter.directory;
 
-    return true;
+    if (!validateAppID(appid)) {
+        return {isValid: false, message: 'Application IDもしくはサーバが不正です'};
+    }
+    if (!validateInstallDirectory(directory)) {
+        return {isValid: false, message: 'インストール先が不正です'};;
+    }
+    return {isValid: true, message: null};
 }
 
 const validateAppID = function(appid) {
-
+    // TODO サーバにリクエストしてデータが取得できるか確かめる
+    return true;
 }
 
 const validateInstallDirectory = function(directory) {
+    // TODO インストールディレクトリにexeがあるか検証する
+    return false;
+}
 
+const saveParameter = function(parameter) {
+    // dotenvに書き込む
 }
 
 module.exports = router;
