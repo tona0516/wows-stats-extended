@@ -2,3 +2,24 @@ extends layout
 
 block content
   h1= title
+  form
+    div(class='form-group')
+      label(for='application_id') アプリケーションID
+      input(type='text', class='form-control', id='application_id', placeholder="Application ID")
+    div(class='form-group') 
+      label(for='region') サーバ
+      select(class='form-control', id='region')
+        option RU
+        option EU
+        option NA
+        option ASIA
+    div(class='form-group')
+      label(for='application_id') インストールディレクトリ
+      input(type='text', class='form-control', id='application_id', placeholder="例) C:¥Games¥World_of_Warships")
+    div(class='submit')
+      buttron(type='submit', class='btn btn-primary mb-2') インストール
+    
+
+    
+    
+      
