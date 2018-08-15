@@ -1,6 +1,6 @@
 # [WIP] wows-stats-extended
 
-![fireshot capture 3 - wows-stat-extended - http___localhost_3000_](https://user-images.githubusercontent.com/6896790/43834226-55aa2580-9b48-11e8-93f6-167da5216750.png)
+![default](https://user-images.githubusercontent.com/6896790/44045623-09d3bbec-9f64-11e8-8862-6f7b5a1a1740.png)
 
 ## Introduction
 - A XVM for World of Warships.
