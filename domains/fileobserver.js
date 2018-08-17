@@ -4,8 +4,7 @@ const log4js = require('log4js');
 const logger = log4js.getLogger();
 logger.level = 'DEBUG';
 
-const FileObserver = function(dataFetcher, filepath) {
-  this.dataFetcher = dataFetcher;
+const FileObserver = function(filepath) {
   this.filepath = filepath;
 }
 
@@ -16,14 +15,12 @@ FileObserver.prototype.start = function(callback) {
     // エラー
     if(error) {
       const body = 'error is caused: ' + error;
-      logger.info(body);
       return callback(body, 500);
     }
 
     // 同一ファイルの時
     if(_this.latest == text) {
       const body = 'no need to update data'
-      logger.info(body);
       return callback(body, 209);
     }
 

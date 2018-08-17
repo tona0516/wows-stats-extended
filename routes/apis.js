@@ -1,32 +1,36 @@
 const request = require('request');
-const express = require('express');
-const log4js = require('log4js');
-const dotenv = require('dotenv');
-const DataFetcher = require('../domains/datafetcher');
-const DataPicker = require('../domains/datapicker');
-const FileObserver = require('../domains/fileobserver');
-const dataFetcher = new DataFetcher()
-const dataPicker = new DataPicker();
-const fileObserver = new FileObserver(dataFetcher, './tmp/tempArenaInfo.json');
-var lastPickedJson;
 
+const express = require('express');
 const router = express.Router();
+
+const log4js = require('log4js');
 const logger = log4js.getLogger();
 logger.level = 'DEBUG';
 
+const dotenv = require('dotenv');
 dotenv.config();
 var appid = process.env.APP_ID;
 var region = process.env.REGION;
+var directory = process.env.DIRECTORY;
+
+const DataFetcher = require('../domains/datafetcher');
+const DataPicker = require('../domains/datapicker');
+const FileObserver = require('../domains/fileobserver');
+var fileObserver = new FileObserver(directory + 'replays/tempArenaInfo.json');
+var lastPickedJson;
+
 /* GET users listing. */
 
 // wows apiから取得する
 router.get('/fetch', function(req, res, next) {
-  reloadDotenvIfNeeded();
+  refresh();
   fileObserver.start(function(body, status) {
     switch (status) {
       case 200:
         // 更新があった時はAPIコールして取得したデータを返却する
+        const dataFetcher = new DataFetcher();
         dataFetcher.fetch(body, function(players, tiers) {
+          const dataPicker = new DataPicker();
           const picked = dataPicker.pick(players, tiers);
           lastPickedJson = picked;
           res.status(status);
@@ -162,7 +166,7 @@ router.get('/info/ship', function(req, res, next) {
 });
 
 router.get('/info/encyclopedia', function(req, res, next) {
-  reloadDotenvIfNeeded();
+  refresh();
   request.get({
     url: 'https://api.worldofwarships.' + region + '/wows/encyclopedia/info/',
     qs: {
@@ -182,7 +186,7 @@ router.get('/info/encyclopedia', function(req, res, next) {
 });
 
 router.get('/info/ship_tier', function(req, res, next) {
-  reloadDotenvIfNeeded();
+  refresh();
   request.get({
     url: 'https://api.worldofwarships.' + region + '/wows/encyclopedia/ships/',
     qs: {
@@ -203,11 +207,13 @@ router.get('/info/ship_tier', function(req, res, next) {
   });
 });
 
-const reloadDotenvIfNeeded = function() {
-  if (appid === undefined || region === undefined) {
+const refresh = function() {
+  if (appid === undefined || region === undefined || directory === undefined) {
     dotenv.config();
     appid = process.env.APP_ID;
     region = process.env.REGION;
+    directory = process.env.DIRECTORY;
+    fileObserver = new FileObserver(directory + 'replays/tempArenaInfo.json');
   }
 }
 

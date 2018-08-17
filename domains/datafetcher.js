@@ -8,12 +8,10 @@ logger.level = 'DEBUG';
 const REQUEST_LIMIT = 10;
 
 const DataFetcher = function() {
-    this.isRunning = false;
     this.players = {};
 }
 
 DataFetcher.prototype.fetch = async function(json, callback) {
-    this.isRunning = true;
     await this.fetchPlayerId(json);
     await this.fetchPlayerStat();
     await this.fetchPlayerShipStat();
@@ -22,7 +20,6 @@ DataFetcher.prototype.fetch = async function(json, callback) {
     if (this.tiersJson == null) {
         await this.fetchShipTier();
     }
-    this.isRunning = false;
     return callback(this.players, this.tiersJson);
 }
 

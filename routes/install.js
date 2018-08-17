@@ -2,7 +2,6 @@ const log4js = require('log4js');
 const dotenv = require('dotenv');
 const request = require('request');
 const fs = require('fs');
-const async = require('async');
 var express = require('express');
 var router = express.Router();
 
@@ -59,7 +58,7 @@ const validateInstallDirectory = function(directory) {
     return true;
     // インストールディレクトリにexeがあるか検証する
     try {
-        fs.statSync(directory + '¥¥WorldOfWarships.exe');
+        fs.statSync(directory + 'WorldOfWarships.exe');
         return true;
     } catch(err) {
         return false;
@@ -71,7 +70,7 @@ const saveParameter = function(parameters) {
     const rows = {
         APP_ID: '"' + parameters.appid + '"',
         REGION: '"' + parameters.region.toLowerCase() + '"',
-        DICRECTORY: '"' + parameters.directory + '"'
+        DIRECTORY: '"' + parameters.directory + '"'
     };
     var list = []
     for (var key in rows) {

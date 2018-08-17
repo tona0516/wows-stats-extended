@@ -1,17 +1,18 @@
 var app = new Vue({
   el: '#app',
   data: {
-    friends: {},
-    enemies: {},
+    players: {},
     images: {},
     nations: {},
     tier: {}
   }
 })
 
+const DOMAIN = 'http://localhost:3000';
+
 var fetchImage = function () {
   var imageRequest = new XMLHttpRequest();
-  imageRequest.open("GET", 'http://localhost:3000/apis/info/encyclopedia');
+  imageRequest.open("GET", DOMAIN + '/apis/info/encyclopedia');
   imageRequest.addEventListener("load", (event) => {
     if (event.target.status == 200) {
       const json = JSON.parse(event.target.responseText);
@@ -24,11 +25,10 @@ var fetchImage = function () {
   });
   imageRequest.send();
 }
-fetchImage();
 
 var fetchTier = function (pageNo, json, callback) {
   var request = new XMLHttpRequest();
-  request.open("GET", 'http://localhost:3000/apis/info/ship_tier?page_no=' + pageNo);
+  request.open("GET", DOMAIN + '/apis/info/ship_tier?page_no=' + pageNo);
   request.addEventListener("load", (event) => {
     const statusCode = event.target.status;
     if (statusCode == 209) {
@@ -44,6 +44,7 @@ var fetchTier = function (pageNo, json, callback) {
   request.send();
 }
 
+fetchImage();
 fetchTier(1, {}, function (json, isError) {
   if (!isError) {
     app.tier = json;
@@ -55,14 +56,13 @@ var lastResponseBody = null;
 var fetch = function () {
   if (request == null) {
     request = new XMLHttpRequest();
-    request.open("GET", 'http://localhost:3000/apis/fetch');
+    request.open("GET", DOMAIN + '/apis/fetch');
     request.addEventListener("load", (event) => {
       const statusCode = event.target.status;
       const responseBody = event.target.responseText;
       if (statusCode == 200 || (statusCode = 209 && lastResponseBody != null && lastResponseBody != responseBody)) {
         const json = JSON.parse(responseBody);
-        app.friends = json.friends;
-        app.enemies = json.enemies;
+        app.players = json;
         lastResponseBody = responseBody;
       }
       request = null;
