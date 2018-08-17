@@ -15,12 +15,13 @@ const logger = log4js.getLogger();
 logger.level = 'DEBUG';
 
 dotenv.config();
-const appid = process.env.APP_ID;
-const region = process.env.REGION;
+var appid = process.env.APP_ID;
+var region = process.env.REGION;
 /* GET users listing. */
 
 // wows apiから取得する
 router.get('/fetch', function(req, res, next) {
+  reloadDotenvIfNeeded();
   fileObserver.start(function(body, status) {
     switch (status) {
       case 200:
@@ -161,6 +162,7 @@ router.get('/info/ship', function(req, res, next) {
 });
 
 router.get('/info/encyclopedia', function(req, res, next) {
+  reloadDotenvIfNeeded();
   request.get({
     url: 'https://api.worldofwarships.' + region + '/wows/encyclopedia/info/',
     qs: {
@@ -180,6 +182,7 @@ router.get('/info/encyclopedia', function(req, res, next) {
 });
 
 router.get('/info/ship_tier', function(req, res, next) {
+  reloadDotenvIfNeeded();
   request.get({
     url: 'https://api.worldofwarships.' + region + '/wows/encyclopedia/ships/',
     qs: {
@@ -199,6 +202,14 @@ router.get('/info/ship_tier', function(req, res, next) {
     res.send(json);
   });
 });
+
+const reloadDotenvIfNeeded = function() {
+  if (appid === undefined || region === undefined) {
+    dotenv.config();
+    appid = process.env.APP_ID;
+    region = process.env.REGION;
+  }
+}
 
 module.exports = router;
 
