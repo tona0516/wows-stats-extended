@@ -1,4 +1,5 @@
 const request = require('request');
+const rp = require('request-promise');
 
 const express = require('express');
 const router = express.Router();
@@ -52,160 +53,105 @@ router.get('/fetch', function(req, res, next) {
 
 // プレイヤーIDの取得
 router.get('/playerid', function(req, res, next) {
-  request.get({
+  requestCommon({
     url: 'https://api.worldofwarships.' + region + '/wows/account/list/',
     qs: {
       application_id: appid,
       search: req.query.search,
       type: "exact"
     }
-  }, function(error, response, body) {
-    const json = JSON.parse(body);
-    if (json.status == 'error') {
-      logger.error('request: ' + JSON.stringify(req.query) + ' error: ' + json.error.message);
-      res.send(body);
-      return;
-    }
-    res.send(body);
-  });
+  }, '/playerid', req, res);
 });
 
 // プレイヤー所属クランのIDを取得
 router.get('/clanid', function(req, res, next) {
-  request.get({
+  requestCommon({
     url: 'https://api.worldofwarships.' + region + '/wows/clans/accountinfo/',
     qs: {
       application_id: appid,
       account_id: req.query.playerid
     }
-  }, function(error, response, body) {
-      const json = JSON.parse(body);
-      if (json.status == 'error') {
-        logger.error('request: ' + JSON.stringify(req.query) + ' error: ' + json.error.message);
-        res.send('{"clanid": null}');
-        return;
-      }
-      res.send(json);
-  });
+  }, '/clanid', req, res);
 });
 
 // クラン情報の取得
 router.get('/info/clan', function(req, res, next) {
-  request.get({
+  requestCommon({
     url: 'https://api.worldofwarships.' + region + '/wows/clans/info/',
     qs: {
       application_id: appid,
       clan_id: req.query.clanid
     }
-  }, function(error, response, body) {
-      const json = JSON.parse(body);
-      if (json.status == 'error') {
-        logger.error('request: ' + JSON.stringify(req.query) + ' error: ' + json.error.message);
-        res.send(body);
-        return;
-      }
-      res.send(json);
-  });
+  }, '/info/clan', req, res);
 });
 
 // プレイヤー成績の取得
 router.get('/stat/player', function(req, res, next) {
-  request.get({
+  requestCommon({
     url: 'https://api.worldofwarships.' + region + '/wows/account/info/',
     qs: {
       application_id: appid,
       account_id: req.query.playerid
     }
-  }, function(error, response, body) {
-    const json = JSON.parse(body);
-    if (json.status == 'error') {
-      logger.error('request: ' + JSON.stringify(req.query) + ' error: ' + json.error.message);
-      res.send(body);
-      return;
-    }
-    res.send(json);
-  });
+  }, '/stat/player', req, res);
 });
 
 // 艦艇別成績の取得
 router.get('/stat/ship', function(req, res, next) {
-  request.get({
+  requestCommon({
     url: 'https://api.worldofwarships.' + region + '/wows/ships/stats/',
     qs: {
       application_id: appid,
       account_id: req.query.playerid
     }
-  }, function(error, response, body) {
-    const json = JSON.parse(body);
-    if (json.status == 'error') {
-      logger.error('request: ' + JSON.stringify(req.query) + ' error: ' + json.error.message);
-      res.send(body);
-      return;
-    }
-    res.send(json);
-  });
+  }, '/stat/ship', req, res);
 });
 
 // 艦艇データの取得
 router.get('/info/ship', function(req, res, next) {
-  request.get({
+  requestCommon({
     url: 'https://api.worldofwarships.' + region + '/wows/encyclopedia/ships/',
     qs: {
       application_id: appid,
       ship_id: req.query.shipid
     }
-  }, function(error, response, body) {
-    const json = JSON.parse(body);
-    if (json.status == 'error') {
-      logger.error('request: ' + JSON.stringify(req.query) + ' error: ' + json.error.message);
-      res.send(body);
-      return;
-    }
-    res.send(json);
-  });
+  }, 'info/ship', req, res);
 });
 
 router.get('/info/encyclopedia', function(req, res, next) {
   refresh();
-  request.get({
+  requestCommon({
     url: 'https://api.worldofwarships.' + region + '/wows/encyclopedia/info/',
     qs: {
       application_id: appid,
       fields: "ship_type_images, ship_nations",
       language: "ja"
     }
-  }, function(error, response, body) {
-    const json = JSON.parse(body);
-    if (json.status == 'error') {
-      logger.error('request: ' + JSON.stringify(req.query) + ' error: ' + json.error.message);
-      res.send(body);
-      return;
-    }
-    res.send(json.data);
-  });
+  }, '/info/encyclopedia', req, res);
 });
 
 router.get('/info/ship_tier', function(req, res, next) {
   refresh();
-  request.get({
+  requestCommon({
     url: 'https://api.worldofwarships.' + region + '/wows/encyclopedia/ships/',
     qs: {
       application_id: appid,
       fields: "tier",
       page_no: req.query.page_no
     }
-  }, function(error, response, body) {
-    const json = JSON.parse(body);
-    if (json.status == 'error') {
-      logger.error('request: ' + JSON.stringify(req.query) + ' error: ' + json.error.message);
-      res.status(500);
-      res.send(json.error);
-      return;
-    }
-
-    res.send(json);
-  });
+  }, '/info/ship_tier', req, res);
 });
+
+const requestCommon = function (option, entryPointName, req, res) {
+  rp(option)
+  .then(function (body) {
+    res.send(body);
+  })
+  .catch(function (error) {
+    logger.error(entryPointName + ': ' + JSON.stringify(req.query) + ' error: ' + error);
+    res.send();
+  });
+}
 
 const refresh = function() {
   if (appid === undefined || region === undefined || directory === undefined) {

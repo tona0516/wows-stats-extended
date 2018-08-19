@@ -1,4 +1,5 @@
 const request = require('request');
+const rp = require('request-promise');
 const log4js = require('log4js');
 const async = require('async');
 
@@ -24,33 +25,43 @@ DataFetcher.prototype.fetch = async function(json, callback) {
 }
 
 DataFetcher.prototype.fetchPlayerId = function(json) {
-    const playersFromArenaInfo = extractPlayers(json);
     const _this = this;
     return new Promise((resolve, reject) => {
+        // tempArenaInfoからプレイヤー情報を取得
+        const playersFromArenaInfo = extractPlayers(json);
+
+        // コンマ区切りのプレイヤー名文字列を生成
         const playerNames = [];
         for (const player of playersFromArenaInfo) {
             playerNames.push(player.name);
         }
         const joinedPlayerNames = playerNames.join(",");
-        request.get({
+
+        // プレイヤー名からIDを取得
+        rp({
             url: 'http://localhost:3000/apis/playerid',
             qs: {
                 search: joinedPlayerNames
             }
-        }, function(error, response, body) {
-            const data = JSON.parse(body).data;
-            for (var player of data) {
+        })
+        .then(function (body) {
+            const json = JSON.parse(body);
+            for (var player of json.data) {
                 const playerId = player.account_id;
                 const playerName = player.nickname;
                 _this.players[playerId] = {};
                 for (var playerFromArenaInfo of playersFromArenaInfo) {
-                    if (playerName == playerFromArenaInfo.name) {
+                    if (playerName === playerFromArenaInfo.name) {
                         _this.players[playerId].info = playerFromArenaInfo;
                         break;
                     }
                 }
             }
             return resolve();
+        })
+        .catch(function (error) {
+            logger.error(error);
+            return reject();
         });
     });
 }
@@ -58,25 +69,30 @@ DataFetcher.prototype.fetchPlayerId = function(json) {
 DataFetcher.prototype.fetchPlayerStat = function() {
     const _this = this;
     return new Promise((resolve, reject) => {
+        // コンマ区切りのプレイヤーID文字列を生成
         const playerIds = [];
         for (const id in _this.players) {
             playerIds.push(id);
         }
         const playerIdsString = playerIds.join(',');
-        request.get({
+
+        // IDから詳細なプレイヤー統計を取得
+        rp({
             url: 'http://localhost:3000/apis/stat/player',
             qs: {
                 playerid: playerIdsString
             }
-        }, function(error, response, json) {
-            if (error) {
-                return reject(error);
+        })
+        .then(function (body) {
+            const json = JSON.parse(body);
+            for (const id in json.data) {
+                _this.players[id].playerstat = json.data[id];
             }
-            const data = JSON.parse(json).data;
-            for (const id in data) {
-                _this.players[id].playerstat = data[id];
-            }
-            return resolve();
+            resolve();
+        })
+        .catch(function (error) {
+            logger.error(error);
+            reject();
         });
     });
 }
@@ -85,23 +101,27 @@ DataFetcher.prototype.fetchPlayerShipStat = function() {
     const _this = this;
     return new Promise((resolve, reject) => {
         async.mapValuesLimit(_this.players, REQUEST_LIMIT, function(value, id, next) {
-            request.get({
+            // 各プレイヤーの使用艦艇の統計を並列で取得する
+            rp({
                 url: 'http://localhost:3000/apis/stat/ship',
                 qs: {
                     playerid: id
                 }
-            }, function(error, response, json) {
-                const data = JSON.parse(json)['data'];
-                if(data[id] != undefined) {
-                    _this.players[id].shipstat = data[id];
-                } else {
-                    _this.players[id].shipstat = null;
-                }
+            })
+            .then(function (body) {
+                const json = JSON.parse(body);
+                _this.players[id].shipstat = json.data[id] != undefined ? json.data[id] : null;
+                next();
+            })
+            .catch(function (error) {
+                logger.error(error);
+                _this.players[id].shipstat = null;
                 next();
             });
         }, function(error) {
             if (error) {
-                return reject(error);
+                logger.error(error);
+                return reject();
             }
             return resolve()
         });
@@ -111,31 +131,35 @@ DataFetcher.prototype.fetchPlayerShipStat = function() {
 DataFetcher.prototype.fetchShipInfo = function() {
     const _this = this;
     return new Promise((resolve, reject) => {
+        // コンマ区切りの艦艇ID文字列を生成
         const shipIds = [];
         for (var id in _this.players) {
             shipIds.push(_this.players[id].info.shipId);
         }
         const shipIdsString = shipIds.join(',');
 
-        request.get({
+        // IDから艦艇情報を取得する
+        rp({
             url: 'http://localhost:3000/apis/info/ship',
             qs: {
                 shipid: shipIdsString
             }
-        }, function(error, response, json) {
-            if (error) {
-                return reject(error);
-            }
-            const data = JSON.parse(json)['data'];
+        })
+        .then(function (body) {
+            const json = JSON.parse(body);
             for (const playerId in _this.players) {
-                for (const shipId in data) {
+                for (const shipId in json.data) {
                     if (_this.players[playerId].info.shipId == shipId) {
-                        _this.players[playerId].shipinfo = data[shipId];
+                        _this.players[playerId].shipinfo = json.data[shipId];
                         break;
                     }
                 }
             }
-            return resolve();
+            resolve();
+        })
+        .catch(function (error) {
+            logger.error(error);
+            reject();
         });
     });
 }
@@ -143,23 +167,25 @@ DataFetcher.prototype.fetchShipInfo = function() {
 DataFetcher.prototype.fetchClanInfo = function() {
     const _this = this;
     return new Promise((resolve, reject) => {
+        // コンマ区切りのプレイヤーID文字列を生成
         const playerIds = [];
         for (const id in _this.players) {
             playerIds.push(id);
         }
         const playerIdsString = playerIds.join(',');
-        request.get({
+
+        // プレイヤーIDからクラン名を取得する
+        const clanIdPlayerIdMap = {};
+        rp({
             url: 'http://localhost:3000/apis/clanid',
             qs: {
                 playerid: playerIdsString
             }
-        }, function(error, response, json) {
-            if (error) {
-                return reject(error);
-            }
-            const data = JSON.parse(json).data;
+        })
+        .then(function (body) {
+            const json = JSON.parse(body);
+            const data = json.data;
             const clanIds = [];
-            const clanIdPlayerIdMap = {};
             for (const id in data) {
                 if (data[id] != null) {
                     clanIds.push(data[id].clan_id);
@@ -167,26 +193,29 @@ DataFetcher.prototype.fetchClanInfo = function() {
                 }
             }
             const clanIdsString = clanIds.join(',');
-            request.get({
+            return rp({
                 url: 'http://localhost:3000/apis/info/clan',
                 qs: {
                     clanid: clanIdsString
                 }
-            }, function(error, response, json) {
-                if (error) {
-                    return reject(error);
+            });
+        })
+        .then(function (body) {
+            const json = JSON.parse(body);
+            const data = json.data;
+            for (const clanId in data) {
+                _this.players[clanIdPlayerIdMap[clanId]].clan_info = data[clanId];
+            }
+            for (const playerId in _this.players) {
+                if (_this.players[playerId].clan_info === undefined) {
+                    _this.players[playerId].clan_info = null;
                 }
-                const data = JSON.parse(json).data;
-                for (const clanId in data) {
-                    _this.players[clanIdPlayerIdMap[clanId]].clan_info = data[clanId];
-                }
-                for (const playerId in _this.players) {
-                    if (_this.players[playerId].clan_info === void 0) {
-                        _this.players[playerId].clan_info = null;
-                    }
-                }
-                return resolve();
-            })
+            }
+            resolve();
+        })
+        .catch(function (error) {
+            logger.error(error);
+            reject();
         });
     });
 }
@@ -208,16 +237,18 @@ DataFetcher.prototype.fetchShipTier = async function(pageNO, json) {
 
 DataFetcher.prototype.fetchShipTierByPage = function(pageNo) {
     return new Promise((resolve, reject) => {
-        request.get({
+        rp({
             url: 'http://localhost:3000/apis/info/ship_tier',
             qs: {
                 page_no: pageNo
             }
-        }, function(error, response, body) {
-            if (error) {
-                return reject(error);
-            }
-            return resolve(body);
+        })
+        .then(function (body) {
+            resolve(body);
+        })
+        .catch(function (error) {
+            logger.error(error);
+            reject();
         });
     });
 }
@@ -228,8 +259,8 @@ DataFetcher.prototype.fetchBattleInfo = function() {
 
 const extractPlayers = function(json) {
     const players = [];
-    for (const vehicleIndex in json['vehicles']) {
-        const player = json['vehicles'][vehicleIndex];
+    for (const vehicleIndex in json.vehicles) {
+        const player = json.vehicles[vehicleIndex];
         players.push(player);
     } 
     return players;

@@ -16,8 +16,9 @@ var fetchImage = function () {
   imageRequest.addEventListener("load", (event) => {
     if (event.target.status == 200) {
       const json = JSON.parse(event.target.responseText);
-      app.images = json.ship_type_images;
-      app.nations = json.ship_nations;
+      const data = json.data;
+      app.images = data.ship_type_images;
+      app.nations = data.ship_nations;
     } else {
       app.images = null;
       app.nations = null;
