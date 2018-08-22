@@ -29,7 +29,7 @@ DataPicker.prototype.pick = function(playersJson, tiersJson) {
         var shipStat = {};
         var playerStat = {};
         playerStat.name = player.info.name;
-        playerStat.clan_tag = player.clan_info != null ? "[" + player.clan_info.tag + "]" : "";
+        playerStat.clan_tag = player.clan_info != null ? "[" + player.clan_info.tag + "] " : "";
         if (!isHidden) {
             // プレイヤーが使用する艦艇の成績
             const originShipStat = findShipStatById(player.shipstat, player.info.shipId);
