@@ -61,7 +61,7 @@ var fetch = function () {
     request.addEventListener("load", (event) => {
       const statusCode = event.target.status;
       const responseBody = event.target.responseText;
-      if (statusCode == 200 || (statusCode = 209 && lastResponseBody != null && lastResponseBody != responseBody)) {
+      if (statusCode == 200 || (statusCode == 209 && lastResponseBody != null && lastResponseBody != responseBody)) {
         const json = JSON.parse(responseBody);
         app.players = json;
         lastResponseBody = responseBody;
