@@ -30,7 +30,6 @@ DataPicker.prototype.pick = function(playersJson, tiersJson) {
         var playerStat = {};
         playerStat.name = player.info.name;
         playerStat.is_myself = player.info.relation == 0 ? true : false;
-        logger.debug(playerStat.name + ": " + playerStat.is_myself);
         playerStat.clan_tag = player.clan_info != null ? "[" + player.clan_info.tag + "] " : "";
         if (!isHidden) {
             // プレイヤーが使用する艦艇の成績

@@ -20,15 +20,15 @@ block content
           td 隠蔽
           td 魚雷
 
-          td 戦闘数
-          td 勝率
           td 与ダメ
+          td 勝率
           td K/D
+          td 戦闘数
 
-          td 戦闘数
-          td 勝率
           td 与ダメ
+          td 勝率
           td K/D
+          td 戦闘数
           td 平均Tier
           
         tr(v-for="player of team")
@@ -57,15 +57,15 @@ block content
           td {{ player.ship_info.torpedoes_distance }}
 
           // 艦艇統計
-          td {{ player.ship_stat.battles }}
-          td {{ player.ship_stat.win_rate }}
           td {{ player.ship_stat.average_damage }}
+          td {{ player.ship_stat.win_rate }}
           td {{ player.ship_stat.kill_death_rate }}
+          td {{ player.ship_stat.battles }}
           
           // プレイヤー統計
-          td {{ player.player_stat.battles }}
-          td {{ player.player_stat.win_rate }}
           td {{ player.player_stat.average_damage }}
+          td {{ player.player_stat.win_rate }}
           td {{ player.player_stat.kill_death_rate }}
+          td {{ player.player_stat.battles }}
           td {{ player.player_stat.average_tier }}
   script(src='/javascripts/vue.js')
