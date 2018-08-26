@@ -34,7 +34,7 @@ DataPicker.prototype.pick = function(playersJson, tiersJson) {
         if (!isHidden) {
             // プレイヤーが使用する艦艇の成績
             const originShipStat = findShipStatById(player.shipstat, player.info.shipId);
-            const isFirstMatchByShip =  originShipStat == null || originShipStat.pvp == null ? true : false;
+            const isFirstMatchByShip = originShipStat == null || originShipStat.pvp == null ? true : false;
             if (isFirstMatchByShip) {
                 shipStat.battles = '0';
                 shipStat.win_rate = '-';
@@ -42,9 +42,9 @@ DataPicker.prototype.pick = function(playersJson, tiersJson) {
                 shipStat.kill_death_rate = '-';
             } else {
                 shipStat.battles = originShipStat.pvp.battles;
-                shipStat.win_rate = (originShipStat.pvp.wins / originShipStat.pvp.battles * 100).toFixed(1);
-                shipStat.average_damage = (originShipStat.pvp.damage_dealt / originShipStat.battles).toFixed(0);
-                shipStat.kill_death_rate = (originShipStat.pvp.frags / (originShipStat.pvp.battles - originShipStat.pvp.survived_battles)).toFixed(1);
+                shipStat.win_rate = (originShipStat.pvp.wins / shipStat.battles * 100).toFixed(1);
+                shipStat.average_damage = (originShipStat.pvp.damage_dealt / shipStat.battles).toFixed(0);
+                shipStat.kill_death_rate = (originShipStat.pvp.frags / (shipStat.battles - originShipStat.pvp.survived_battles)).toFixed(1);
             }
 
              // プレイヤーに関する成績
@@ -58,9 +58,9 @@ DataPicker.prototype.pick = function(playersJson, tiersJson) {
                 playerStat.average_tier = '-';
             } else {
                 playerStat.battles = originPlayerStat.pvp.battles;
-                playerStat.win_rate = (originPlayerStat.pvp.wins / originPlayerStat.pvp.battles * 100).toFixed(1);
-                playerStat.average_damage = (originPlayerStat.pvp.damage_dealt / originPlayerStat.battles).toFixed(0);
-                playerStat.kill_death_rate = (originPlayerStat.pvp.frags / (originPlayerStat.pvp.battles - originPlayerStat.pvp.survived_battles)).toFixed(1);
+                playerStat.win_rate = (originPlayerStat.pvp.wins / playerStat.battles * 100).toFixed(1);
+                playerStat.average_damage = (originPlayerStat.pvp.damage_dealt / playerStat.battles).toFixed(0);
+                playerStat.kill_death_rate = (originPlayerStat.pvp.frags / (playerStat.battles - originPlayerStat.pvp.survived_battles)).toFixed(1);
                 playerStat.average_tier = calculateAverageTier(player.shipstat, tiersJson).toFixed(1);
             }
         } else {
