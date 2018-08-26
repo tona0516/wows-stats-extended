@@ -35,7 +35,7 @@ block content
           // プレイヤー情報
           td
             div(v-if="player.player_stat.is_myself == true")
-              p(class="font-weight-bold") {{ player.player_stat.clan_tag }}{{ player.player_stat.name }}
+              div(class="font-weight-bold") {{ player.player_stat.clan_tag }}{{ player.player_stat.name }}
             div(v-else)
               {{ player.player_stat.clan_tag }}{{ player.player_stat.name }}
 
