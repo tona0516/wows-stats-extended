@@ -1,11 +1,10 @@
 extends layout
 
 block content
-  h1= title
   div#app
     div(v-for="team of players")
-      table(class="table table-sm")
-        thead
+      table(class="table table-sm table-striped")
+        thead(class="thead-dark")
           th(colspan="1") プレイヤー情報
           th(colspan="6") 艦艇情報
           th(colspan="4") 艦艇統計
@@ -14,27 +13,31 @@ block content
         tr
           td プレイヤー名
 
-          td 艦艇名
+          td 艦名
           td 艦種
           td Tier
           td 国籍
-          td 艦艇隠蔽距離
-          td 魚雷射程
+          td 隠蔽
+          td 魚雷
 
           td 戦闘数
           td 勝率
-          td ダメージ
+          td 与ダメ
           td K/D
 
           td 戦闘数
           td 勝率
-          td ダメージ
+          td 与ダメ
           td K/D
           td 平均Tier
           
         tr(v-for="player of team")
           // プレイヤー情報
-          td {{ player.player_stat.clan_tag }}{{ player.player_stat.name }}
+          td
+            div(v-if="player.player_stat.is_myself == true")
+              p(class="font-weight-bold") {{ player.player_stat.clan_tag }}{{ player.player_stat.name }}
+            div(v-else)
+              {{ player.player_stat.clan_tag }}{{ player.player_stat.name }}
 
           // 艦艇情報
           td {{ player.ship_info.name }}

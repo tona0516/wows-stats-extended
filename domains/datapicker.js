@@ -24,38 +24,57 @@ DataPicker.prototype.pick = function(playersJson, tiersJson) {
     var enemies = [];
     for (const id in playersJson) {
         const player = playersJson[id];
-        const isHidden = (player.shipstat == null || player.playerstat.hidden_profile) ? true : false;
+        const isHidden = (player.shipstat == null ||  player.playerstat == null || player.playerstat.hidden_profile) ? true : false;
 
         var shipStat = {};
         var playerStat = {};
         playerStat.name = player.info.name;
+        playerStat.is_myself = player.info.relation == 0 ? true : false;
+        logger.debug(playerStat.name + ": " + playerStat.is_myself);
         playerStat.clan_tag = player.clan_info != null ? "[" + player.clan_info.tag + "] " : "";
         if (!isHidden) {
             // プレイヤーが使用する艦艇の成績
             const originShipStat = findShipStatById(player.shipstat, player.info.shipId);
-            shipStat.battles = originShipStat.pvp.battles;
-            shipStat.win_rate = (originShipStat.pvp.wins / originShipStat.pvp.battles * 100).toFixed(1);
-            shipStat.average_damage = (originShipStat.pvp.damage_dealt / originShipStat.battles).toFixed(0);
-            shipStat.kill_death_rate = (originShipStat.pvp.frags / (originShipStat.pvp.battles - originShipStat.pvp.survived_battles)).toFixed(1);
+            const isFirstMatchByShip =  originShipStat == null || originShipStat.pvp == null ? true : false;
+            if (isFirstMatchByShip) {
+                shipStat.battles = '0';
+                shipStat.win_rate = '-';
+                shipStat.average_damage = '-';
+                shipStat.kill_death_rate = '-';
+            } else {
+                shipStat.battles = originShipStat.pvp.battles;
+                shipStat.win_rate = (originShipStat.pvp.wins / originShipStat.pvp.battles * 100).toFixed(1);
+                shipStat.average_damage = (originShipStat.pvp.damage_dealt / originShipStat.battles).toFixed(0);
+                shipStat.kill_death_rate = (originShipStat.pvp.frags / (originShipStat.pvp.battles - originShipStat.pvp.survived_battles)).toFixed(1);
+            }
 
              // プレイヤーに関する成績
             const originPlayerStat = player.playerstat.statistics
-            playerStat.battles = originPlayerStat.pvp.battles;
-            playerStat.win_rate = (originPlayerStat.pvp.wins / originPlayerStat.pvp.battles * 100).toFixed(1);
-            playerStat.average_damage = (originPlayerStat.pvp.damage_dealt / originPlayerStat.battles).toFixed(0);
-            playerStat.kill_death_rate = (originPlayerStat.pvp.frags / (originPlayerStat.pvp.battles - originPlayerStat.pvp.survived_battles)).toFixed(1);
-            playerStat.average_tier = calculateAverageTier(player.shipstat, tiersJson).toFixed(1);
+            const isFirstMachByPlayer = originPlayerStat == null || originPlayerStat.pvp == null ? true : false;
+            if (isFirstMachByPlayer) {
+                playerStat.battles = '0';
+                playerStat.win_rate = '-';
+                playerStat.average_damage = '-';
+                playerStat.kill_death_rate = '-';
+                playerStat.average_tier = '-';
+            } else {
+                playerStat.battles = originPlayerStat.pvp.battles;
+                playerStat.win_rate = (originPlayerStat.pvp.wins / originPlayerStat.pvp.battles * 100).toFixed(1);
+                playerStat.average_damage = (originPlayerStat.pvp.damage_dealt / originPlayerStat.battles).toFixed(0);
+                playerStat.kill_death_rate = (originPlayerStat.pvp.frags / (originPlayerStat.pvp.battles - originPlayerStat.pvp.survived_battles)).toFixed(1);
+                playerStat.average_tier = calculateAverageTier(player.shipstat, tiersJson).toFixed(1);
+            }
         } else {
-            shipStat.battles = '-';
-            shipStat.win_rate = '-';
-            shipStat.average_damage = '-';
-            shipStat.kill_death_rate = '-';
+            shipStat.battles = 'private';
+            shipStat.win_rate = 'private';
+            shipStat.average_damage = 'private';
+            shipStat.kill_death_rate = 'private';
 
-            playerStat.battles = '-';
-            playerStat.win_rate = '-';
-            playerStat.average_damage = '-';
-            playerStat.kill_death_rate = '-';
-            playerStat.average_tier = '-';
+            playerStat.battles = 'private';
+            playerStat.win_rate = 'private';
+            playerStat.average_damage = 'private';
+            playerStat.kill_death_rate = 'private';
+            playerStat.average_tier = 'private';
         }
 
         // プレイヤーが使用する艦艇の情報
@@ -147,11 +166,11 @@ const average = function(array) {
     var sum = 0;
     var ignoreCount = 0;
     for (var item of array) {
-        if (item === '-') {
-            ignoreCount += 1;
+        if (isFinite(item)) {
+            sum += Number(item);
             continue;
         }
-        sum += Number(item);
+        ignoreCount += 1;
     }
     const average = sum / (array.length - ignoreCount);
     return average;

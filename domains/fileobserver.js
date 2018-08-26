@@ -12,7 +12,7 @@ FileObserver.prototype.start = function(callback) {
   const _this = this;
 
   fs.readFile(_this.filepath, 'utf8', function (error, text) {
-    // エラー
+    // ファイル読み込みに失敗した場合（ファイルがない場合）
     if(error) {
       const body = 'error is caused: ' + error;
       return callback(body, 500);
