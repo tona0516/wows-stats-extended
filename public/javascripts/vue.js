@@ -55,21 +55,23 @@ fetchTier(1, {}, function (json, isError) {
 var request = null;
 var lastResponseBody = null;
 var fetch = function () {
-  if (request == null) {
-    request = new XMLHttpRequest();
-    request.open("GET", DOMAIN + '/apis/fetch');
-    request.addEventListener("load", (event) => {
-      const statusCode = event.target.status;
-      const responseBody = event.target.responseText;
-      if (statusCode == 200 || (statusCode == 209 && lastResponseBody != null && lastResponseBody != responseBody)) {
-        const json = JSON.parse(responseBody);
-        app.players = json;
-        lastResponseBody = responseBody;
-      }
-      request = null;
-    });
-    request.send();
+  if (request != null) {
+    return;
   }
+
+  request = new XMLHttpRequest();
+  request.open("GET", DOMAIN + '/apis/fetch');
+  request.addEventListener("load", (event) => {
+    const statusCode = event.target.status;
+    const responseBody = event.target.responseText;
+    if (statusCode == 200 || (statusCode == 209 && lastResponseBody != null && lastResponseBody != responseBody)) {
+      const json = JSON.parse(responseBody);
+      app.players = json;
+      lastResponseBody = responseBody;
+    }
+    request = null;
+  });
+  request.send();
 }
 setInterval(fetch, 1000);
 

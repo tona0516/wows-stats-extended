@@ -84,7 +84,7 @@ DataPicker.prototype.pick = function(playersJson, tiersJson) {
         shipInfo.nation = player.shipinfo.nation;
         shipInfo.detect_distance_by_ship = player.shipinfo.default_profile.concealment.detect_distance_by_ship;
         const camouflage_coefficient = 1 - 0.03;
-        const module_coefficient = shipStat.tier > 7 ? 1 - 0.10 : 1;
+        const module_coefficient = shipInfo.tier > 7 ? 1 - 0.10 : 1;
         var commander_coefficient = 1;
         switch (shipInfo.type) {
             case "AirCarrier":
