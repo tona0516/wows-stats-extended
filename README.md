@@ -1,6 +1,6 @@
 # [WIP] wows-stats-extended
 
-![default](https://user-images.githubusercontent.com/6896790/44045623-09d3bbec-9f64-11e8-8862-6f7b5a1a1740.png)
+![default](https://user-images.githubusercontent.com/6896790/44629398-b2317700-a989-11e8-8710-f526dfd7e923.png)
 
 ## Introduction
 - A XVM for World of Warships.
