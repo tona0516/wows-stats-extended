@@ -113,7 +113,8 @@ router.get('/info/ship', function(req, res, next) {
     url: 'https://api.worldofwarships.' + region + '/wows/encyclopedia/ships/',
     qs: {
       application_id: appid,
-      ship_id: req.query.shipid
+      ship_id: req.query.shipid,
+      language: "ja"
     }
   }, 'info/ship', req, res);
 });
