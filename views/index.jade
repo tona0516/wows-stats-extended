@@ -6,7 +6,7 @@ block content
       table(class="table table-sm table-striped table-dark")
         thead
           th(colspan="1") プレイヤー情報
-          th(colspan="6") 艦艇情報
+          th(colspan="5") 艦艇情報
           th(colspan="4") 艦艇統計
           th(colspan="5") プレイヤー統計
 
@@ -18,7 +18,6 @@ block content
           td Tier
           td 国籍
           td 隠蔽
-          td 魚雷
 
           td 与ダメ
           td 勝率
@@ -54,7 +53,6 @@ block content
           td {{ player.ship_info.tier }}
           td {{ nations[player.ship_info.nation] }}
           td {{ player.ship_info.detect_distance_by_ship }}
-          td {{ player.ship_info.torpedoes_distance }}
 
           // 艦艇統計
           td {{ player.ship_stat.average_damage }}

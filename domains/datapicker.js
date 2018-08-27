@@ -104,11 +104,6 @@ DataPicker.prototype.pick = function(playersJson, tiersJson) {
         }
         const gearing_coefiicient = shipStat.name == "Gearing" ? 1 - 0.15 : 1; 
         shipInfo.detect_distance_by_ship = (shipInfo.detect_distance_by_ship * camouflage_coefficient * module_coefficient * commander_coefficient * gearing_coefiicient).toFixed(1);
-        if (player.shipinfo.default_profile.torpedoes != null) {
-            shipInfo.torpedoes_distance = player.shipinfo.default_profile.torpedoes.distance;
-        } else {
-            shipInfo.torpedoes_distance = "-";
-        }
         
         var allStat = {};
         allStat.player_stat = playerStat;
