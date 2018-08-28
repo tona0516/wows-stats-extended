@@ -68,17 +68,17 @@ DataPicker.prototype.pick = function(playersJson, tiersJson) {
                 playerStat.average_tier = calculateAverageTier(player.shipstat, tiersJson).toFixed(1);
             }
         } else {
-            shipStat.pr = 'private';
-            shipStat.battles = 'private';
-            shipStat.win_rate = 'private';
-            shipStat.average_damage = 'private';
-            shipStat.kill_death_rate = 'private';
+            shipStat.pr = 'priv.';
+            shipStat.battles = 'priv.';
+            shipStat.win_rate = 'priv.';
+            shipStat.average_damage = 'priv.';
+            shipStat.kill_death_rate = 'priv.';
 
-            playerStat.battles = 'private';
-            playerStat.win_rate = 'private';
-            playerStat.average_damage = 'private';
-            playerStat.kill_death_rate = 'private';
-            playerStat.average_tier = 'private';
+            playerStat.battles = 'priv.';
+            playerStat.win_rate = 'priv.';
+            playerStat.average_damage = 'priv.';
+            playerStat.kill_death_rate = 'priv.';
+            playerStat.average_tier = 'priv.';
         }
 
         // プレイヤーが使用する艦艇の情報
