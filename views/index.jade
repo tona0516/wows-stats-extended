@@ -5,13 +5,14 @@ block content
     div(v-for="team of players")
       table(class="table table-sm table-striped table-dark")
         thead
-          th(colspan="1") プレイヤー情報
+          th(colspan="2") プレイヤー情報
           th(colspan="5") 艦艇情報
-          th(colspan="4") 艦艇統計
+          th(colspan="5") 艦艇統計
           th(colspan="5") プレイヤー統計
 
         tr
           td プレイヤー名
+          td PR
 
           td 艦名
           td 艦種
@@ -37,6 +38,33 @@ block content
               div(class="font-weight-bold") {{ player.player_stat.clan_tag }}{{ player.player_stat.name }}
             div(v-else)
               {{ player.player_stat.clan_tag }}{{ player.player_stat.name }}
+
+          td
+            div(v-if="player.ship_stat.pr >= 0 && player.ship_stat.pr < 750")
+              font(color="#FE0E00")
+                {{ player.ship_stat.pr }}
+            div(v-else-if="player.ship_stat.pr >= 750 && player.ship_stat.pr < 1100")
+              font(color="#FE7903")
+                {{ player.ship_stat.pr }}
+            div(v-else-if="player.ship_stat.pr >= 1100 && player.ship_stat.pr < 1350")
+              font(color="#FFC71F")
+                {{ player.ship_stat.pr }}
+            div(v-else-if="player.ship_stat.pr >= 1350 && player.ship_stat.pr < 1550")
+              font(color="#44B300")
+                {{ player.ship_stat.pr }}
+            div(v-else-if="player.ship_stat.pr >= 1550 && player.ship_stat.pr < 1750")
+              font(color="#318000")
+                {{ player.ship_stat.pr }}
+            div(v-else-if="player.ship_stat.pr >= 1750 && player.ship_stat.pr < 2100")
+              font(color="#02C9B3")
+                {{ player.ship_stat.pr }}
+            div(v-else-if="player.ship_stat.pr >= 2100 && player.ship_stat.pr < 2450")
+              font(color="#D042F3")
+                {{ player.ship_stat.pr }}
+            div(v-else-if="player.ship_stat.pr >= 2450 && player.ship_stat.pr < 9999")
+              font(color="#A00DC5")
+                {{ player.ship_stat.pr }}
+            div(v-else) {{ player.ship_stat.pr }}
 
           // 艦艇情報
           td {{ player.ship_info.name }}
