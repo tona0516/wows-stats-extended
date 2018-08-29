@@ -12,7 +12,7 @@ block content
 
         tr
           td プレイヤー名
-          td PR
+          td 戦闘力
 
           td 艦名
           td 艦種
@@ -40,31 +40,28 @@ block content
               {{ player.player_stat.clan_tag }}{{ player.player_stat.name }}
 
           td
-            div(v-if="player.ship_stat.pr >= 0 && player.ship_stat.pr < 750")
+            div(v-if="player.ship_stat.cp < 10000")
               font(color="#FE0E00")
-                {{ player.ship_stat.pr }}
-            div(v-else-if="player.ship_stat.pr >= 750 && player.ship_stat.pr < 1100")
+                {{ player.ship_stat.cp }}
+            div(v-else-if="player.ship_stat.cp < 20000")
               font(color="#FE7903")
-                {{ player.ship_stat.pr }}
-            div(v-else-if="player.ship_stat.pr >= 1100 && player.ship_stat.pr < 1350")
+                {{ player.ship_stat.cp }}
+            div(v-else-if="player.ship_stat.cp < 30000")
               font(color="#FFC71F")
-                {{ player.ship_stat.pr }}
-            div(v-else-if="player.ship_stat.pr >= 1350 && player.ship_stat.pr < 1550")
+                {{ player.ship_stat.cp }}
+            div(v-else-if="player.ship_stat.cp < 80000")
               font(color="#44B300")
-                {{ player.ship_stat.pr }}
-            div(v-else-if="player.ship_stat.pr >= 1550 && player.ship_stat.pr < 1750")
-              font(color="#318000")
-                {{ player.ship_stat.pr }}
-            div(v-else-if="player.ship_stat.pr >= 1750 && player.ship_stat.pr < 2100")
+                {{ player.ship_stat.cp }}
+            div(v-else-if="player.ship_stat.cp < 150000")
               font(color="#02C9B3")
-                {{ player.ship_stat.pr }}
-            div(v-else-if="player.ship_stat.pr >= 2100 && player.ship_stat.pr < 2450")
-              font(color="#D042F3")
-                {{ player.ship_stat.pr }}
-            div(v-else-if="player.ship_stat.pr >= 2450 && player.ship_stat.pr < 9999")
-              font(color="#A00DC5")
-                {{ player.ship_stat.pr }}
-            div(v-else) {{ player.ship_stat.pr }}
+                {{ player.ship_stat.cp }}
+            div(v-else-if="player.ship_stat.cp < 1000000")
+              font(color="#D042F3") {{ player.ship_stat.cp }}
+            div(v-else-if="player.ship_stat.cp >= 1000000")
+              div(style="background-color: #FFFFFF")
+                font(color="#A00DC5")
+                  {{ player.ship_stat.cp }}
+            div(v-else) {{ player.ship_stat.cp }}
 
           // 艦艇情報
           td {{ player.ship_info.name }}

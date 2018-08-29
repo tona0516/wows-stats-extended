@@ -44,7 +44,7 @@ DataPicker.prototype.pick = function(playersJson, tiersJson) {
                 shipStat.average_damage = '-';
                 shipStat.kill_death_rate = '-';
             } else {
-                shipStat.pr = calculatePR(this.coefficients, originShipStat.pvp, player.info.shipId).toFixed(0);
+                shipStat.cp = calculateCombatPower(originShipStat.pvp, player.shipinfo);
                 shipStat.battles = originShipStat.pvp.battles;
                 shipStat.win_rate = (originShipStat.pvp.wins / shipStat.battles * 100).toFixed(1);
                 shipStat.average_damage = (originShipStat.pvp.damage_dealt / shipStat.battles).toFixed(0);
@@ -68,7 +68,7 @@ DataPicker.prototype.pick = function(playersJson, tiersJson) {
                 playerStat.average_tier = calculateAverageTier(player.shipstat, tiersJson).toFixed(1);
             }
         } else {
-            shipStat.pr = 'priv.';
+            shipStat.cp = 'priv.';
             shipStat.battles = 'priv.';
             shipStat.win_rate = 'priv.';
             shipStat.average_damage = 'priv.';
@@ -132,17 +132,33 @@ DataPicker.prototype.pick = function(playersJson, tiersJson) {
     return outputData;
 }
 
-const calculatePR = function(coefficients, statistics, shipId) {
-    for (var expected of coefficients.expected) {
-        if (expected.ship_id === shipId) {
-            var actual = {};
-            actual.damage_dealt = parseFloat(statistics.damage_dealt / statistics.battles);
-            actual.frags = parseFloat(statistics.frags / statistics.battles);
-            actual.wins = parseFloat(statistics.wins / statistics.battles);
-            return calculatePersonalRating(expected, actual);
-        }
+const calculateCombatPower = function(stats, info) {
+    const kill = stats.frags;
+    const death = stats.battles - stats.survived_battles;
+    const averageDamage = stats.damage_dealt / stats.battles;
+    const averageExperience = stats.xp / stats.battles;
+
+    if (death == 0 && kill > 0) {
+        return "-";
     }
-    return '-';
+
+    if (death == 0 && kill == 0) {
+        return "-";
+    }
+
+    const kdRatio = kill / death;
+    if (kdRatio == 0) {
+        return "-";
+    }
+
+    let type_param = 1.0;
+    if (info.type == 'Battleship') {
+        type_param = 0.7;
+    } else if (info.type == 'AirCarrier') {
+        type_param = 0.5;
+    }
+
+    return (averageDamage * kdRatio * averageExperience / 800 * (1 - (0.03 * info.tier )) * type_param).toFixed(0);
 }
 
 const convertToRomanNumber = function(team) {
@@ -228,19 +244,5 @@ const sort_by_type_and_tier = function () {
       return 0;
     }
 }
-
-var calculatePersonalRating = function(expected, actual) {
-	var wins = actual.wins / expected.wins;
-	var damage = actual.damage_dealt / expected.damage_dealt;
-	var frags = actual.frags / expected.frags;
-
-	var normalize_wins = Math.max(0, (wins - 0.7) / (1.0 - 0.7));
-	var normalize_damage = Math.max(0, (damage - 0.4) / (1.0 - 0.4));
-	var normalize_frags = Math.max(0, (frags - 0.1) / (1.0 - 0.1));
-
-	var pr_value = 700*normalize_damage + 300*normalize_frags + 150*normalize_wins;
-
-	return pr_value;
-};
 
 module.exports = DataPicker;
