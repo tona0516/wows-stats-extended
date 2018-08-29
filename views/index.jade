@@ -56,9 +56,10 @@ block content
               font(color="#02C9B3")
                 {{ player.ship_stat.cp }}
             div(v-else-if="player.ship_stat.cp < 1000000")
-              font(color="#D042F3") {{ player.ship_stat.cp }}
+              font(color="#D042F3")
+                {{ player.ship_stat.cp }}
             div(v-else-if="player.ship_stat.cp >= 1000000")
-              div(style="background-color: #FFFFFF")
+              div(class="bg-light")
                 font(color="#A00DC5")
                   {{ player.ship_stat.cp }}
             div(v-else) {{ player.ship_stat.cp }}
