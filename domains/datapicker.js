@@ -89,7 +89,13 @@ DataPicker.prototype.pick = function(playersJson, tiersJson) {
         shipInfo.nation = player.shipinfo.nation;
         shipInfo.detect_distance_by_ship = player.shipinfo.default_profile.concealment.detect_distance_by_ship;
         const camouflage_coefficient = 1 - 0.03;
-        const module_coefficient = shipInfo.tier > 7 ? 1 - 0.10 : 1;
+        let module_coefficient = 1;
+        if (shipInfo.name == "Gearing") {
+            module_coefficient = 1 - 0.15;
+        } else if (shipInfo.tier > 7) {
+            module_coefficient = 1 - 0.10;
+        }
+        shipInfo.tier > 7 ? 1 - 0.10 : 1;
         var commander_coefficient = 1;
         switch (shipInfo.type) {
             case "AirCarrier":
@@ -107,8 +113,7 @@ DataPicker.prototype.pick = function(playersJson, tiersJson) {
             default:
                 break;
         }
-        const gearing_coefiicient = shipStat.name == "Gearing" ? 1 - 0.15 : 1; 
-        shipInfo.detect_distance_by_ship = (shipInfo.detect_distance_by_ship * camouflage_coefficient * module_coefficient * commander_coefficient * gearing_coefiicient).toFixed(1);
+        shipInfo.detect_distance_by_ship = (Math.round(shipInfo.detect_distance_by_ship * camouflage_coefficient * module_coefficient * commander_coefficient * 10) / 10).toFixed(1);
         
         var allStat = {};
         allStat.player_stat = playerStat;
