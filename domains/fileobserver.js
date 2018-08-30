@@ -8,25 +8,19 @@ const FileObserver = function(filepath) {
   this.filepath = filepath;
 }
 
-FileObserver.prototype.start = function(callback) {
+FileObserver.prototype.read = function() {
   const _this = this;
 
-  fs.readFile(_this.filepath, 'utf8', function (error, text) {
-    // ファイル読み込みに失敗した場合（ファイルがない場合）
-    if(error) {
-      const body = 'error is caused: ' + error;
-      return callback(body, 500);
-    }
+  return new Promise((resolve, reject) => {
+    fs.readFile(_this.filepath, 'utf8', function (error, text) {
+      // ファイル読み込みに失敗した場合（ファイルがない場合）
+      if(error) {
+        return reject();
+      }
 
-    // 同一ファイルの時
-    if(_this.latest == text) {
-      const body = 'no need to update data'
-      return callback(body, 209);
-    }
-
-    // 最新の状態を保存してjsonを返却
-    _this.latest = text;
-    return callback(JSON.parse(text), 200);
+      // 最新の状態を保存してjsonを返却
+      return resolve(text);
+    });
   });
 }
 

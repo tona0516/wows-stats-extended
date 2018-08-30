@@ -9,6 +9,8 @@ var app = new Vue({
 })
 
 const DOMAIN = 'http://localhost:3000';
+var isFetching = false;
+var cache = null;
 
 var fetchImage = function () {
   var imageRequest = new XMLHttpRequest();
@@ -45,33 +47,80 @@ var fetchTier = function (pageNo, json, callback) {
   request.send();
 }
 
+var checkUpdate = function() {
+  return new Promise((resolve) => {
+    var request = new XMLHttpRequest();
+    request.open("GET", DOMAIN + '/apis/check_update');
+    request.addEventListener("load", (event) => {
+      resolve(event.target.status);
+    });
+    request.send();
+  });
+}
+
+var fetch = function () {
+  return new Promise((resolve) => {
+    var request = new XMLHttpRequest();
+    request.open("GET", DOMAIN + '/apis/fetch');
+    request.addEventListener("load", (event) => {
+      const statusCode = event.target.status;
+      const responseBody = event.target.responseText;
+      if (statusCode == 200) {
+        const json = JSON.parse(responseBody);
+        app.players = json;
+        cache = responseBody;
+      }
+      resolve();
+    });
+    request.send();
+  });
+}
+
+var fetchCache = function () {
+  return new Promise((resolve) => {
+    var request = new XMLHttpRequest();
+    request.open("GET", DOMAIN + '/apis/fetch_cache');
+    request.addEventListener("load", (event) => {
+      const statusCode = event.target.status;
+      const responseBody = event.target.responseText;
+      if (statusCode == 200) {
+        if (cache !== responseBody) {
+          const json = JSON.parse(responseBody);
+          app.players = json;
+        }
+      }
+      resolve();
+    });
+    request.send();
+  });
+}
+
+
+var fetchIfNeeded = async function() {
+  if (isFetching) {
+    return;
+  }
+
+  const status = await checkUpdate();
+
+  if (status == 209) {
+    await fetchCache();
+    return;
+  }
+
+  if (status == 200) {
+    isFetching = true;
+    await fetch();
+    isFetching = false;
+    return;
+  }
+}
+
 fetchImage();
 fetchTier(1, {}, function (json, isError) {
   if (!isError) {
     app.tier = json;
   }
 });
-
-var request = null;
-var lastResponseBody = null;
-var fetch = function () {
-  if (request != null) {
-    return;
-  }
-
-  request = new XMLHttpRequest();
-  request.open("GET", DOMAIN + '/apis/fetch');
-  request.addEventListener("load", (event) => {
-    const statusCode = event.target.status;
-    const responseBody = event.target.responseText;
-    if (statusCode == 200 || (statusCode == 209 && lastResponseBody != null && lastResponseBody != responseBody)) {
-      const json = JSON.parse(responseBody);
-      app.players = json;
-      lastResponseBody = responseBody;
-    }
-    request = null;
-  });
-  request.send();
-}
-setInterval(fetch, 1000);
+setInterval(fetchIfNeeded, 1000);
 

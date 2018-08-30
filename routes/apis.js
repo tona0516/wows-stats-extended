@@ -18,37 +18,67 @@ const DataFetcher = require('../domains/datafetcher');
 const DataPicker = require('../domains/datapicker');
 const FileObserver = require('../domains/fileobserver');
 var fileObserver = new FileObserver(directory + 'replays/tempArenaInfo.json');
-var lastPickedJson;
+var latestTempArenaInfo;
+var latestPicked;
 
 /* GET users listing. */
+router.get('/check_update', async function(req, res, next) {
+  // 環境変数の再読み込み
+  refresh();
+
+  // tempArenaInfo.jsonの読み込み
+  const tempArenaInfo = await fileObserver.read(latestTempArenaInfo).catch(() => null);
+
+  // ファイル読み込みに失敗したケース
+  if (tempArenaInfo == null) {
+    res.status(500);
+    res.send();
+    return;
+  }
+
+  // ファイルに変更がなかったケース
+  if (tempArenaInfo === latestTempArenaInfo) {
+    res.status(209);
+    res.send();
+    return;
+  }
+
+  // ファイルが更新されたケース
+  latestTempArenaInfo = tempArenaInfo;
+  res.status(200);
+  res.send();
+});
 
 // wows apiから取得する
 router.get('/fetch', function(req, res, next) {
+  // 環境変数の再読み込み
   refresh();
-  fileObserver.start(function(body, status) {
-    switch (status) {
-      case 200:
-        // 更新があった時はAPIコールして取得したデータを返却する
-        const dataFetcher = new DataFetcher();
-        dataFetcher.fetch(body, function(players, tiers) {
-          const dataPicker = new DataPicker();
-          const picked = dataPicker.pick(players, tiers);
-          lastPickedJson = picked;
-          res.status(status);
-          res.send(picked);
-        });
-        break;
-      case 209:
-        // 同一ファイルの時は最後にpickしたデータを返却する
-        res.status(status);
-        res.send(lastPickedJson);
-        break;
-      default:
-        res.status(status);
-        res.send(body);
-        break;
-    }
+
+  if (latestTempArenaInfo == null) {
+    res.status(500);
+    res.send();
+    return;
+  }
+
+  const dataFetcher = new DataFetcher();
+  dataFetcher.fetch(JSON.parse(latestTempArenaInfo), function(players, tiers) {
+    const dataPicker = new DataPicker();
+    const picked = dataPicker.pick(players, tiers);
+    latestPicked = picked;
+    res.status(200);
+    res.send(picked);
   });
+});
+
+router.get('/fetch_cache', function(req, res, next) {
+  if (latestPicked == null) {
+    res.status(500);
+    res.send();
+    return;
+  }
+
+  res.status(200);
+  res.send(latestPicked);
 });
 
 // プレイヤーIDの取得
