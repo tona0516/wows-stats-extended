@@ -4,8 +4,7 @@ var app = new Vue({
     message: null,
     players: {},
     images: {},
-    nations: {},
-    tier: {}
+    nations: {}
   }
 })
 
@@ -28,24 +27,6 @@ var fetchImage = function () {
     }
   });
   imageRequest.send();
-}
-
-var fetchTier = function (pageNo, json, callback) {
-  var request = new XMLHttpRequest();
-  request.open("GET", DOMAIN + '/apis/info/ship_tier?page_no=' + pageNo);
-  request.addEventListener("load", (event) => {
-    const statusCode = event.target.status;
-    if (statusCode == 209) {
-      const newJson = JSON.parse(event.target.responseText);
-      for (var id in newJson) {
-        json[id] = newJson[id];
-      }
-      fetchTier(pageNo + 1, json, callback);
-    } else {
-      statusCode == 200 ? callback(json, false) : callback(json, true);
-    }
-  })
-  request.send();
 }
 
 var checkUpdate = function() {
@@ -96,7 +77,6 @@ var fetchCache = function () {
   });
 }
 
-
 var fetchIfNeeded = async function() {
   if (isFetching) {
     return;
@@ -120,10 +100,5 @@ var fetchIfNeeded = async function() {
 }
 
 fetchImage();
-fetchTier(1, {}, function (json, isError) {
-  if (!isError) {
-    app.tier = json;
-  }
-});
 setInterval(fetchIfNeeded, 1000);
 

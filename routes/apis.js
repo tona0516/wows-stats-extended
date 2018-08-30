@@ -110,7 +110,8 @@ router.get('/info/clan', function(req, res, next) {
     url: 'https://api.worldofwarships.' + region + '/wows/clans/info/',
     qs: {
       application_id: appid,
-      clan_id: req.query.clanid
+      clan_id: req.query.clanid,
+      fields: 'tag'
     }
   }, '/info/clan', req, res);
 });
@@ -121,7 +122,8 @@ router.get('/stat/player', function(req, res, next) {
     url: 'https://api.worldofwarships.' + region + '/wows/account/info/',
     qs: {
       application_id: appid,
-      account_id: req.query.playerid
+      account_id: req.query.playerid,
+      fields: 'hidden_profile,statistics'
     }
   }, '/stat/player', req, res);
 });
@@ -144,6 +146,7 @@ router.get('/info/ship', function(req, res, next) {
     qs: {
       application_id: appid,
       ship_id: req.query.shipid,
+      fields: 'name,type,tier,nation,default_profile.concealment',
       language: "ja"
     }
   }, 'info/ship', req, res);
