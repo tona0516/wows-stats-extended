@@ -1,6 +1,7 @@
 var app = new Vue({
   el: '#app',
   data: {
+    message: null,
     players: {},
     images: {},
     nations: {},
@@ -110,8 +111,10 @@ var fetchIfNeeded = async function() {
 
   if (status == 200) {
     isFetching = true;
+    app.message = '読み込み中...';
     await fetch();
     isFetching = false;
+    app.message = null;
     return;
   }
 }

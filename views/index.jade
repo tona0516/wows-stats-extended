@@ -2,6 +2,8 @@ extends layout
 
 block content
   div#app
+    div(v-if="message != null")
+      {{ message }}
     div(v-for="team of players")
       table(class="table table-sm table-striped table-dark")
         thead
