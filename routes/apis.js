@@ -13,11 +13,13 @@ dotenv.config();
 var appid = process.env.APP_ID;
 var region = process.env.REGION;
 var directory = process.env.DIRECTORY;
+const tempArenaInfoPath = '\\replays\\tempArenaInfo.json';
+var filePath = directory + tempArenaInfoPath;
 
 const DataFetcher = require('../domains/datafetcher');
 const DataPicker = require('../domains/datapicker');
 const FileObserver = require('../domains/fileobserver');
-var fileObserver = new FileObserver(directory + 'replays/tempArenaInfo.json');
+var fileObserver = new FileObserver(filePath);
 var latestTempArenaInfo;
 var latestPicked;
 
@@ -27,7 +29,7 @@ router.get('/check_update', async function(req, res, next) {
   refresh();
 
   // tempArenaInfo.jsonの読み込み
-  const tempArenaInfo = await fileObserver.read(latestTempArenaInfo).catch(() => null);
+  const tempArenaInfo = await fileObserver.read().catch(() => null);
 
   // ファイル読み込みに失敗したケース
   if (tempArenaInfo == null) {
@@ -193,7 +195,8 @@ const refresh = function() {
     appid = process.env.APP_ID;
     region = process.env.REGION;
     directory = process.env.DIRECTORY;
-    fileObserver = new FileObserver(directory + 'replays/tempArenaInfo.json');
+    filePath = directory + tempArenaInfoPath;
+    fileObserver = new FileObserver(filePath);
   }
 }
 
