@@ -9,41 +9,50 @@ const logger = log4js.getLogger();
 logger.level = 'DEBUG';
 dotenv.config();
 
+const SERVERS = ['RU', 'EU', 'NA', 'ASIA'];
+
 /* GET home page. */
 router.get('/', function(req, res, next) {
-    res.render('install', { title: 'インストール', isValid: null});
+    res.render('install', { servers: SERVERS });
 });
 
 router.post('/', async function(req, res, next) {
     const validateResult = await validateParameter(req.body);
     if (validateResult.isValid) {
         saveParameter(req.body);
+        res.redirect('/install_complete');
+        return;
     }
 
-    res.render('install', { title: 'インストール', isValid: validateResult.isValid, message: validateResult.message});
+    res.render('install', { messages: validateResult.messages, parameters: req.body, servers: SERVERS});
 });
 
-const validateParameter = async function(parameter) {
-    const appid = parameter.appid;
-    const region = parameter.region;
-    const directory = parameter.directory;
+const validateParameter = async function(parameters) {
+    const appid = parameters.appid;
+    const region = parameters.region;
+    const directory = parameters.directory;
+    var isValid = true;
+    var messages = {};
 
     if (!await validateAppID(appid, region)) {
-        return {isValid: false, message: 'Application IDが不正です'};
+        isValid = false;
+        messages.appid_error = "不正なアプリケーションIDです";
     }
 
     if (!validateInstallDirectory(directory)) {
-        return {isValid: false, message: 'インストール先が不正です'};;
+        isValid = false;
+        messages.directory_error = "インストール先が不正です";
     }
 
-    return {isValid: true, message: 'インストール完了！'};
+    return {isValid: isValid, messages: messages};
 }
 
 const validateAppID = function(appid, region) {
     // サーバにリクエストしてデータが取得できるか確かめる
+    const topLevelDomain = (region == 'NA') ? 'com' : region;
     return new Promise((resolve, reject) => {
         request.get({
-            url: "https://api.worldofwarships." + region.toLowerCase() + "/wows/encyclopedia/info/",
+            url: "https://api.worldofwarships." + topLevelDomain.toLowerCase() + "/wows/encyclopedia/info/",
             qs: {
                 application_id: appid
             }
@@ -55,10 +64,11 @@ const validateAppID = function(appid, region) {
 }
 
 const validateInstallDirectory = function(directory) {
-    return true;
     // インストールディレクトリにexeがあるか検証する
+    const exePath = directory + '\\WorldOfWarships.exe';
+    logger.debug(exePath);
     try {
-        fs.statSync(directory + 'WorldOfWarships.exe');
+        fs.statSync(exePath);
         return true;
     } catch(err) {
         return false;
