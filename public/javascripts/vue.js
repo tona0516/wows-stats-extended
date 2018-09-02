@@ -9,6 +9,7 @@ var app = new Vue({
 })
 
 const DOMAIN = 'http://localhost:3000';
+const FAKE_LOADER_TIMEOUT = 20 * 1000;
 var isFetching = false;
 var cache = null;
 
@@ -84,15 +85,23 @@ var fetchIfNeeded = async function() {
 
   const status = await checkUpdate();
 
+  if (status == 299) {
+    app.message = '現在戦闘中ではありません。戦闘開始時に自動更新します。';
+    return;
+  }
+
   if (status == 209) {
     await fetchCache();
+    app.message = null;
     return;
   }
 
   if (status == 200) {
     isFetching = true;
-    app.message = '読み込み中...';
+    app.message = "読み込み中...";
+
     await fetch();
+
     isFetching = false;
     app.message = null;
     return;

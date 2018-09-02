@@ -33,7 +33,7 @@ router.get('/check_update', async function(req, res, next) {
 
   // ファイル読み込みに失敗したケース
   if (tempArenaInfo == null) {
-    res.status(500);
+    res.status(299);
     res.send();
     return;
   }

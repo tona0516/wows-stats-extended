@@ -3,7 +3,8 @@ extends layout
 block content
   div#app
     div(v-if="message != null")
-      {{ message }}
+      div(class="alert alert-primary")
+        {{ message }}
     div(v-for="team of players")
       table(class="table table-sm table-striped table-dark")
         thead
@@ -37,33 +38,28 @@ block content
           // プレイヤー情報
           td
             div(v-if="player.player_stat.is_myself == true")
-              div(class="font-weight-bold") {{ player.player_stat.clan_tag }}{{ player.player_stat.name }}
+              div(class="font-weight-bold")
+                font(color="#B6FF01") {{ player.player_stat.clan_tag }}
+                {{ player.player_stat.name }}
             div(v-else)
-              {{ player.player_stat.clan_tag }}{{ player.player_stat.name }}
+              font(color="#B6FF01") {{ player.player_stat.clan_tag }}
+              {{ player.player_stat.name }}
 
           td
             div(v-if="player.ship_stat.cp < 10000")
-              font(color="#FE0E00")
-                {{ player.ship_stat.cp }}
+              font(color="#FE0E00") {{ player.ship_stat.cp }}
             div(v-else-if="player.ship_stat.cp < 20000")
-              font(color="#FE7903")
-                {{ player.ship_stat.cp }}
+              font(color="#FE7903") {{ player.ship_stat.cp }}
             div(v-else-if="player.ship_stat.cp < 30000")
-              font(color="#FFC71F")
-                {{ player.ship_stat.cp }}
+              font(color="#FFC71F") {{ player.ship_stat.cp }}
             div(v-else-if="player.ship_stat.cp < 80000")
-              font(color="#44B300")
-                {{ player.ship_stat.cp }}
+              font(color="#44B300") {{ player.ship_stat.cp }}
             div(v-else-if="player.ship_stat.cp < 150000")
-              font(color="#02C9B3")
-                {{ player.ship_stat.cp }}
+              font(color="#02C9B3") {{ player.ship_stat.cp }}
             div(v-else-if="player.ship_stat.cp < 1000000")
-              font(color="#D042F3")
-                {{ player.ship_stat.cp }}
-            div(v-else-if="player.ship_stat.cp >= 1000000")
-              div(class="bg-light")
-                font(color="#A00DC5")
-                  {{ player.ship_stat.cp }}
+              font(color="#D042F3") {{ player.ship_stat.cp }}
+            div(v-else-if="player.ship_stat.cp >= 1000000", class="bg-light")
+              font(color="#A00DC5") {{ player.ship_stat.cp }}
             div(v-else) {{ player.ship_stat.cp }}
 
           // 艦艇情報
