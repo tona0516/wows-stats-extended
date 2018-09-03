@@ -13,12 +13,12 @@ dotenv.config();
 var appid = process.env.APP_ID;
 var region = process.env.REGION;
 var directory = process.env.DIRECTORY;
-const tempArenaInfoPath = '\\replays\\tempArenaInfo.json';
+const tempArenaInfoPath = '/replays/tempArenaInfo.json';
 var filePath = directory + tempArenaInfoPath;
 
-const DataFetcher = require('../domains/datafetcher');
-const DataPicker = require('../domains/datapicker');
-const FileObserver = require('../domains/fileobserver');
+const DataFetcher = require('../domains/DataFetcher');
+const DataPicker = require('../domains/DataPicker');
+const FileObserver = require('../domains/FileObserver');
 var fileObserver = new FileObserver(filePath);
 var latestTempArenaInfo;
 var latestPicked;

@@ -13,7 +13,7 @@ const FAKE_LOADER_TIMEOUT = 20 * 1000;
 var isFetching = false;
 var cache = null;
 
-var fetchImage = function () {
+const fetchImage = function () {
   var imageRequest = new XMLHttpRequest();
   imageRequest.open("GET", DOMAIN + '/apis/info/encyclopedia');
   imageRequest.addEventListener("load", (event) => {
@@ -30,7 +30,7 @@ var fetchImage = function () {
   imageRequest.send();
 }
 
-var checkUpdate = function() {
+const checkUpdate = function() {
   return new Promise((resolve) => {
     var request = new XMLHttpRequest();
     request.open("GET", DOMAIN + '/apis/check_update');
@@ -41,7 +41,7 @@ var checkUpdate = function() {
   });
 }
 
-var fetch = function () {
+const fetch = function () {
   return new Promise((resolve) => {
     var request = new XMLHttpRequest();
     request.open("GET", DOMAIN + '/apis/fetch');
@@ -59,7 +59,7 @@ var fetch = function () {
   });
 }
 
-var fetchCache = function () {
+const fetchCache = function () {
   return new Promise((resolve) => {
     var request = new XMLHttpRequest();
     request.open("GET", DOMAIN + '/apis/fetch_cache');
@@ -78,7 +78,7 @@ var fetchCache = function () {
   });
 }
 
-var fetchIfNeeded = async function() {
+const fetchIfNeeded = async function() {
   if (isFetching) {
     return;
   }

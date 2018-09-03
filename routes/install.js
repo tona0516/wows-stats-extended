@@ -64,9 +64,9 @@ const validateAppID = function(appid, region) {
 }
 
 const validateInstallDirectory = function(directory) {
+    return true;
     // インストールディレクトリにexeがあるか検証する
     const exePath = directory + '\\WorldOfWarships.exe';
-    logger.debug(exePath);
     try {
         fs.statSync(exePath);
         return true;
