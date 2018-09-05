@@ -12,4 +12,4 @@
 1. Execute `npm install` and `npm start`
 1. Access `localhost:3000/install.`
 1. Input application id, server region and install directory.
-1. After accessing 'localhost:3000' and starting battle, it will be shown player's records and the ship information. 
+1. After accessing `localhost:3000` and starting battle, it will be shown player's records and the ship information. 
