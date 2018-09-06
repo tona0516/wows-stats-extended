@@ -33,7 +33,7 @@ class DataPicker {
                 const originShipStat = findShipStatById(player.shipstat, player.info.shipId);
                 const isFirstMatchByShip = originShipStat == null || originShipStat.pvp == null ? true : false;
                 if (isFirstMatchByShip) {
-                    shipStat.pr = '-'
+                    shipStat.cp = '-'
                     shipStat.battles = '0';
                     shipStat.win_rate = '-';
                     shipStat.average_damage = '-';
@@ -120,10 +120,10 @@ class DataPicker {
         }
 
         const outputData = {};
-        var sortedFriends = friends.sort(sort_by_type_and_tier());
+        var sortedFriends = friends.sort(sortByTypeAndTier());
         sortedFriends = convertToRomanNumber(sortedFriends);
         sortedFriends.push(calculateTeamAverage(sortedFriends));
-        var sortedEnemies = enemies.sort(sort_by_type_and_tier());
+        var sortedEnemies = enemies.sort(sortByTypeAndTier());
         sortedEnemies = convertToRomanNumber(sortedEnemies);
         sortedEnemies.push(calculateTeamAverage(sortedEnemies));
     
@@ -227,7 +227,7 @@ const calculateAverageTier = function (shipStats, tiers) {
     return sum / battles;
 }
 
-const sort_by_type_and_tier = function () {
+const sortByTypeAndTier = function () {
     return function (a, b) {
       var a_type = a.ship_info.type;
       var b_type = b.ship_info.type;

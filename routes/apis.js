@@ -23,7 +23,9 @@ var fileObserver = new FileObserver(filePath);
 var latestTempArenaInfo;
 var latestPicked;
 
-/* GET users listing. */
+/**
+ * 戦闘開始したかチェックする
+ */
 router.get('/check_update', async function(req, res, next) {
   // 環境変数の再読み込み
   refresh();
@@ -31,39 +33,47 @@ router.get('/check_update', async function(req, res, next) {
   // tempArenaInfo.jsonの読み込み
   const tempArenaInfo = await fileObserver.read().catch(() => null);
 
-  // ファイル読み込みに失敗したケース
+  // 戦闘が開始していない場合
   if (tempArenaInfo == null) {
     res.status(299);
     res.send();
     return;
   }
 
-  // ファイルに変更がなかったケース
+  // 戦闘が継続している場合
   if (tempArenaInfo === latestTempArenaInfo) {
     res.status(209);
     res.send();
     return;
   }
 
-  // ファイルが更新されたケース
+  // 新しい戦闘が開始された場合
   latestTempArenaInfo = tempArenaInfo;
   res.status(200);
   res.send();
 });
 
-// wows apiから取得する
+/**
+ * APIから取得したデータを返却する
+ */
 router.get('/fetch', function(req, res, next) {
   // 環境変数の再読み込み
   refresh();
 
   if (latestTempArenaInfo == null) {
     res.status(500);
-    res.send();
+    res.send(JSON.stringify({'error' : 'tempArenaInfo.json has not been read yet'}));
     return;
   }
 
   const dataFetcher = new DataFetcher();
-  dataFetcher.fetch(JSON.parse(latestTempArenaInfo), function(players, tiers) {
+  dataFetcher.fetch(JSON.parse(latestTempArenaInfo), function(players, tiers, error) {
+    if (error !== null) {
+      res.status(500);
+      res.send(JSON.stringify({'error' : error}));
+      return;
+    }
+
     const dataPicker = new DataPicker();
     const picked = dataPicker.pick(players, tiers);
     latestPicked = picked;
@@ -72,16 +82,36 @@ router.get('/fetch', function(req, res, next) {
   });
 });
 
+/**
+ * 直近に取得したデータを返却する
+ */
 router.get('/fetch_cache', function(req, res, next) {
   if (latestPicked == null) {
     res.status(500);
-    res.send();
+    res.send(JSON.stringify({'error' : 'No fetched cache exists'}));
     return;
   }
 
   res.status(200);
   res.send(latestPicked);
 });
+
+/**
+ * 艦種アイコンと日本語表記の国名を返却する
+ */
+router.get('/info/encyclopedia', function(req, res, next) {
+  refresh();
+  requestCommon({
+    url: 'https://api.worldofwarships.' + region + '/wows/encyclopedia/info/',
+    qs: {
+      application_id: appid,
+      fields: "ship_type_images, ship_nations",
+      language: "ja"
+    }
+  }, '/info/encyclopedia', req, res);
+});
+
+/* 以下内部で使用するエントリーポイント */
 
 // プレイヤーIDの取得
 router.get('/playerid', function(req, res, next) {
@@ -154,18 +184,6 @@ router.get('/info/ship', function(req, res, next) {
   }, 'info/ship', req, res);
 });
 
-router.get('/info/encyclopedia', function(req, res, next) {
-  refresh();
-  requestCommon({
-    url: 'https://api.worldofwarships.' + region + '/wows/encyclopedia/info/',
-    qs: {
-      application_id: appid,
-      fields: "ship_type_images, ship_nations",
-      language: "ja"
-    }
-  }, '/info/encyclopedia', req, res);
-});
-
 router.get('/info/ship_tier', function(req, res, next) {
   refresh();
   requestCommon({
@@ -178,17 +196,29 @@ router.get('/info/ship_tier', function(req, res, next) {
   }, '/info/ship_tier', req, res);
 });
 
+/**
+ * APIにリクエストする共通メソッド
+ * 
+ * @param {Object} option 
+ * @param {String} entryPointName 
+ * @param {Object} req 
+ * @param {Object} res 
+ */
 const requestCommon = function (option, entryPointName, req, res) {
   rp(option)
-  .then(function (body) {
+  .then(function(body) {
     res.send(body);
   })
-  .catch(function (error) {
-    logger.error(entryPointName + ': ' + JSON.stringify(req.query) + ' error: ' + error);
-    res.send();
+  .catch(function(error) {
+    logger.error(error);
+    res.status(500);
+    res.send(JSON.stringify({'error' : error}));
   });
 }
 
+/**
+ * 環境変数を再読み込みする
+ */
 const refresh = function() {
   if (appid === undefined || region === undefined || directory === undefined) {
     dotenv.config();

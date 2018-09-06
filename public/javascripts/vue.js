@@ -9,25 +9,29 @@ var app = new Vue({
 })
 
 const DOMAIN = 'http://localhost:3000';
-const FAKE_LOADER_TIMEOUT = 20 * 1000;
 var isFetching = false;
 var cache = null;
 
 const fetchImage = function () {
-  var imageRequest = new XMLHttpRequest();
-  imageRequest.open("GET", DOMAIN + '/apis/info/encyclopedia');
-  imageRequest.addEventListener("load", (event) => {
+  var request = new XMLHttpRequest();
+  request.open("GET", DOMAIN + '/apis/info/encyclopedia');
+  request.addEventListener("load", (event) => {
+    const statusCode = event.target.status;
+    const responseBody = event.target.responseText;
+    const json = JSON.parse(responseBody);
+
+    if (statusCode == 500) {
+      return;
+    }
+      
     if (event.target.status == 200) {
-      const json = JSON.parse(event.target.responseText);
       const data = json.data;
       app.images = data.ship_type_images;
       app.nations = data.ship_nations;
-    } else {
-      app.images = null;
-      app.nations = null;
+      return;
     }
   });
-  imageRequest.send();
+  request.send();
 }
 
 const checkUpdate = function() {
@@ -42,37 +46,47 @@ const checkUpdate = function() {
 }
 
 const fetch = function () {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     var request = new XMLHttpRequest();
     request.open("GET", DOMAIN + '/apis/fetch');
     request.addEventListener("load", (event) => {
       const statusCode = event.target.status;
       const responseBody = event.target.responseText;
+      const json = JSON.parse(responseBody);
+
+      if (statusCode == 500) {
+        return reject(json.error);
+      }
+
       if (statusCode == 200) {
-        const json = JSON.parse(responseBody);
         app.players = json;
         cache = responseBody;
+        return resolve();
       }
-      resolve();
     });
     request.send();
   });
 }
 
 const fetchCache = function () {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     var request = new XMLHttpRequest();
     request.open("GET", DOMAIN + '/apis/fetch_cache');
     request.addEventListener("load", (event) => {
       const statusCode = event.target.status;
       const responseBody = event.target.responseText;
+      const json = JSON.parse(responseBody);
+
+      if (statusCode == 500) {
+        return reject(json.error)
+      }
+
       if (statusCode == 200) {
         if (cache !== responseBody) {
-          const json = JSON.parse(responseBody);
           app.players = json;
         }
+        return resolve();
       }
-      resolve();
     });
     request.send();
   });
@@ -91,7 +105,12 @@ const fetchIfNeeded = async function() {
   }
 
   if (status == 209) {
-    await fetchCache();
+    await fetchCache().catch((error) => {
+      isFetching = false;
+      app.message = "読み込みに失敗しました。もう一度お試しください: " + error;
+      return;
+    });
+
     app.message = null;
     return;
   }
@@ -100,7 +119,11 @@ const fetchIfNeeded = async function() {
     isFetching = true;
     app.message = "読み込み中...";
 
-    await fetch();
+    await fetch().catch((error) => {
+      isFetching = false;
+      app.message = "読み込みに失敗しました。もう一度お試しください: " + error;
+      return;
+    });
 
     isFetching = false;
     app.message = null;

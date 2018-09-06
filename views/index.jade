@@ -3,8 +3,7 @@ extends layout
 block content
   div#app
     div(v-if="message != null")
-      div(class="alert alert-primary")
-        {{ message }}
+      div(class="alert alert-primary") {{ message }}
     div(v-for="team of players")
       table(class="table table-sm table-striped table-dark")
         thead
@@ -40,10 +39,10 @@ block content
             div(v-if="player.player_stat.is_myself == true")
               div(class="font-weight-bold")
                 font(color="#B6FF01") {{ player.player_stat.clan_tag }}
-                {{ player.player_stat.name }}
+                span {{ player.player_stat.name }}
             div(v-else)
               font(color="#B6FF01") {{ player.player_stat.clan_tag }}
-              {{ player.player_stat.name }}
+              span {{ player.player_stat.name }}
 
           td(style="width: 7.5%")
             div(v-if="player.ship_stat.cp < 10000")

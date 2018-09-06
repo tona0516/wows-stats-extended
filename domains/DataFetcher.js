@@ -7,19 +7,35 @@ const logger = log4js.getLogger();
 logger.level = 'DEBUG';
 
 class DataFetcher {
-    constructor(requestLimit = 10) {
-        this.requestLimit = requestLimit;
+
+    /**
+     * コンストラクタ
+     * 
+     * @param {Number} parallelRequestLimit 艦種別統計データを取得するときの最大並列数 
+     */
+    constructor(parallelRequestLimit = 10) {
+        this.parallelRequestLimit = parallelRequestLimit;
         this.players = {};
     }
 
+    /**
+     * 
+     * @param {Object} json tempArenaInfo.json 
+     * @param {*} callback (統計データ,Tierデータ,エラー)を返却するコールバック関数
+     */
     async fetch(json, callback) {
-        await this.fetchPlayerId(json);
-        await this.fetchPlayerStats();
-        await this.fetchPlayerShipStats();
-        await this.fetchShipInfo();
-        await this.fetchClanInfo();
-        await this.fetchShipTier();
-        return callback(this.players, this.tiersJson);
+        await this.fetchPlayerId(json)
+        .then(async () => {
+            await this.fetchPlayerStats();
+            await this.fetchPlayerShipStats();
+            await this.fetchShipInfo();
+            await this.fetchClanInfo();
+            await this.fetchShipTier();
+            return callback(this.players, this.tiers, null);
+        })
+        .catch((error) => {
+            return callback({}, {}, error);
+        })
     }
     
     fetchPlayerId(json) {
@@ -69,14 +85,14 @@ class DataFetcher {
             })
             .then(function (body) {
                 const data = JSON.parse(body).data;
-                for (const id in data) {
-                    self.players[id].playerstat = data[id];
+                for (const playerId in data) {
+                    self.players[playerId].playerstat = data[playerId];
                 }
-                resolve();
+                return resolve();
             })
             .catch(function (error) {
                 logger.error(error);
-                reject();
+                return reject(error);
             });
         });
     }
@@ -84,28 +100,28 @@ class DataFetcher {
     fetchPlayerShipStats() {
         const self = this;
         return new Promise((resolve, reject) => {
-            async.mapValuesLimit(self.players, self.requestLimit, function(value, id, next) {
+            async.mapValuesLimit(self.players, self.parallelRequestLimit, function(value, playerId, next) {
                 // 各プレイヤーの使用艦艇の統計を並列で取得する
                 rp({
                     url: 'http://localhost:3000/apis/stat/ship',
                     qs: {
-                        playerid: id
+                        playerid: playerId
                     }
                 })
                 .then(function (body) {
-                    const json = JSON.parse(body);
-                    self.players[id].shipstat = json.data[id] != undefined ? json.data[id] : null;
+                    const data = JSON.parse(body).data;
+                    self.players[playerId].shipstat = (data[playerId] !== null) ? data[playerId] : null;
                     next();
                 })
                 .catch(function (error) {
                     logger.error(error);
-                    self.players[id].shipstat = null;
+                    self.players[playerId].shipstat = null;
                     next();
                 });
             }, function(error) {
                 if (error) {
                     logger.error(error);
-                    return reject();
+                    return reject(error);
                 }
                 return resolve()
             });
@@ -131,11 +147,11 @@ class DataFetcher {
                     const shipId =  self.players[playerId].info.shipId;
                     self.players[playerId].shipinfo = data[shipId];
                 }
-                resolve();
+                return resolve();
             })
             .catch(function (error) {
                 logger.error(error);
-                reject();
+                return reject(error);
             });
         });
     }
@@ -156,7 +172,7 @@ class DataFetcher {
                     playerid: joinedPlayerIds
                 }
             })
-            .then(function (body) {
+            .then(function(body) {
                 const data = JSON.parse(body).data;
                 const clanIds = [];
                 for (const playerId in data) {
@@ -174,34 +190,35 @@ class DataFetcher {
                     }
                 });
             })
-            .then(function (body) {
+            .then(function(body) {
                 const data = JSON.parse(body).data;
                 for (const playerId in self.players) {
                     const clanInfo = data[clanIdMap[playerId]];
-                    self.players[playerId].clan_info = clanInfo !== null ? clanInfo : null;
+                    self.players[playerId].clan_info = (clanInfo !== null) ? clanInfo : null;
                 }
-                resolve();
+                return resolve();
             })
-            .catch(function (error) {
+            .catch(function(error) {
                 logger.error(error);
-                reject();
+                return reject(error);
             });
         });
     }
     
     async fetchShipTier() {
-        var json = {};
+        var allShip = {};
         var pageNo = 0;
         var pageTotal = 0;
         do {
             const body = await fetchShipTierByPage(++pageNo);
             const newJson = JSON.parse(body);
-            for (var id in newJson.data) {
-                json[id] = newJson.data[id];
-            }
+            const data = newJson.data
             pageTotal = newJson.meta.page_total;
+            for (var shipId in data) {
+                allShip[shipId] = data[shipId];
+            }
         } while(pageNo != pageTotal);
-        this.tiersJson = json;
+        this.tiers = allShip;
     }
 }
 
@@ -223,10 +240,6 @@ const fetchShipTierByPage = function(pageNo) {
     });
 }
 
-/**
- * プレイヤー名をキーとしたtempArenaInfoの連想配列を返却する
- * @param {Object} json tempArenaInfo.jsonの連想配列
- */
 const extractPlayers = function(json) {
     const players = {};
     for (const player of json.vehicles) {
