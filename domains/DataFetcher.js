@@ -146,8 +146,10 @@ class DataFetcher {
             // コンマ区切りのプレイヤーID文字列を生成
             const joinedPlayerIds = Util.joinByComma(Object.keys(self.players));
     
+            // プレイヤーIDをキーとしたクランIDのマップ
+            const clanIdMap = {};
+
             // プレイヤーIDからクラン名を取得する
-            const playerIdMap = {}; // クランIDをキーとしたプレイヤーIDのマップ
             rp({
                 url: 'http://localhost:3000/apis/clanid',
                 qs: {
@@ -159,27 +161,24 @@ class DataFetcher {
                 const clanIds = [];
                 for (const playerId in data) {
                     if (data[playerId] !== null) {
-                        clanIds.push(data[playerId].clan_id);
-                        playerIdMap[data[playerId].clan_id] = playerId;
+                        const clanId = data[playerId].clan_id
+                        clanIds.push(clanId);
+                        clanIdMap[playerId] = clanId;
                     }
                 }
-                const clanIdsString = clanIds.join(',');
+                const joinedClanIds = clanIds.join(',');
                 return rp({
                     url: 'http://localhost:3000/apis/info/clan',
                     qs: {
-                        clanid: clanIdsString
+                        clanid: joinedClanIds
                     }
                 });
             })
             .then(function (body) {
                 const data = JSON.parse(body).data;
-                for (const clanId in data) {
-                    self.players[playerIdMap[clanId]].clan_info = data[clanId];
-                }
                 for (const playerId in self.players) {
-                    if (self.players[playerId].clan_info === undefined) {
-                        self.players[playerId].clan_info = null;
-                    }
+                    const clanInfo = data[clanIdMap[playerId]];
+                    self.players[playerId].clan_info = clanInfo !== null ? clanInfo : null;
                 }
                 resolve();
             })
