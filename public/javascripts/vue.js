@@ -106,7 +106,6 @@ const fetchIfNeeded = async function() {
 
   if (status == 209) {
     await fetchCache().catch((error) => {
-      isFetching = false;
       app.message = "読み込みに失敗しました。もう一度お試しください: " + error;
       return;
     });

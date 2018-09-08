@@ -193,8 +193,13 @@ class DataFetcher {
             .then(function(body) {
                 const data = JSON.parse(body).data;
                 for (const playerId in self.players) {
-                    const clanInfo = data[clanIdMap[playerId]];
-                    self.players[playerId].clan_info = (clanInfo !== null) ? clanInfo : null;
+                    try {
+                        const clanId = clanIdMap[playerId];
+                        const clanInfo = data[clanId];
+                        self.players[playerId].clan_info = clanInfo;
+                    } catch (e) {
+                        self.players[playerId].clan_info = null;
+                    }
                 }
                 return resolve();
             })
@@ -243,6 +248,10 @@ const fetchShipTierByPage = function(pageNo) {
 const extractPlayers = function(json) {
     const players = {};
     for (const player of json.vehicles) {
+        // COMの場合は除外する
+        if (player.name.startsWith(':') && player.name.endsWith(':')) {
+            continue;
+        }
         players[player.name] = player;
     } 
     return players;
