@@ -20,7 +20,7 @@ router.post('/', async function(req, res, next) {
     const validateResult = await validateParameter(req.body);
     if (validateResult.isValid) {
         saveParameter(req.body);
-        res.redirect('/install_complete');
+        res.redirect('/');
         return;
     }
 
