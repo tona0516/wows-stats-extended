@@ -6,8 +6,7 @@ block content
       label(for='appid') アプリケーションID
       if messages != null && messages.appid_error != null
         input(style='border: solid 3px #FF0000' type='text', class='form-control', id='appid', name='appid', value=parameters.appid)
-        font(color="#FF0000")
-          p= messages.appid_error
+        font(color="#FF0000")!= messages.appid_error
       else
         if parameters != null && parameters.appid != null
           input(type='text', class='form-control', id='appid', name='appid', value=parameters.appid)
@@ -28,11 +27,10 @@ block content
           option NA
           option ASIA
     div(class='form-group')
-      label(for='application_id') インストール先(windowsの場合、デフォルトは「C:\Games\World_of_Warships」)
+      label(for='application_id') インストール先（デフォルト:「C:\Games\World_of_Warships」）
       if messages != null && messages.directory_error != null
         input(style='border: solid 3px #FF0000' type='text', class='form-control', id='directory', name='directory', value=parameters.directory)
-        font(color="#FF0000")
-          p= messages.directory_error
+        font(color="#FF0000")!= messages.directory_error
       else
         if parameters != null && parameters.directory != null
           input(type='text', class='form-control', id='directory', name='directory', value=parameters.directory)
