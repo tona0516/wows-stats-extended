@@ -108,7 +108,7 @@ class DataPicker {
                 default:
                     break;
             }
-            shipInfo.detect_distance_by_ship = (Math.round(shipInfo.detect_distance_by_ship * camouflage_coefficient * module_coefficient * commander_coefficient * 10) / 10).toFixed(1);
+            shipInfo.detect_distance_by_ship = (shipInfo.detect_distance_by_ship * camouflage_coefficient * module_coefficient * commander_coefficient).toFixed(2);
             
             var allStat = {};
             allStat.player_stat = playerStat;
