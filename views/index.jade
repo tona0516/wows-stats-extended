@@ -40,21 +40,21 @@ block content
             span {{ player.player_stat.name }}
 
           td(style="width: 7.5%")
-            div(v-if="player.ship_stat.cp < 10000")
+            span(v-if="player.ship_stat.cp < 10000")
               font(color="#FE0E00") {{ player.ship_stat.cp }}
-            div(v-else-if="player.ship_stat.cp < 20000")
+            span(v-else-if="player.ship_stat.cp < 20000")
               font(color="#FE7903") {{ player.ship_stat.cp }}
-            div(v-else-if="player.ship_stat.cp < 30000")
+            span(v-else-if="player.ship_stat.cp < 30000")
               font(color="#FFC71F") {{ player.ship_stat.cp }}
-            div(v-else-if="player.ship_stat.cp < 80000")
+            span(v-else-if="player.ship_stat.cp < 80000")
               font(color="#44B300") {{ player.ship_stat.cp }}
-            div(v-else-if="player.ship_stat.cp < 150000")
+            span(v-else-if="player.ship_stat.cp < 150000")
               font(color="#02C9B3") {{ player.ship_stat.cp }}
-            div(v-else-if="player.ship_stat.cp < 1000000")
+            span(v-else-if="player.ship_stat.cp < 1000000")
               font(color="#D042F3") {{ player.ship_stat.cp }}
-            div(v-else-if="player.ship_stat.cp >= 1000000", class="bg-light")
+            span(v-else-if="player.ship_stat.cp >= 1000000", class="bg-light")
               font(color="#A00DC5") {{ player.ship_stat.cp }}
-            div(v-else) {{ player.ship_stat.cp }}
+            span(v-else) {{ player.ship_stat.cp }}
 
           // 艦艇情報
           td(style="width: 10%") {{ player.ship_info.name }}
