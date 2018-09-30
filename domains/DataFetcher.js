@@ -252,6 +252,12 @@ const extractPlayers = function(json) {
         if (player.name.startsWith(':') && player.name.endsWith(':')) {
             continue;
         }
+
+        // シナリオの敵船の場合は除外する
+        if (player.id < 0) {
+            continue;
+        }
+
         players[player.name] = player;
     } 
     return players;
