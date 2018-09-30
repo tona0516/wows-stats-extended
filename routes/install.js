@@ -20,7 +20,7 @@ router.post('/', async function(req, res, next) {
     const validateResult = await validateParameter(req.body);
     if (validateResult.isValid) {
         saveParameter(req.body);
-        res.redirect('/install_complete');
+        res.redirect('/');
         return;
     }
 
@@ -36,12 +36,12 @@ const validateParameter = async function(parameters) {
 
     if (!await validateAppID(appid, region)) {
         isValid = false;
-        messages.appid_error = "不正なアプリケーションIDです";
+        messages.appid_error = "不正なアプリケーションIDです。<a href=\"https:\/\/developers.wargaming.net\/\">Developer Room</a>で確認してください。";
     }
 
     if (!validateInstallDirectory(directory)) {
         isValid = false;
-        messages.directory_error = "インストール先が不正です";
+        messages.directory_error = "インストール先が不正です。「WorldOfWarships.exe」があるフォルダを指定してください。";
     }
 
     return {isValid: isValid, messages: messages};
