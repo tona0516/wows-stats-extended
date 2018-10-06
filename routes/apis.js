@@ -8,27 +8,42 @@ const log4js = require('log4js');
 const logger = log4js.getLogger();
 logger.level = 'DEBUG';
 
-const dotenv = require('dotenv');
-dotenv.config();
-var appid = process.env.APP_ID;
-var region = process.env.REGION;
-var directory = process.env.DIRECTORY;
-const tempArenaInfoPath = '/replays/tempArenaInfo.json';
-var filePath = directory + tempArenaInfoPath;
-
 const DataFetcher = require('../domains/DataFetcher');
 const DataPicker = require('../domains/DataPicker');
 const FileObserver = require('../domains/FileObserver');
-var fileObserver = new FileObserver(filePath);
-var latestTempArenaInfo;
-var latestPicked;
+const dotenv = require('dotenv');
+
+const tempArenaInfoPath = '/replays/tempArenaInfo.json';
+
+let latestTempArenaInfo;
+let latestPicked;
+let appid;
+let region;
+let directory;
+let filePath;
+let fileObserver;
+
+/**
+ * 環境変数を再読み込みする
+ */
+const refreshEnv = function() {
+  if (appid === undefined || region === undefined || directory === undefined) {
+    dotenv.config();
+    appid = process.env.APP_ID;
+    region = process.env.REGION;
+    directory = process.env.DIRECTORY;
+    filePath = directory + tempArenaInfoPath;
+    fileObserver = new FileObserver(filePath);
+  }
+}
+refreshEnv();
 
 /**
  * 戦闘開始したかチェックする
  */
 router.get('/check_update', async function(req, res, next) {
   // 環境変数の再読み込み
-  refresh();
+  refreshEnv();
 
   // tempArenaInfo.jsonの読み込み
   const tempArenaInfo = await fileObserver.read().catch(() => null);
@@ -58,7 +73,7 @@ router.get('/check_update', async function(req, res, next) {
  */
 router.get('/fetch', function(req, res, next) {
   // 環境変数の再読み込み
-  refresh();
+  refreshEnv();
 
   if (latestTempArenaInfo == null) {
     res.status(500);
@@ -100,7 +115,7 @@ router.get('/fetch_cache', function(req, res, next) {
  * 艦種アイコンと日本語表記の国名を返却する
  */
 router.get('/info/encyclopedia', function(req, res, next) {
-  refresh();
+  refreshEnv();
   requestCommon({
     url: generateApiUrl('/encyclopedia/info/'),
     qs: {
@@ -185,7 +200,7 @@ router.get('/info/ship', function(req, res, next) {
 });
 
 router.get('/info/ship_tier', function(req, res, next) {
-  refresh();
+  refreshEnv();
   requestCommon({
     url: generateApiUrl('/encyclopedia/ships/'),
     qs: {
@@ -214,20 +229,6 @@ const requestCommon = function (option, entryPointName, req, res) {
     res.status(500);
     res.send(JSON.stringify({'error' : error}));
   });
-}
-
-/**
- * 環境変数を再読み込みする
- */
-const refresh = function() {
-  if (appid === undefined || region === undefined || directory === undefined) {
-    dotenv.config();
-    appid = process.env.APP_ID;
-    region = process.env.REGION;
-    directory = process.env.DIRECTORY;
-    filePath = directory + tempArenaInfoPath;
-    fileObserver = new FileObserver(filePath);
-  }
 }
 
 /**
