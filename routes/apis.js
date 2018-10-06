@@ -102,7 +102,7 @@ router.get('/fetch_cache', function(req, res, next) {
 router.get('/info/encyclopedia', function(req, res, next) {
   refresh();
   requestCommon({
-    url: 'https://api.worldofwarships.' + region + '/wows/encyclopedia/info/',
+    url: generateApiUrl('/encyclopedia/info/'),
     qs: {
       application_id: appid,
       fields: "ship_type_images, ship_nations",
@@ -116,7 +116,7 @@ router.get('/info/encyclopedia', function(req, res, next) {
 // プレイヤーIDの取得
 router.get('/playerid', function(req, res, next) {
   requestCommon({
-    url: 'https://api.worldofwarships.' + region + '/wows/account/list/',
+    url: generateApiUrl('/account/list/'),
     qs: {
       application_id: appid,
       search: req.query.search,
@@ -128,7 +128,7 @@ router.get('/playerid', function(req, res, next) {
 // プレイヤー所属クランのIDを取得
 router.get('/clanid', function(req, res, next) {
   requestCommon({
-    url: 'https://api.worldofwarships.' + region + '/wows/clans/accountinfo/',
+    url: generateApiUrl('/clans/accountinfo/'),
     qs: {
       application_id: appid,
       account_id: req.query.playerid
@@ -139,7 +139,7 @@ router.get('/clanid', function(req, res, next) {
 // クラン情報の取得
 router.get('/info/clan', function(req, res, next) {
   requestCommon({
-    url: 'https://api.worldofwarships.' + region + '/wows/clans/info/',
+    url: generateApiUrl('/clans/info/'),
     qs: {
       application_id: appid,
       clan_id: req.query.clanid,
@@ -151,7 +151,7 @@ router.get('/info/clan', function(req, res, next) {
 // プレイヤー成績の取得
 router.get('/stat/player', function(req, res, next) {
   requestCommon({
-    url: 'https://api.worldofwarships.' + region + '/wows/account/info/',
+    url: generateApiUrl('/account/info/'),
     qs: {
       application_id: appid,
       account_id: req.query.playerid,
@@ -163,7 +163,7 @@ router.get('/stat/player', function(req, res, next) {
 // 艦艇別成績の取得
 router.get('/stat/ship', function(req, res, next) {
   requestCommon({
-    url: 'https://api.worldofwarships.' + region + '/wows/ships/stats/',
+    url: generateApiUrl('/ships/stats/'),
     qs: {
       application_id: appid,
       account_id: req.query.playerid
@@ -174,7 +174,7 @@ router.get('/stat/ship', function(req, res, next) {
 // 艦艇データの取得
 router.get('/info/ship', function(req, res, next) {
   requestCommon({
-    url: 'https://api.worldofwarships.' + region + '/wows/encyclopedia/ships/',
+    url: generateApiUrl('/encyclopedia/ships/'),
     qs: {
       application_id: appid,
       ship_id: req.query.shipid,
@@ -187,7 +187,7 @@ router.get('/info/ship', function(req, res, next) {
 router.get('/info/ship_tier', function(req, res, next) {
   refresh();
   requestCommon({
-    url: 'https://api.worldofwarships.' + region + '/wows/encyclopedia/ships/',
+    url: generateApiUrl('/encyclopedia/ships/'),
     qs: {
       application_id: appid,
       fields: "tier",
@@ -228,6 +228,15 @@ const refresh = function() {
     filePath = directory + tempArenaInfoPath;
     fileObserver = new FileObserver(filePath);
   }
+}
+
+/**
+ * WOWS-APIのURLを生成する
+ *
+ * @param {String} path
+ */
+const generateApiUrl = function(path) {
+  return 'https://api.worldofwarships.' + region + '/wows' +  path;
 }
 
 module.exports = router;
