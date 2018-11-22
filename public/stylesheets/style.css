@@ -3,6 +3,10 @@ body {
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
+.custom-dark {
+  background-color: #343A40;
+}
+
 table td {
   overflow: hidden;
   text-overflow: ellipsis;
