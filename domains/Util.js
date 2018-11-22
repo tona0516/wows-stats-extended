@@ -6,6 +6,10 @@ class Util {
         }
         return tmp.join(',');
     }
+
+    static isValid(data) {
+        return data !== null && data !== undefined;
+    }
 }
 
 module.exports = Util;

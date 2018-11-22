@@ -86,7 +86,7 @@ class DataFetcher {
             .then(function (body) {
                 const data = JSON.parse(body).data;
                 for (const playerId in data) {
-                    self.players[playerId].playerstat = data[playerId];
+                    self.players[playerId].playerstat = Util.isValid(data[playerId]) ? data[playerId] : null;
                 }
                 return resolve();
             })
@@ -110,7 +110,7 @@ class DataFetcher {
                 })
                 .then(function (body) {
                     const data = JSON.parse(body).data;
-                    self.players[playerId].shipstat = (data[playerId] !== null) ? data[playerId] : null;
+                    self.players[playerId].shipstat = Util.isValid(data[playerId]) ? data[playerId] : null;
                     next();
                 })
                 .catch(function (error) {
@@ -176,7 +176,7 @@ class DataFetcher {
                 const data = JSON.parse(body).data;
                 const clanIds = [];
                 for (const playerId in data) {
-                    if (data[playerId] !== null) {
+                    if (Util.isValid(data[playerId])) {
                         const clanId = data[playerId].clan_id
                         clanIds.push(clanId);
                         clanIdMap[playerId] = clanId;
