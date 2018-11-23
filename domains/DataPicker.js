@@ -1,3 +1,5 @@
+const Util = require('./Util');
+
 const log4js = require('log4js');
 const logger = log4js.getLogger();
 logger.level = 'DEBUG';
@@ -21,14 +23,27 @@ class DataPicker {
         var enemies = [];
         for (const id in playersJson) {
             const player = playersJson[id];
-            const isHidden = (player.shipstat == null ||  player.playerstat == null || player.playerstat.hidden_profile) ? true : false;
+            const isPrivate = player.playerstat.hidden_profile ? true : false;
     
             var shipStat = {};
             var playerStat = {};
             playerStat.name = player.info.name;
             playerStat.is_myself = player.info.relation == 0 ? true : false;
             playerStat.clan_tag = player.clan_info != null ? "[" + player.clan_info.tag + "] " : "";
-            if (!isHidden) {
+
+            shipStat.cp = '';
+            shipStat.battles = '';
+            shipStat.win_rate = '';
+            shipStat.average_damage = '';
+            shipStat.kill_death_rate = '';
+
+            playerStat.battles = '';
+            playerStat.win_rate = '';
+            playerStat.average_damage = '';
+            playerStat.kill_death_rate = '';
+            playerStat.average_tier = '';
+
+            if (!isPrivate) {
                 // プレイヤーが使用する艦艇の成績
                 const originShipStat = findShipStatById(player.shipstat, player.info.shipId);
                 const isFirstMatchByShip = originShipStat == null || originShipStat.pvp == null ? true : false;
