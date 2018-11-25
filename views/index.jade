@@ -36,7 +36,7 @@ block content
             td(style="width: 12.5%")
               font(color="#B6FF01") {{ player.player_stat.clan_tag }}
               span {{ player.player_stat.name }}
-
+            
             td(style="width: 7.5%")
               span(v-if="player.ship_stat.cp < 10000")
                 font(color="#FE0E00") {{ player.ship_stat.cp }}
@@ -50,8 +50,8 @@ block content
                 font(color="#02C9B3") {{ player.ship_stat.cp }}
               span(v-else-if="player.ship_stat.cp < 1000000")
                 font(color="#D042F3") {{ player.ship_stat.cp }}
-              span(v-else-if="player.ship_stat.cp >= 1000000", class="bg-light")
-                font(color="#A00DC5") {{ player.ship_stat.cp }}
+              span(v-else-if="player.ship_stat.cp >= 1000000")
+                font(color="#920783") {{ player.ship_stat.cp }}
               span(v-else) {{ player.ship_stat.cp }}
 
             // 艦艇情報
@@ -59,13 +59,13 @@ block content
               span(v-if="player.ship_info.type === 'AirCarrier'")
                 font(color="#CFA7CD") {{ player.ship_info.name }}
               span(v-else-if="player.ship_info.type === 'Battleship'")
-                font(color="#FCD7A1") {{ player.ship_info.name }}
+                font(color="#A3BCE2") {{ player.ship_info.name }}
               span(v-else-if="player.ship_info.type === 'Cruiser'")
                 font(color="#D7E7AF") {{ player.ship_info.name }}
               span(v-else-if="player.ship_info.type === 'Destroyer'")
-                font(color="#A2D7D4") {{ player.ship_info.name }}
+                font(color="#FCD7A1") {{ player.ship_info.name }}
               span(v-else-if="player.ship_info.type === 'Submarine'")
-                font(color="#A3BCE2") {{ player.ship_info.name }}
+                font(color="#A2D7D4") {{ player.ship_info.name }}
               span(v-else) {{ player.ship_info.name }}
             td {{ player.ship_info.tier }}
             td {{ player.ship_info.detect_distance_by_ship }}
@@ -78,7 +78,22 @@ block content
             
             // プレイヤー統計
             td {{ player.player_stat.average_damage }}
-            td {{ player.player_stat.win_rate }}
+            td
+              span(v-if="player.player_stat.win_rate < 40")
+                font(color="#FE0E00") {{ player.player_stat.win_rate }}
+              span(v-else-if="player.player_stat.win_rate < 45")
+                font(color="#FE7903") {{ player.player_stat.win_rate }}
+              span(v-else-if="player.player_stat.win_rate < 50")
+                font(color="#FFC71F") {{ player.player_stat.win_rate }}
+              span(v-else-if="player.player_stat.win_rate < 55")
+                font(color="#44B300") {{ player.player_stat.win_rate }}
+              span(v-else-if="player.player_stat.win_rate < 60")
+                font(color="#02C9B3") {{ player.player_stat.win_rate }}
+              span(v-else-if="player.player_stat.win_rate < 65")
+                font(color="#D042F3") {{ player.player_stat.win_rate }}
+              span(v-else-if="player.player_stat.win_rate >= 65")
+                font(color="#920783") {{ player.player_stat.win_rate }}
+              span(v-else) {{ player.player_stat.win_rate }}
             td {{ player.player_stat.kill_death_rate }}
             td {{ player.player_stat.battles }}
             td {{ player.player_stat.average_tier }}
