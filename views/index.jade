@@ -5,21 +5,19 @@ block content
     div(v-if="message != null")
       div(class="alert alert-primary") {{ message }}
     div(v-for="team of players")
-      table(class="table table-sm table-striped table-dark table-bordered table-hover")
+      table(class="table table-sm table-dark table-bordered table-hover")
         thead
           th(colspan="2", style="width: 20%") プレイヤー情報
-          th(colspan="5", style="width: 30%") 艦艇情報
+          th(colspan="3", style="width: 20%") 艦艇情報
           th(colspan="5", style="width: 30%") 艦艇統計
-          th(colspan="5", style="width: 20%") プレイヤー統計
+          th(colspan="5", style="width: 30%") プレイヤー統計
 
         tr
           td プレイヤー名
           td 戦闘力
 
           td 艦名
-          td 艦種
           td Tier
-          td 国籍
           td 隠蔽
 
           td 与ダメ
@@ -32,56 +30,56 @@ block content
           td K/D
           td 戦闘数
           td 平均Tier
-          
-        tr(v-for="player of team")
-          // プレイヤー情報
-          td(style="width: 12.5%")
-            font(color="#B6FF01") {{ player.player_stat.clan_tag }}
-            span {{ player.player_stat.name }}
+        
+          tr(v-for="player of team")
+            // プレイヤー情報
+            td(style="width: 12.5%")
+              font(color="#B6FF01") {{ player.player_stat.clan_tag }}
+              span {{ player.player_stat.name }}
 
-          td(style="width: 7.5%")
-            span(v-if="player.ship_stat.cp < 10000")
-              font(color="#FE0E00") {{ player.ship_stat.cp }}
-            span(v-else-if="player.ship_stat.cp < 20000")
-              font(color="#FE7903") {{ player.ship_stat.cp }}
-            span(v-else-if="player.ship_stat.cp < 30000")
-              font(color="#FFC71F") {{ player.ship_stat.cp }}
-            span(v-else-if="player.ship_stat.cp < 80000")
-              font(color="#44B300") {{ player.ship_stat.cp }}
-            span(v-else-if="player.ship_stat.cp < 150000")
-              font(color="#02C9B3") {{ player.ship_stat.cp }}
-            span(v-else-if="player.ship_stat.cp < 1000000")
-              font(color="#D042F3") {{ player.ship_stat.cp }}
-            span(v-else-if="player.ship_stat.cp >= 1000000", class="bg-light")
-              font(color="#A00DC5") {{ player.ship_stat.cp }}
-            span(v-else) {{ player.ship_stat.cp }}
+            td(style="width: 7.5%")
+              span(v-if="player.ship_stat.cp < 10000")
+                font(color="#FE0E00") {{ player.ship_stat.cp }}
+              span(v-else-if="player.ship_stat.cp < 20000")
+                font(color="#FE7903") {{ player.ship_stat.cp }}
+              span(v-else-if="player.ship_stat.cp < 30000")
+                font(color="#FFC71F") {{ player.ship_stat.cp }}
+              span(v-else-if="player.ship_stat.cp < 80000")
+                font(color="#44B300") {{ player.ship_stat.cp }}
+              span(v-else-if="player.ship_stat.cp < 150000")
+                font(color="#02C9B3") {{ player.ship_stat.cp }}
+              span(v-else-if="player.ship_stat.cp < 1000000")
+                font(color="#D042F3") {{ player.ship_stat.cp }}
+              span(v-else-if="player.ship_stat.cp >= 1000000", class="bg-light")
+                font(color="#A00DC5") {{ player.ship_stat.cp }}
+              span(v-else) {{ player.ship_stat.cp }}
 
-          // 艦艇情報
-          td(style="width: 10%") {{ player.ship_info.name }}
-          td
-            div(v-if="player.ship_info.type === 'AirCarrier'")
-              img(v-bind:src="images.AirCarrier.image")
-            div(v-else-if="player.ship_info.type === 'Battleship'")
-              img(v-bind:src="images.Battleship.image")
-            div(v-else-if="player.ship_info.type === 'Cruiser'")
-              img(v-bind:src="images.Cruiser.image")
-            div(v-else-if="player.ship_info.type === 'Destroyer'")
-              img(v-bind:src="images.Destroyer.image")
-            div(v-else) {{ player.ship_info.type }}
-          td {{ player.ship_info.tier }}
-          td {{ nations[player.ship_info.nation] }}
-          td {{ player.ship_info.detect_distance_by_ship }}
+            // 艦艇情報
+            td(style="width: 10%")
+              span(v-if="player.ship_info.type === 'AirCarrier'")
+                font(color="#CFA7CD") {{ player.ship_info.name }}
+              span(v-else-if="player.ship_info.type === 'Battleship'")
+                font(color="#FCD7A1") {{ player.ship_info.name }}
+              span(v-else-if="player.ship_info.type === 'Cruiser'")
+                font(color="#D7E7AF") {{ player.ship_info.name }}
+              span(v-else-if="player.ship_info.type === 'Destroyer'")
+                font(color="#A2D7D4") {{ player.ship_info.name }}
+              span(v-else-if="player.ship_info.type === 'Submarine'")
+                font(color="#A3BCE2") {{ player.ship_info.name }}
+              span(v-else) {{ player.ship_info.name }}
+            td {{ player.ship_info.tier }}
+            td {{ player.ship_info.detect_distance_by_ship }}
 
-          // 艦艇統計
-          td {{ player.ship_stat.average_damage }}
-          td {{ player.ship_stat.win_rate }}
-          td {{ player.ship_stat.kill_death_rate }}
-          td {{ player.ship_stat.battles }}
-          
-          // プレイヤー統計
-          td {{ player.player_stat.average_damage }}
-          td {{ player.player_stat.win_rate }}
-          td {{ player.player_stat.kill_death_rate }}
-          td {{ player.player_stat.battles }}
-          td {{ player.player_stat.average_tier }}
+            // 艦艇統計
+            td {{ player.ship_stat.average_damage }}
+            td {{ player.ship_stat.win_rate }}
+            td {{ player.ship_stat.kill_death_rate }}
+            td {{ player.ship_stat.battles }}
+            
+            // プレイヤー統計
+            td {{ player.player_stat.average_damage }}
+            td {{ player.player_stat.win_rate }}
+            td {{ player.player_stat.kill_death_rate }}
+            td {{ player.player_stat.battles }}
+            td {{ player.player_stat.average_tier }}
   script(src='/javascripts/vue.js')

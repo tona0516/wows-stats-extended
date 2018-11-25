@@ -16,7 +16,6 @@ const dotenv = require('dotenv');
 const tempArenaInfoPath = '/replays/tempArenaInfo.json';
 
 let latestTempArenaInfo;
-let latestPicked;
 let appid;
 let region;
 let directory;
@@ -49,7 +48,7 @@ router.get('/check_update', async function(req, res, next) {
   const tempArenaInfo = await fileObserver.read().catch(() => null);
 
   // 戦闘が開始していない場合
-  if (tempArenaInfo == null) {
+  if (tempArenaInfo === null) {
     res.status(299);
     res.send();
     return;
@@ -91,24 +90,9 @@ router.get('/fetch', function(req, res, next) {
 
     const dataPicker = new DataPicker();
     const picked = dataPicker.pick(players, tiers);
-    latestPicked = picked;
     res.status(200);
     res.send(picked);
   });
-});
-
-/**
- * 直近に取得したデータを返却する
- */
-router.get('/fetch_cache', function(req, res, next) {
-  if (latestPicked == null) {
-    res.status(500);
-    res.send(JSON.stringify({'error' : 'No fetched cache exists'}));
-    return;
-  }
-
-  res.status(200);
-  res.send(latestPicked);
 });
 
 /**
@@ -120,7 +104,7 @@ router.get('/info/encyclopedia', function(req, res, next) {
     url: generateApiUrl('/encyclopedia/info/'),
     qs: {
       application_id: appid,
-      fields: "ship_type_images, ship_nations",
+      fields: "ship_types, ship_nations",
       language: "ja"
     }
   }, '/info/encyclopedia', req, res);
