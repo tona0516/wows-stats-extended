@@ -98,27 +98,26 @@ class DataPicker {
             shipInfo.tier = player.shipinfo.tier;
             shipInfo.nation = player.shipinfo.nation;
             shipInfo.detect_distance_by_ship = player.shipinfo.default_profile.concealment.detect_distance_by_ship;
-            const camouflage_coefficient = 1 - 0.03;
-            let module_coefficient = 1;
+            const camouflage_coefficient = 1.00 - 0.03;
+            let module_coefficient = 1.00;
             if (shipInfo.name == "Gearing") {
-                module_coefficient = 1 - 0.15;
+                module_coefficient = 1.00 - 0.15;
             } else if (shipInfo.tier > 7) {
-                module_coefficient = 1 - 0.10;
+                module_coefficient = 1.00 - 0.10;
             }
-            shipInfo.tier > 7 ? 1 - 0.10 : 1;
             var commander_coefficient = 1;
             switch (shipInfo.type) {
                 case "AirCarrier":
-                    commander_coefficient = 1 - 0.16;
+                    commander_coefficient = 1.00 - 0.16;
                     break;
                 case "Battleship":
-                    commander_coefficient = 1 - 0.14;
+                    commander_coefficient = 1.00 - 0.14;
                     break;
                 case "Cruiser":
-                    commander_coefficient = 1 - 0.12;
+                    commander_coefficient = 1.00 - 0.12;
                     break;
                 case "Destroyer":
-                    commander_coefficient = 1 - 0.10;
+                    commander_coefficient = 1.00 - 0.10;
                     break;
                 default:
                     break;
