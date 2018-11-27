@@ -10,10 +10,21 @@ const DOMAIN = 'http://localhost:3000';
 var isFetching = false;
 var isFirstFetch = true;
 
+const fetchShipConcealment = function() {
+  return new Promise((resolve) => {
+    var request = new XMLHttpRequest();
+    request.open("GET", DOMAIN + '/external_api/info/ship_concealment');
+    request.addEventListener("load", (event) => {
+      resolve();
+    });
+    request.send();
+  })
+}
+
 const checkUpdate = function() {
   return new Promise((resolve) => {
     var request = new XMLHttpRequest();
-    request.open("GET", DOMAIN + '/apis/check_update');
+    request.open("GET", DOMAIN + '/external_api/check_update');
     request.addEventListener("load", (event) => {
       resolve(event.target.status);
     });
@@ -24,7 +35,7 @@ const checkUpdate = function() {
 const fetch = function() {
   return new Promise((resolve, reject) => {
     var request = new XMLHttpRequest();
-    request.open("GET", DOMAIN + '/apis/fetch');
+    request.open("GET", DOMAIN + '/external_api/fetch');
     request.addEventListener("load", (event) => {
       const statusCode = event.target.status;
       const responseBody = event.target.responseText;
@@ -77,5 +88,5 @@ const fetchIfNeeded = async function() {
   }
 }
 
+// fetchShipConcealment();
 setInterval(fetchIfNeeded, 1000);
-

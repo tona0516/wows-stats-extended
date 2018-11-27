@@ -1,3 +1,5 @@
+const Env = require('../domains/Env');
+
 class Util {
     static joinByComma(list) {
         const tmp = [];
@@ -9,6 +11,15 @@ class Util {
 
     static isValid(data) {
         return data !== null && data !== undefined;
+    }
+
+    /**
+     * WOWS-APIのURLを生成する
+     *
+     * @param {String} path
+     */
+    static generateApiUrl(path) {
+        return 'https://api.worldofwarships.' + Env.region + '/wows' +  path;
     }
 }
 

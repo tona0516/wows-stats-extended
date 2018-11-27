@@ -15,8 +15,9 @@
     "express": "~4.16.0",
     "http-errors": "~1.6.2",
     "jade": "~1.11.0",
+    "jsdom": "^13.0.0",
     "log4js": "^3.0.2",
-    "morgan": "~1.9.0",
+    "morgan": "^1.9.1",
     "nodemon": "^1.18.3",
     "request": "^2.87.0",
     "request-promise": "^4.2.2"

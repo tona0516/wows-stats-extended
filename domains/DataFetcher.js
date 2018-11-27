@@ -48,7 +48,7 @@ class DataFetcher {
     
             // プレイヤー名からIDを取得
             rp({
-                url: 'http://localhost:3000/apis/playerid',
+                url: 'http://localhost:3000/internal_api/playerid',
                 qs: {
                     search: joinedPlayerNames
                 }
@@ -78,7 +78,7 @@ class DataFetcher {
     
             // IDから詳細なプレイヤー統計を取得
             rp({
-                url: 'http://localhost:3000/apis/stat/player',
+                url: 'http://localhost:3000/internal_api/stat/player',
                 qs: {
                     playerid: joinedPlayerIds
                 }
@@ -103,7 +103,7 @@ class DataFetcher {
             async.mapValuesLimit(self.players, self.parallelRequestLimit, function(value, playerId, next) {
                 // 各プレイヤーの使用艦艇の統計を並列で取得する
                 rp({
-                    url: 'http://localhost:3000/apis/stat/ship',
+                    url: 'http://localhost:3000/internal_api/stat/ship',
                     qs: {
                         playerid: playerId
                     }
@@ -136,7 +136,7 @@ class DataFetcher {
     
             // IDから艦艇情報を取得する
             rp({
-                url: 'http://localhost:3000/apis/info/ship',
+                url: 'http://localhost:3000/internal_api/info/ship',
                 qs: {
                     shipid: joinedShipIds
                 }
@@ -167,7 +167,7 @@ class DataFetcher {
 
             // プレイヤーIDからクラン名を取得する
             rp({
-                url: 'http://localhost:3000/apis/clanid',
+                url: 'http://localhost:3000/internal_api/clanid',
                 qs: {
                     playerid: joinedPlayerIds
                 }
@@ -184,7 +184,7 @@ class DataFetcher {
                 }
                 const joinedClanIds = clanIds.join(',');
                 return rp({
-                    url: 'http://localhost:3000/apis/info/clan',
+                    url: 'http://localhost:3000/internal_api/info/clan',
                     qs: {
                         clanid: joinedClanIds
                     }
@@ -230,7 +230,7 @@ class DataFetcher {
 const fetchShipTierByPage = function(pageNo) {
     return new Promise((resolve, reject) => {
         rp({
-            url: 'http://localhost:3000/apis/info/ship_tier',
+            url: 'http://localhost:3000/internal_api/info/ship_tier',
             qs: {
                 page_no: pageNo
             }

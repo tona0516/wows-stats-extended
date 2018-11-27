@@ -1,8 +1,13 @@
 const fs = require('fs');
 
+const TEMP_ARENA_INFO_PATH = '/replays/tempArenaInfo.json';
+
 class FileObserver {
-  constructor(filepath) {
-    this.filepath = filepath;
+  constructor(installDir) {
+    if (!installDir.endsWith("/")) {
+      installDir = installDir + "/";
+    }
+    this.filepath = installDir + TEMP_ARENA_INFO_PATH;
   }
 
   read() {
