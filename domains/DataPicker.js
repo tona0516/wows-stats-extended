@@ -99,7 +99,6 @@ class DataPicker {
             shipInfo.tier = player.shipinfo.tier;
             shipInfo.nation = player.shipinfo.nation;
             shipInfo.detect_distance_by_ship = player.shipinfo.default_profile.concealment.detect_distance_by_ship;
-            logger.debug(shipInfo.name + ": " + shipInfo.detect_distance_by_ship);
             const camouflage_coefficient = 1.00 - 0.03;
             let module_coefficient = 1.00;
             if (shipInfo.name == "Gearing") {

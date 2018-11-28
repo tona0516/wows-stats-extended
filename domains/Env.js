@@ -1,16 +1,22 @@
 const dotenv = require('dotenv');
 
-const log4js = require('log4js');
-const logger = log4js.getLogger();
-logger.level = 'DEBUG';
-
 class Env {
+    /**
+     * 環境変数を更新する
+     */
     static refresh() {
-        if (this.appid === undefined || this.region === undefined || this.installDir === undefined) {
-            dotenv.config();
+        dotenv.config();
+        
+        if (this.appid === undefined) {
             this.appid = process.env.APP_ID;
+        }
+
+        if (this.region === undefined) {
             this.region = process.env.REGION;
-            this.installDir = process.env.DIRECTORY;;
+        }
+
+        if (this.installDir === undefined) {
+            this.installDir = process.env.DIRECTORY;
         }
     }
 }

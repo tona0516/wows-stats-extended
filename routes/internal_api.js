@@ -11,7 +11,9 @@ const log4js = require('log4js');
 const logger = log4js.getLogger();
 logger.level = 'DEBUG';
 
-// プレイヤーIDの取得
+/**
+ * プレイヤー名のリストからプレイヤーIDのリストを取得
+ */
 router.get('/playerid', function(req, res, next) {
   requestCommon({
     url: Util.generateApiUrl('/account/list/'),
@@ -23,7 +25,9 @@ router.get('/playerid', function(req, res, next) {
   }, '/playerid', req, res);
 });
 
-// プレイヤー所属クランのIDを取得
+/** 
+ * プレイヤーIDから所属クランIDを取得
+ */
 router.get('/clanid', function(req, res, next) {
   requestCommon({
     url: Util.generateApiUrl('/clans/accountinfo/'),
@@ -34,7 +38,9 @@ router.get('/clanid', function(req, res, next) {
   }, '/clanid', req, res);
 });
 
-// クラン情報の取得
+/**
+ * クランIDからクラン名を取得
+ */
 router.get('/info/clan', function(req, res, next) {
   requestCommon({
     url: Util.generateApiUrl('/clans/info/'),
@@ -46,7 +52,9 @@ router.get('/info/clan', function(req, res, next) {
   }, '/info/clan', req, res);
 });
 
-// プレイヤー成績の取得
+/**
+ * プレイヤー成績を取得
+ */
 router.get('/stat/player', function(req, res, next) {
   requestCommon({
     url: Util.generateApiUrl('/account/info/'),
@@ -58,7 +66,9 @@ router.get('/stat/player', function(req, res, next) {
   }, '/stat/player', req, res);
 });
 
-// 艦艇別成績の取得
+/**
+ * プレイヤーの艦艇別成績を取得
+ */
 router.get('/stat/ship', function(req, res, next) {
   requestCommon({
     url: Util.generateApiUrl('/ships/stats/'),
@@ -69,7 +79,9 @@ router.get('/stat/ship', function(req, res, next) {
   }, '/stat/ship', req, res);
 });
 
-// 艦艇データの取得
+/**
+ * 艦性能を取得
+ */
 router.get('/info/ship', function(req, res, next) {
   requestCommon({
     url: Util.generateApiUrl('/encyclopedia/ships/'),
@@ -82,7 +94,9 @@ router.get('/info/ship', function(req, res, next) {
   }, 'info/ship', req, res);
 });
 
-// 艦艇-Tierのデータの取得
+/**
+ * 艦艇-Tierのマッピングデータを取得
+ */
 router.get('/info/ship_tier', function(req, res, next) {
   requestCommon({
     url: Util.generateApiUrl('/encyclopedia/ships/'),
@@ -102,7 +116,7 @@ router.get('/info/ship_tier', function(req, res, next) {
  * @param {Object} req 
  * @param {Object} res 
  */
-const requestCommon = function (option, entryPointName, req, res) {
+const requestCommon = function(option, entryPointName, req, res) {
   rp(option)
   .then(function(body) {
     res.send(body);

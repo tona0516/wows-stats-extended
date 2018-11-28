@@ -126,7 +126,7 @@ router.get('/info/ship_concealment', function(req, res, next) {
  * @param {Object} req 
  * @param {Object} res 
  */
-const requestCommon = function (option, entryPointName, req, res) {
+const requestCommon = function(option, entryPointName, req, res) {
   rp(option)
   .then(function(body) {
     res.send(body);

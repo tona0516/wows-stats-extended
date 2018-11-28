@@ -1,6 +1,11 @@
-const Env = require('../domains/Env');
+const Env = require('./Env');
 
 class Util {
+    /**
+     * 文字列のリストをコンマ区切りの文字列に変換する
+     * 
+     * @param {[String]} list 
+     */
     static joinByComma(list) {
         const tmp = [];
         for (const item of list) {
@@ -9,6 +14,11 @@ class Util {
         return tmp.join(',');
     }
 
+    /**
+     * 有効なデータかを検証する
+     * 
+     * @param {Any} data 
+     */
     static isValid(data) {
         return data !== null && data !== undefined;
     }
