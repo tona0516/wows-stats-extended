@@ -1,3 +1,5 @@
+const rp = require('request-promise');
+
 const Env = require('./Env');
 
 class Util {
@@ -30,6 +32,25 @@ class Util {
      */
     static generateApiUrl(path) {
         return 'https://api.worldofwarships.' + Env.region + '/wows' +  path;
+    }
+
+    /**
+     * APIにリクエストする共通メソッド
+     * 
+     * @param {Object} option 
+     * @param {Object} req 
+     * @param {Object} res 
+     */
+    static requestCommon(option, req, res) {
+        rp(option)
+        .then(function(body) {
+            res.send(body);
+        })
+        .catch(function(error) {
+            logger.error(error);
+            res.status(500);
+            res.send(JSON.stringify({'error': error}));
+        });
     }
 }
 

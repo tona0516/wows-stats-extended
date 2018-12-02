@@ -1,5 +1,4 @@
 const Util = require('./Util');
-const BigNumber = require('bignumber.js');
 
 const log4js = require('log4js');
 const logger = log4js.getLogger();
@@ -124,7 +123,7 @@ class DataPicker {
                     break;
             }
             
-            shipInfo.detect_distance_by_ship = new BigNumber.BigNumber(shipInfo.detect_distance_by_ship).times(camouflage_coefficient).times(module_coefficient).times(commander_coefficient).toPrecision(3);
+            shipInfo.detect_distance_by_ship = (shipInfo.detect_distance_by_ship * camouflage_coefficient * module_coefficient * commander_coefficient).toFixed(2);
             
             var allStat = {};
             allStat.player_stat = playerStat;

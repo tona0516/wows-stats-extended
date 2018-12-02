@@ -1,7 +1,6 @@
 const Util = require('../domains/Util');
 const Env = require('../domains/Env');
 
-const request = require('request');
 const rp = require('request-promise');
 
 const express = require('express');
@@ -59,9 +58,9 @@ router.get('/fetch', function(req, res, next) {
   // 環境変数の再読み込み
   Env.refresh();
 
-  if (latestTempArenaInfo == null) {
+  if (latestTempArenaInfo === null) {
     res.status(500);
-    res.send(JSON.stringify({'error' : 'tempArenaInfo.json has not been read yet'}));
+    res.send(JSON.stringify({'error' : 'tempArenaInfo.json has not been read yet. please request /check_update endpoint before requesting to me'}));
     return;
   }
 
@@ -85,14 +84,14 @@ router.get('/fetch', function(req, res, next) {
  */
 router.get('/info/version', function(req, res, next) {
   Env.refresh();
-  requestCommon({
+  Util.requestCommon({
     url: Util.generateApiUrl('/encyclopedia/info/'),
     qs: {
       application_id: appid,
       fields: "game_version",
       language: "ja"
     }
-  }, '/info/encyclopedia', req, res);
+  }, req, res);
 });
 
 /**
@@ -117,25 +116,5 @@ router.get('/info/ship_concealment', function(req, res, next) {
     res.send(JSON.stringify({'error' : error}));
   });
 })
-
-/**
- * APIにリクエストする共通メソッド
- * 
- * @param {Object} option 
- * @param {String} entryPointName 
- * @param {Object} req 
- * @param {Object} res 
- */
-const requestCommon = function(option, entryPointName, req, res) {
-  rp(option)
-  .then(function(body) {
-    res.send(body);
-  })
-  .catch(function(error) {
-    logger.error(error);
-    res.status(500);
-    res.send(JSON.stringify({'error' : error}));
-  });
-}
 
 module.exports = router;
