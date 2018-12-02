@@ -227,6 +227,20 @@ class DataFetcher {
     }
 }
 
+const fetchGameVerision = function () {
+    return new Promise((resolve, reject) => {
+        rp({
+            url: 'http://localhost:3000/internal_api/info/version'
+        }).then((body) => {
+            const data = JSON.parse(body).data;
+            resolve(data.game_version);
+        }).catch((error) => {
+            logger.error(error);
+            reject();
+        })
+    })
+}
+
 const fetchShipTierByPage = function (pageNo) {
     return new Promise((resolve, reject) => {
         rp({

@@ -112,7 +112,7 @@ router.get('/info/version', function (req, res, next) {
     Util.requestCommon({
         url: Util.generateApiUrl('/encyclopedia/info/'),
         qs: {
-            application_id: appid,
+            application_id: Env.appid,
             fields: "game_version",
             language: "ja"
         }
