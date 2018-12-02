@@ -23,7 +23,7 @@ let latestTempArenaInfo;
 /**
  * 戦闘開始したかチェックする
  */
-router.get('/check_update', async function(req, res, next) {
+router.get('/check_update', async function (req, res, next) {
   // 環境変数の再読み込み
   Env.refresh();
 
@@ -54,21 +54,21 @@ router.get('/check_update', async function(req, res, next) {
 /**
  * APIから取得したデータを返却する
  */
-router.get('/fetch', function(req, res, next) {
+router.get('/fetch', function (req, res, next) {
   // 環境変数の再読み込み
   Env.refresh();
 
   if (latestTempArenaInfo === null) {
     res.status(500);
-    res.send(JSON.stringify({'error' : 'tempArenaInfo.json has not been read yet. please request /check_update endpoint before requesting to me'}));
+    res.send(JSON.stringify({ 'error': 'tempArenaInfo.json has not been read yet. please request /check_update endpoint before requesting to me' }));
     return;
   }
 
   const dataFetcher = new DataFetcher();
-  dataFetcher.fetch(JSON.parse(latestTempArenaInfo), function(players, tiers, error) {
+  dataFetcher.fetch(JSON.parse(latestTempArenaInfo), function (players, tiers, error) {
     if (error !== null) {
       res.status(500);
-      res.send(JSON.stringify({'error' : error}));
+      res.send(JSON.stringify({ 'error': error }));
       return;
     }
 
@@ -80,41 +80,26 @@ router.get('/fetch', function(req, res, next) {
 });
 
 /**
- * ゲームのバージョンを返却する
- */
-router.get('/info/version', function(req, res, next) {
-  Env.refresh();
-  Util.requestCommon({
-    url: Util.generateApiUrl('/encyclopedia/info/'),
-    qs: {
-      application_id: appid,
-      fields: "game_version",
-      language: "ja"
-    }
-  }, req, res);
-});
-
-/**
  * WIP
  * ページをスクレイピングして正確な隠蔽距離を取得する
  * バージョンがあがったときにたたくようにする
  */
-router.get('/info/ship_concealment', function(req, res, next) {
+router.get('/info/ship_concealment', function (req, res, next) {
   rp({
     url: 'http://wiki.wargaming.net/en/Ship:' + req.query.ship_name
   })
-  .then(function(body) {
-    const dom = new JSDOM(body);
-    const shipParams = dom.window.document.querySelectorAll('.t-performance_right');
-    const concealment = shipParams[shipParams.length - 2].textContent.replace('km.', '').trim();
-    logger.debug(concealment);
-    res.send(concealment);
-  })
-  .catch(function(error) {
-    logger.error(error);
-    res.status(500);
-    res.send(JSON.stringify({'error' : error}));
-  });
+    .then(function (body) {
+      const dom = new JSDOM(body);
+      const shipParams = dom.window.document.querySelectorAll('.t-performance_right');
+      const concealment = shipParams[shipParams.length - 2].textContent.replace('km.', '').trim();
+      logger.debug(concealment);
+      res.send(concealment);
+    })
+    .catch(function (error) {
+      logger.error(error);
+      res.status(500);
+      res.send(JSON.stringify({ 'error': error }));
+    });
 })
 
 module.exports = router;

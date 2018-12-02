@@ -12,11 +12,11 @@ dotenv.config();
 const SERVERS = ['RU', 'EU', 'NA', 'ASIA'];
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
+router.get('/', function (req, res, next) {
     res.render('install', { servers: SERVERS });
 });
 
-router.post('/', async function(req, res, next) {
+router.post('/', async function (req, res, next) {
     const validateResult = await validateParameter(req.body);
     if (validateResult.isValid) {
         saveParameter(req.body);
@@ -24,10 +24,10 @@ router.post('/', async function(req, res, next) {
         return;
     }
 
-    res.render('install', { messages: validateResult.messages, parameters: req.body, servers: SERVERS});
+    res.render('install', { messages: validateResult.messages, parameters: req.body, servers: SERVERS });
 });
 
-const validateParameter = async function(parameters) {
+const validateParameter = async function (parameters) {
     const appid = parameters.appid;
     const region = parameters.region;
     const directory = parameters.directory;
@@ -44,10 +44,10 @@ const validateParameter = async function(parameters) {
         messages.directory_error = "インストール先が不正です。「WorldOfWarships.exe」があるフォルダを指定してください。";
     }
 
-    return {isValid: isValid, messages: messages};
+    return { isValid: isValid, messages: messages };
 }
 
-const validateAppID = function(appid, region) {
+const validateAppID = function (appid, region) {
     // サーバにリクエストしてデータが取得できるか確かめる
     const topLevelDomain = (region == 'NA') ? 'com' : region;
     return new Promise((resolve, reject) => {
@@ -56,25 +56,25 @@ const validateAppID = function(appid, region) {
             qs: {
                 application_id: appid
             }
-        }, function(error, response, body) {
+        }, function (error, response, body) {
             const json = JSON.parse(body);
             return json.status === 'ok' ? resolve(true) : resolve(false);
         });
     });
 }
 
-const validateInstallDirectory = function(directory) {
+const validateInstallDirectory = function (directory) {
     // インストールディレクトリにexeがあるか検証する
     const exePath = directory + '\\WorldOfWarships.exe';
     try {
         fs.statSync(exePath);
         return true;
-    } catch(err) {
+    } catch (err) {
         return false;
     }
 }
 
-const saveParameter = function(parameters) {
+const saveParameter = function (parameters) {
     // dotenvに書き込む
     const rows = {
         APP_ID: '"' + parameters.appid + '"',

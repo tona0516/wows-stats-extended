@@ -31,7 +31,7 @@ class Util {
      * @param {String} path
      */
     static generateApiUrl(path) {
-        return 'https://api.worldofwarships.' + Env.region + '/wows' +  path;
+        return 'https://api.worldofwarships.' + Env.region + '/wows' + path;
     }
 
     /**
@@ -43,14 +43,14 @@ class Util {
      */
     static requestCommon(option, req, res) {
         rp(option)
-        .then(function(body) {
-            res.send(body);
-        })
-        .catch(function(error) {
-            logger.error(error);
-            res.status(500);
-            res.send(JSON.stringify({'error': error}));
-        });
+            .then(function (body) {
+                res.send(body);
+            })
+            .catch(function (error) {
+                logger.error(error);
+                res.status(500);
+                res.send(JSON.stringify({ 'error': error }));
+            });
     }
 }
 

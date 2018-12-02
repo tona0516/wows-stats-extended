@@ -12,10 +12,10 @@ var isFetching = false;
 var isFirstFetch = true;
 
 const Status = {
-  NEED_NOT_FETCH : 1,
-  FETCHING       : 2,
-  FETCH_FAIL     : 3,
-  FETCH_SUCCESS  : 4,
+  NEED_NOT_FETCH: 1,
+  FETCHING: 2,
+  FETCH_FAIL: 3,
+  FETCH_SUCCESS: 4,
 }
 
 /**
@@ -25,7 +25,7 @@ const Status = {
  * @param {Function} didLoad 
  * @param {String} method 
  */
-const requestCommon = function(url, didLoad, method = 'GET') {
+const requestCommon = function (url, didLoad, method = 'GET') {
   const request = new XMLHttpRequest();
   request.open(method, url);
   request.addEventListener("load", (event) => {
@@ -38,7 +38,7 @@ const requestCommon = function(url, didLoad, method = 'GET') {
  * 開発用
  * 艦の隠蔽距離を公式サイトから取得する
  */
-const fetchShipConcealment = function() {
+const fetchShipConcealment = function () {
   return new Promise((resolve) => {
     requestCommon(DOMAIN + '/external_api/info/ship_concealment', (event) => {
       resolve();
@@ -49,7 +49,7 @@ const fetchShipConcealment = function() {
 /**
  * 新しい戦闘が始まったかをチェックする
  */
-const checkUpdate = function() {
+const checkUpdate = function () {
   return new Promise((resolve) => {
     requestCommon(DOMAIN + '/external_api/check_update', (event) => {
       resolve(event.target.status);
@@ -60,7 +60,7 @@ const checkUpdate = function() {
 /**
  * 銭湯データを取得する
  */
-const fetch = function() {
+const fetch = function () {
   return new Promise((resolve, reject) => {
     requestCommon(DOMAIN + '/external_api/fetch', (event) => {
       const statusCode = event.target.status;
@@ -84,7 +84,7 @@ const fetch = function() {
  * 
  * @param {Status} status 
  */
-const updateStatus = function(status, error = null) {
+const updateStatus = function (status, error = null) {
   if (status === Status.NEED_NOT_FETCH) {
     app.message = '現在戦闘中ではありません。戦闘開始時に自動更新します。';
     return;
@@ -114,7 +114,7 @@ const updateStatus = function(status, error = null) {
 /**
  * 更新があるときに銭湯データを取得し反映する
  */
-const fetchIfNeeded = async function() {
+const fetchIfNeeded = async function () {
   // fetch中の時は新たにfetchしない
   if (isFetching) {
     return;

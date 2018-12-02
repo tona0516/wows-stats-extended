@@ -6,7 +6,7 @@ class Env {
      */
     static refresh() {
         dotenv.config();
-        
+
         if (this.appid === undefined) {
             this.appid = process.env.APP_ID;
         }

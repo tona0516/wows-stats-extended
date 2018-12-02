@@ -24,7 +24,7 @@ class DataPicker {
         for (const id in playersJson) {
             const player = playersJson[id];
             const isPrivate = player.playerstat.hidden_profile ? true : false;
-    
+
             var shipStat = {};
             var playerStat = {};
             playerStat.name = player.info.name;
@@ -60,8 +60,8 @@ class DataPicker {
                     shipStat.average_damage = (originShipStat.pvp.damage_dealt / shipStat.battles).toFixed(0);
                     shipStat.kill_death_rate = (originShipStat.pvp.frags / (shipStat.battles - originShipStat.pvp.survived_battles)).toFixed(1);
                 }
-    
-                 // プレイヤーに関する成績
+
+                // プレイヤーに関する成績
                 const originPlayerStat = player.playerstat.statistics
                 const isFirstMachByPlayer = originPlayerStat == null || originPlayerStat.pvp == null ? true : false;
                 if (isFirstMachByPlayer) {
@@ -83,14 +83,14 @@ class DataPicker {
                 shipStat.win_rate = 'priv.';
                 shipStat.average_damage = 'priv.';
                 shipStat.kill_death_rate = 'priv.';
-    
+
                 playerStat.battles = 'priv.';
                 playerStat.win_rate = 'priv.';
                 playerStat.average_damage = 'priv.';
                 playerStat.kill_death_rate = 'priv.';
                 playerStat.average_tier = 'priv.';
             }
-    
+
             // プレイヤーが使用する艦艇の情報
             var shipInfo = {};
             shipInfo.name = player.shipinfo.name;
@@ -122,14 +122,14 @@ class DataPicker {
                 default:
                     break;
             }
-            
+
             shipInfo.detect_distance_by_ship = (shipInfo.detect_distance_by_ship * camouflage_coefficient * module_coefficient * commander_coefficient).toFixed(2);
-            
+
             var allStat = {};
             allStat.player_stat = playerStat;
             allStat.ship_stat = shipStat;
             allStat.ship_info = shipInfo;
-    
+
             const relation = player.info.relation
             relation == 0 || relation == 1 ? friends.push(allStat) : enemies.push(allStat);
         }
@@ -141,15 +141,15 @@ class DataPicker {
         var sortedEnemies = enemies.sort(sortByTypeAndTier());
         sortedEnemies = convertToRomanNumber(sortedEnemies);
         sortedEnemies.push(calculateTeamAverage(sortedEnemies));
-    
+
         outputData.friends = sortedFriends;
         outputData.enemies = sortedEnemies;
-    
+
         return outputData;
     }
 }
 
-const calculateCombatPower = function(stats, info) {
+const calculateCombatPower = function (stats, info) {
     const kill = stats.frags;
     const death = stats.battles - stats.survived_battles;
     const averageDamage = stats.damage_dealt / stats.battles;
@@ -175,10 +175,10 @@ const calculateCombatPower = function(stats, info) {
         type_param = 0.5;
     }
 
-    return (averageDamage * kdRatio * averageExperience / 800 * (1 - (0.03 * info.tier )) * type_param).toFixed(0);
+    return (averageDamage * kdRatio * averageExperience / 800 * (1 - (0.03 * info.tier)) * type_param).toFixed(0);
 }
 
-const convertToRomanNumber = function(team) {
+const convertToRomanNumber = function (team) {
     for (var player of team) {
         player.ship_info.tier = TIER_ROMAN[player.ship_info.tier];
     }
@@ -207,7 +207,7 @@ const calculateTeamAverage = function (team) {
     return allStat;
 }
 
-const average = function(array) {
+const average = function (array) {
     var sum = 0;
     var ignoreCount = 0;
     for (var item of array) {
@@ -244,21 +244,21 @@ const calculateAverageTier = function (shipStats, tiers) {
 
 const sortByTypeAndTier = function () {
     return function (a, b) {
-      var a_type = a.ship_info.type;
-      var b_type = b.ship_info.type;
-      a_type = a_type.toUpperCase();
-      b_type = b_type.toUpperCase();
-      if (a_type < b_type) return -1;
-      if (a_type > b_type) return 1;
-      if (a_type == b_type) {
-        var a_tier = a.ship_info.tier;
-        var b_tier = b.ship_info.tier;
-        a_tier = parseInt(a_tier);
-        b_tier = parseInt(b_tier);
-        if (a_tier < b_tier) return 1;
-        if (a_tier > b_tier) return -1;
-      }
-      return 0;
+        var a_type = a.ship_info.type;
+        var b_type = b.ship_info.type;
+        a_type = a_type.toUpperCase();
+        b_type = b_type.toUpperCase();
+        if (a_type < b_type) return -1;
+        if (a_type > b_type) return 1;
+        if (a_type == b_type) {
+            var a_tier = a.ship_info.tier;
+            var b_tier = b.ship_info.tier;
+            a_tier = parseInt(a_tier);
+            b_tier = parseInt(b_tier);
+            if (a_tier < b_tier) return 1;
+            if (a_tier > b_tier) return -1;
+        }
+        return 0;
     }
 }
 
