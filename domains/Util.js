@@ -1,4 +1,5 @@
 const rp = require('request-promise');
+const fs = require('fs');
 
 const Env = require('./Env');
 
@@ -42,15 +43,46 @@ class Util {
      * @param {Object} res 
      */
     static requestCommon(option, req, res) {
-        rp(option)
-            .then(function (body) {
-                res.send(body);
-            })
-            .catch(function (error) {
-                logger.error(error);
-                res.status(500);
-                res.send(JSON.stringify({ 'error': error }));
-            });
+        rp(option).then(function (body) {
+            res.send(body);
+        }).catch(function (error) {
+            logger.error(error);
+            res.status(500);
+            res.send(JSON.stringify({ 'error': error }));
+        });
+    }
+
+    /**
+     * ファイルの存在チェックする
+     * 
+     * @param {String} filePath 
+     */
+    static checkFile(filePath) {
+        try {
+            fs.statSync(filePath);
+            return true;
+        } catch (err) {
+            return false;
+        }
+    }
+
+    /**
+     * ファイルを読み込む
+     * 
+     * @param {String} filePath 
+     */
+    static readFile(filePath) {
+        return fs.readFileSync(filePath, 'utf8');
+    }
+
+    /**
+     * ファイルに書き込む
+     * 
+     * @param {String} filePath 
+     * @param {String} text 
+     */
+    static writeFile(filePath, text) {
+        fs.writeFileSync(filePath, text, 'utf8');
     }
 }
 

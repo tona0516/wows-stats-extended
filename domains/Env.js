@@ -18,10 +18,6 @@ class Env {
         if (this.installDir === undefined) {
             this.installDir = process.env.DIRECTORY;
         }
-
-        if (this.clientVersion === undefined) {
-            this.clientVersion = process.env.CLIENT_VERSION;
-        }
     }
 }
 

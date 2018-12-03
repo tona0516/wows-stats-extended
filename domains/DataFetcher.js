@@ -24,18 +24,16 @@ class DataFetcher {
      * @param {*} callback (統計データ,Tierデータ,エラー)を返却するコールバック関数
      */
     async fetch(json, callback) {
-        await this.fetchPlayerId(json)
-            .then(async () => {
-                await this.fetchPlayerStats();
-                await this.fetchPlayerShipStats();
-                await this.fetchShipInfo();
-                await this.fetchClanInfo();
-                await this.fetchShipTier();
-                return callback(this.players, this.tiers, null);
-            })
-            .catch((error) => {
-                return callback({}, {}, error);
-            })
+        await this.fetchPlayerId(json).then(async () => {
+            await this.fetchPlayerStats();
+            await this.fetchPlayerShipStats();
+            await this.fetchShipInfo();
+            await this.fetchClanInfo();
+            await this.fetchShipTierIfNeeded();
+            return callback(this.players, this.tiers, null);
+        }).catch((error) => {
+            return callback({}, {}, error);
+        })
     }
 
     fetchPlayerId(json) {
@@ -52,21 +50,19 @@ class DataFetcher {
                 qs: {
                     search: joinedPlayerNames
                 }
-            })
-                .then(function (body) {
-                    const data = JSON.parse(body).data;
-                    for (var player of data) {
-                        const playerId = player.account_id;
-                        const playerName = player.nickname;
-                        self.players[playerId] = {};
-                        self.players[playerId].info = playersFromArenaInfo[playerName];
-                    }
-                    return resolve();
-                })
-                .catch(function (error) {
-                    logger.error(error);
-                    return reject(error);
-                });
+            }).then(function (body) {
+                const data = JSON.parse(body).data;
+                for (var player of data) {
+                    const playerId = player.account_id;
+                    const playerName = player.nickname;
+                    self.players[playerId] = {};
+                    self.players[playerId].info = playersFromArenaInfo[playerName];
+                }
+                return resolve();
+            }).catch(function (error) {
+                logger.error(error);
+                return reject(error);
+            });
         });
     }
 
@@ -82,18 +78,16 @@ class DataFetcher {
                 qs: {
                     playerid: joinedPlayerIds
                 }
-            })
-                .then(function (body) {
-                    const data = JSON.parse(body).data;
-                    for (const playerId in data) {
-                        self.players[playerId].playerstat = Util.isValid(data[playerId]) ? data[playerId] : null;
-                    }
-                    return resolve();
-                })
-                .catch(function (error) {
-                    logger.error(error);
-                    return reject(error);
-                });
+            }).then(function (body) {
+                const data = JSON.parse(body).data;
+                for (const playerId in data) {
+                    self.players[playerId].playerstat = Util.isValid(data[playerId]) ? data[playerId] : null;
+                }
+                return resolve();
+            }).catch(function (error) {
+                logger.error(error);
+                return reject(error);
+            });
         });
     }
 
@@ -107,17 +101,15 @@ class DataFetcher {
                     qs: {
                         playerid: playerId
                     }
-                })
-                    .then(function (body) {
-                        const data = JSON.parse(body).data;
-                        self.players[playerId].shipstat = Util.isValid(data[playerId]) ? data[playerId] : null;
-                        next();
-                    })
-                    .catch(function (error) {
-                        logger.error(error);
-                        self.players[playerId].shipstat = null;
-                        next();
-                    });
+                }).then(function (body) {
+                    const data = JSON.parse(body).data;
+                    self.players[playerId].shipstat = Util.isValid(data[playerId]) ? data[playerId] : null;
+                    next();
+                }).catch(function (error) {
+                    logger.error(error);
+                    self.players[playerId].shipstat = null;
+                    next();
+                });
             }, function (error) {
                 if (error) {
                     logger.error(error);
@@ -140,19 +132,17 @@ class DataFetcher {
                 qs: {
                     shipid: joinedShipIds
                 }
-            })
-                .then(function (body) {
-                    const data = JSON.parse(body).data;
-                    for (const playerId in self.players) {
-                        const shipId = self.players[playerId].info.shipId;
-                        self.players[playerId].shipinfo = data[shipId];
-                    }
-                    return resolve();
-                })
-                .catch(function (error) {
-                    logger.error(error);
-                    return reject(error);
-                });
+            }).then(function (body) {
+                const data = JSON.parse(body).data;
+                for (const playerId in self.players) {
+                    const shipId = self.players[playerId].info.shipId;
+                    self.players[playerId].shipinfo = data[shipId];
+                }
+                return resolve();
+            }).catch(function (error) {
+                logger.error(error);
+                return reject(error);
+            });
         });
     }
 
@@ -171,60 +161,71 @@ class DataFetcher {
                 qs: {
                     playerid: joinedPlayerIds
                 }
-            })
-                .then(function (body) {
-                    const data = JSON.parse(body).data;
-                    const clanIds = [];
-                    for (const playerId in data) {
-                        if (Util.isValid(data[playerId])) {
-                            const clanId = data[playerId].clan_id
-                            clanIds.push(clanId);
-                            clanIdMap[playerId] = clanId;
-                        }
+            }).then(function (body) {
+                const data = JSON.parse(body).data;
+                const clanIds = [];
+                for (const playerId in data) {
+                    if (Util.isValid(data[playerId])) {
+                        const clanId = data[playerId].clan_id
+                        clanIds.push(clanId);
+                        clanIdMap[playerId] = clanId;
                     }
-                    const joinedClanIds = clanIds.join(',');
-                    return rp({
-                        url: 'http://localhost:3000/internal_api/info/clan',
-                        qs: {
-                            clanid: joinedClanIds
-                        }
-                    });
-                })
-                .then(function (body) {
-                    const data = JSON.parse(body).data;
-                    for (const playerId in self.players) {
-                        try {
-                            const clanId = clanIdMap[playerId];
-                            const clanInfo = data[clanId];
-                            self.players[playerId].clan_info = clanInfo;
-                        } catch (e) {
-                            self.players[playerId].clan_info = null;
-                        }
+                }
+                const joinedClanIds = clanIds.join(',');
+                return rp({
+                    url: 'http://localhost:3000/internal_api/info/clan',
+                    qs: {
+                        clanid: joinedClanIds
                     }
-                    return resolve();
-                })
-                .catch(function (error) {
-                    logger.error(error);
-                    return reject(error);
                 });
+            }).then(function (body) {
+                const data = JSON.parse(body).data;
+                for (const playerId in self.players) {
+                    try {
+                        const clanId = clanIdMap[playerId];
+                        const clanInfo = data[clanId];
+                        self.players[playerId].clan_info = clanInfo;
+                    } catch (e) {
+                        self.players[playerId].clan_info = null;
+                    }
+                }
+                return resolve();
+            }).catch(function (error) {
+                logger.error(error);
+                return reject(error);
+            });
         });
     }
 
-    async fetchShipTier() {
-        var allShip = {};
-        var pageNo = 0;
-        var pageTotal = 0;
-        do {
-            const body = await fetchShipTierByPage(++pageNo);
-            const newJson = JSON.parse(body);
-            const data = newJson.data
-            pageTotal = newJson.meta.page_total;
-            for (var shipId in data) {
-                allShip[shipId] = data[shipId];
-            }
-        } while (pageNo != pageTotal);
-        this.tiers = allShip;
+    async fetchShipTierIfNeeded() {
+        const currentGameVersion = await fetchGameVerision();
+        const filePath = '.ships_' + currentGameVersion + '.json'
+        const isExist = Util.checkFile(filePath);
+
+        if (!isExist) {
+            this.tiers = await fetchShipTier();
+        } else {
+            const contents = Util.readFile(filePath);
+            this.tiers = JSON.parse(contents);
+        }
+        Util.writeFile(filePath, JSON.stringify(this.tiers));
     }
+}
+
+const fetchShipTier = async function () {
+    var allShip = {};
+    var pageNo = 0;
+    var pageTotal = 0;
+    do {
+        const body = await fetchShipTierByPage(++pageNo);
+        const newJson = JSON.parse(body);
+        const data = newJson.data
+        pageTotal = newJson.meta.page_total;
+        for (var shipId in data) {
+            allShip[shipId] = data[shipId];
+        }
+    } while (pageNo != pageTotal);
+    return allShip;
 }
 
 const fetchGameVerision = function () {
@@ -237,7 +238,7 @@ const fetchGameVerision = function () {
         }).catch((error) => {
             logger.error(error);
             reject();
-        })
+        });
     })
 }
 
@@ -248,14 +249,12 @@ const fetchShipTierByPage = function (pageNo) {
             qs: {
                 page_no: pageNo
             }
-        })
-            .then(function (body) {
-                resolve(body);
-            })
-            .catch(function (error) {
-                logger.error(error);
-                reject();
-            });
+        }).then(function (body) {
+            resolve(body);
+        }).catch(function (error) {
+            logger.error(error);
+            reject();
+        });
     });
 }
 
