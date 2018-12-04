@@ -30,7 +30,8 @@ router.get('/clanid', function (req, res, next) {
         url: Util.generateApiUrl('/clans/accountinfo/'),
         qs: {
             application_id: Env.appid,
-            account_id: req.query.playerid
+            account_id: req.query.playerid,
+            fields: 'clan_id'
         }
     }, req, res);
 });
@@ -71,7 +72,8 @@ router.get('/stat/ship', function (req, res, next) {
         url: Util.generateApiUrl('/ships/stats/'),
         qs: {
             application_id: Env.appid,
-            account_id: req.query.playerid
+            account_id: req.query.playerid,
+            fields: 'ship_id,pvp.frags,pvp.battles,pvp.survived_battles,pvp.damage_dealt,pvp.xp,pvp.wins'
         }
     }, req, res);
 });
