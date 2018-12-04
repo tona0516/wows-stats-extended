@@ -1,3 +1,14 @@
+//########## modifiable variables ##########
+
+const PORT = 3000;
+const FETCH_INTERVAL_MS = 1000;
+
+//##########################################
+
+const DOMAIN = 'http://localhost:' + PORT;
+var isFetching = false;
+var isFirstFetch = true;
+
 var app = new Vue({
   el: '#app',
   data: {
@@ -5,11 +16,6 @@ var app = new Vue({
     players: {},
   }
 })
-
-const DOMAIN = 'http://localhost:3000';
-const FETCH_INTERVAL_MS = 1000;
-var isFetching = false;
-var isFirstFetch = true;
 
 const Status = {
   NEED_NOT_FETCH: 1,

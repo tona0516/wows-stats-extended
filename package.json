@@ -3,8 +3,8 @@
   "version": "0.9.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www",
-    "debug": "nodemon ./bin/www"
+    "start": "PORT=3000 node ./bin/www",
+    "debug": "PORT=3000 nodemon ./bin/www"
   },
   "dependencies": {
     "async": "^2.6.1",
