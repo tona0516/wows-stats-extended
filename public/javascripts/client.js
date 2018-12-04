@@ -58,7 +58,7 @@ const checkUpdate = function () {
 }
 
 /**
- * 銭湯データを取得する
+ * 戦闘データを取得する
  */
 const fetch = function () {
   return new Promise((resolve, reject) => {
