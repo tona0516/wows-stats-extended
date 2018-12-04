@@ -55,6 +55,8 @@ router.get('/check_update', async function (req, res, next) {
  * APIから取得したデータを返却する
  */
 router.get('/fetch', function (req, res, next) {
+  const startTime = new Date();
+
   // 環境変数の再読み込み
   Env.refresh();
 
@@ -76,6 +78,7 @@ router.get('/fetch', function (req, res, next) {
     const picked = dataPicker.pick(players, tiers);
     res.status(200);
     res.send(picked);
+    logger.info('Elapsed time: ' + ((new Date().getTime() - startTime.getTime()) / 1000.0).toFixed(2) + ' seconds')
   });
 });
 
