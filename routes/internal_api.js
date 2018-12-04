@@ -99,7 +99,7 @@ router.get('/info/ship_tier', function (req, res, next) {
         url: Util.generateApiUrl('/encyclopedia/ships/'),
         qs: {
             application_id: Env.appid,
-            fields: "tier",
+            fields: "name,tier",
             page_no: req.query.page_no
         }
     }, req, res);
