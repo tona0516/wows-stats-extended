@@ -1,5 +1,6 @@
 const Util = require('../domains/Util');
 const Env = require('../domains/Env');
+const EntryPoint = require('../domains/EntryPoint');
 
 const express = require('express');
 const router = express.Router();
@@ -11,7 +12,7 @@ logger.level = 'DEBUG';
 /**
  * プレイヤー名のリストからプレイヤーIDのリストを取得
  */
-router.get('/playerid', function (req, res, next) {
+router.get(EntryPoint.Internal.PLAYER.ID, function (req, res, next) {
     Util.requestCommon({
         url: Util.generateApiUrl('/account/list/'),
         qs: {
@@ -25,7 +26,7 @@ router.get('/playerid', function (req, res, next) {
 /** 
  * プレイヤーIDから所属クランIDを取得
  */
-router.get('/clanid', function (req, res, next) {
+router.get(EntryPoint.Internal.CLAN.ID, function (req, res, next) {
     Util.requestCommon({
         url: Util.generateApiUrl('/clans/accountinfo/'),
         qs: {
@@ -39,7 +40,7 @@ router.get('/clanid', function (req, res, next) {
 /**
  * クランIDからクラン名を取得
  */
-router.get('/info/clan', function (req, res, next) {
+router.get(EntryPoint.Internal.CLAN.INFO, function (req, res, next) {
     Util.requestCommon({
         url: Util.generateApiUrl('/clans/info/'),
         qs: {
@@ -53,7 +54,7 @@ router.get('/info/clan', function (req, res, next) {
 /**
  * プレイヤー成績を取得
  */
-router.get('/stat/player', function (req, res, next) {
+router.get(EntryPoint.Internal.PLAYER.STAT, function (req, res, next) {
     Util.requestCommon({
         url: Util.generateApiUrl('/account/info/'),
         qs: {
@@ -67,7 +68,7 @@ router.get('/stat/player', function (req, res, next) {
 /**
  * プレイヤーの艦艇別成績を取得
  */
-router.get('/stat/ship', function (req, res, next) {
+router.get(EntryPoint.Internal.SHIP.STAT, function (req, res, next) {
     Util.requestCommon({
         url: Util.generateApiUrl('/ships/stats/'),
         qs: {
@@ -81,7 +82,7 @@ router.get('/stat/ship', function (req, res, next) {
 /**
  * 艦性能を取得
  */
-router.get('/info/ship', function (req, res, next) {
+router.get(EntryPoint.Internal.SHIP.INFO, function (req, res, next) {
     Util.requestCommon({
         url: Util.generateApiUrl('/encyclopedia/ships/'),
         qs: {
@@ -96,7 +97,7 @@ router.get('/info/ship', function (req, res, next) {
 /**
  * 艦艇-Tierのマッピングデータを取得
  */
-router.get('/info/ship_tier', function (req, res, next) {
+router.get(EntryPoint.Internal.SHIP_TIER.INFO, function (req, res, next) {
     Util.requestCommon({
         url: Util.generateApiUrl('/encyclopedia/ships/'),
         qs: {
@@ -110,7 +111,7 @@ router.get('/info/ship_tier', function (req, res, next) {
 /**
  * ゲームのバージョンを返却する
  */
-router.get('/info/version', function (req, res, next) {
+router.get(EntryPoint.Internal.VERSION, function (req, res, next) {
     Util.requestCommon({
         url: Util.generateApiUrl('/encyclopedia/info/'),
         qs: {

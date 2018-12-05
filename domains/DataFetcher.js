@@ -8,6 +8,7 @@ const rp = require('request-promise');
 const log4js = require('log4js');
 const async = require('async');
 const Util = require('./Util');
+const EntryPoint = require('./EntryPoint');
 
 const logger = log4js.getLogger();
 logger.level = 'DEBUG';
@@ -54,7 +55,7 @@ class DataFetcher {
 
             // プレイヤー名からIDを取得
             rp({
-                url: BASE_URL + '/internal_api/playerid',
+                url: BASE_URL + '/internal_api' + EntryPoint.Internal.PLAYER.ID,
                 qs: {
                     search: joinedPlayerNames
                 }
@@ -82,7 +83,7 @@ class DataFetcher {
 
             // IDから詳細なプレイヤー統計を取得
             rp({
-                url: BASE_URL + '/internal_api/stat/player',
+                url: BASE_URL + '/internal_api' + EntryPoint.Internal.PLAYER.STAT,
                 qs: {
                     playerid: joinedPlayerIds
                 }
@@ -105,7 +106,7 @@ class DataFetcher {
             async.mapValuesLimit(self.players, self.parallelRequestLimit, function (value, playerId, next) {
                 // 各プレイヤーの使用艦艇の統計を並列で取得する
                 rp({
-                    url: BASE_URL + '/internal_api/stat/ship',
+                    url: BASE_URL + '/internal_api' + EntryPoint.Internal.SHIP.STAT,
                     qs: {
                         playerid: playerId
                     }
@@ -136,7 +137,7 @@ class DataFetcher {
 
             // IDから艦艇情報を取得する
             rp({
-                url: BASE_URL + '/internal_api/info/ship',
+                url: BASE_URL + '/internal_api/' + EntryPoint.Internal.SHIP.INFO,
                 qs: {
                     shipid: joinedShipIds
                 }
@@ -165,7 +166,7 @@ class DataFetcher {
 
             // プレイヤーIDからクラン名を取得する
             rp({
-                url: BASE_URL + '/internal_api/clanid',
+                url: BASE_URL + '/internal_api' + EntryPoint.Internal.CLAN.ID,
                 qs: {
                     playerid: joinedPlayerIds
                 }
@@ -181,7 +182,7 @@ class DataFetcher {
                 }
                 const joinedClanIds = clanIds.join(',');
                 return rp({
-                    url: BASE_URL + '/internal_api/info/clan',
+                    url: BASE_URL + '/internal_api' + EntryPoint.Internal.CLAN.INFO,
                     qs: {
                         clanid: joinedClanIds
                     }
@@ -239,7 +240,7 @@ const fetchShipTier = async function () {
 const fetchGameVerision = function () {
     return new Promise((resolve, reject) => {
         rp({
-            url: BASE_URL + '/internal_api/info/version'
+            url: BASE_URL + '/internal_api' + EntryPoint.Internal.VERSION
         }).then((body) => {
             const data = JSON.parse(body).data;
             resolve(data.game_version);
@@ -253,7 +254,7 @@ const fetchGameVerision = function () {
 const fetchShipTierByPage = function (pageNo) {
     return new Promise((resolve, reject) => {
         rp({
-            url: BASE_URL + '/internal_api/info/ship_tier',
+            url: BASE_URL + '/internal_api' + EntryPoint.Internal.SHIP_TIER.INFO,
             qs: {
                 page_no: pageNo
             }

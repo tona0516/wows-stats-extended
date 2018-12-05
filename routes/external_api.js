@@ -1,5 +1,5 @@
-const Util = require('../domains/Util');
 const Env = require('../domains/Env');
+const EntryPoint = require('../domains/EntryPoint');
 
 const rp = require('request-promise');
 
@@ -23,7 +23,7 @@ let latestTempArenaInfo;
 /**
  * 戦闘開始したかチェックする
  */
-router.get('/check_update', async function (req, res, next) {
+router.get(EntryPoint.External.CHECK_UPDATE, async function (req, res, next) {
   // 環境変数の再読み込み
   Env.refresh();
 
@@ -54,7 +54,7 @@ router.get('/check_update', async function (req, res, next) {
 /**
  * APIから取得したデータを返却する
  */
-router.get('/fetch', function (req, res, next) {
+router.get(EntryPoint.External.FETCH, function (req, res, next) {
   const startTime = new Date();
 
   // 環境変数の再読み込み
