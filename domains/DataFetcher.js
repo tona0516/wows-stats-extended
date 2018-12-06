@@ -34,11 +34,11 @@ class DataFetcher {
      */
     async fetch(json, callback) {
         await this.fetchPlayerId(json).then(async () => {
-            await this.fetchPlayerStats();
-            await this.fetchPlayerShipStats();
-            await this.fetchShipInfo();
-            await this.fetchClanInfo();
-            await this.fetchShipTierIfNeeded();
+            await this.fetchPlayerStats().catch((error) => {return callback(null, null, error)});
+            await this.fetchPlayerShipStats().catch((error) => {return callback(null, null, error)});
+            await this.fetchShipInfo().catch((error) => {return callback(null, null, error)});
+            await this.fetchClanInfo().catch((error) => {return callback(null, null, error)});
+            await this.fetchShipTierIfNeeded().catch((error) => {return callback(null, null, error)});
             return callback(this.players, this.tiers, null);
         }).catch((error) => {
             return callback(null, null, error);
@@ -59,7 +59,7 @@ class DataFetcher {
                 qs: {
                     search: joinedPlayerNames
                 }
-            }).then(function (body) {
+            }).then((body) => {
                 const data = JSON.parse(body).data;
                 for (var player of data) {
                     const playerId = player.account_id;
@@ -68,7 +68,7 @@ class DataFetcher {
                     self.players[playerId].info = playersFromArenaInfo[playerName];
                 }
                 return resolve();
-            }).catch(function (error) {
+            }).catch((error) => {
                 logger.error(error);
                 return reject(error);
             });
@@ -87,13 +87,13 @@ class DataFetcher {
                 qs: {
                     playerid: joinedPlayerIds
                 }
-            }).then(function (body) {
+            }).then((body) => {
                 const data = JSON.parse(body).data;
                 for (const playerId in data) {
                     self.players[playerId].playerstat = Util.isValid(data[playerId]) ? data[playerId] : null;
                 }
                 return resolve();
-            }).catch(function (error) {
+            }).catch((error) => {
                 logger.error(error);
                 return reject(error);
             });
@@ -103,23 +103,23 @@ class DataFetcher {
     fetchPlayerShipStats() {
         const self = this;
         return new Promise((resolve, reject) => {
-            async.mapValuesLimit(self.players, self.parallelRequestLimit, function (value, playerId, next) {
+            async.mapValuesLimit(self.players, self.parallelRequestLimit, (value, playerId, next) => {
                 // 各プレイヤーの使用艦艇の統計を並列で取得する
                 rp({
                     url: BASE_URL + '/internal_api' + EntryPoint.Internal.SHIP.STAT,
                     qs: {
                         playerid: playerId
                     }
-                }).then(function (body) {
+                }).then((body) => {
                     const data = JSON.parse(body).data;
                     self.players[playerId].shipstat = Util.isValid(data[playerId]) ? data[playerId] : null;
                     next();
-                }).catch(function (error) {
+                }).catch((error) => {
                     logger.error(error);
                     self.players[playerId].shipstat = null;
                     next();
                 });
-            }, function (error) {
+            }, (error) => {
                 if (error) {
                     logger.error(error);
                     return reject(error);
@@ -141,14 +141,14 @@ class DataFetcher {
                 qs: {
                     shipid: joinedShipIds
                 }
-            }).then(function (body) {
+            }).then((body) => {
                 const data = JSON.parse(body).data;
                 for (const playerId in self.players) {
                     const shipId = self.players[playerId].info.shipId;
                     self.players[playerId].shipinfo = data[shipId];
                 }
                 return resolve();
-            }).catch(function (error) {
+            }).catch((error) => {
                 logger.error(error);
                 return reject(error);
             });
@@ -170,7 +170,7 @@ class DataFetcher {
                 qs: {
                     playerid: joinedPlayerIds
                 }
-            }).then(function (body) {
+            }).then((body) => {
                 const data = JSON.parse(body).data;
                 const clanIds = [];
                 for (const playerId in data) {
@@ -187,7 +187,7 @@ class DataFetcher {
                         clanid: joinedClanIds
                     }
                 });
-            }).then(function (body) {
+            }).then((body) => {
                 const data = JSON.parse(body).data;
                 for (const playerId in self.players) {
                     try {
@@ -199,7 +199,7 @@ class DataFetcher {
                     }
                 }
                 return resolve();
-            }).catch(function (error) {
+            }).catch((error) => {
                 logger.error(error);
                 return reject(error);
             });
@@ -221,7 +221,7 @@ class DataFetcher {
     }
 }
 
-const fetchShipTier = async function () {
+const fetchShipTier = async () => {
     var allShip = {};
     var pageNo = 0;
     var pageTotal = 0;
@@ -237,7 +237,7 @@ const fetchShipTier = async function () {
     return allShip;
 }
 
-const fetchGameVerision = function () {
+const fetchGameVerision = () => {
     return new Promise((resolve, reject) => {
         rp({
             url: BASE_URL + '/internal_api' + EntryPoint.Internal.VERSION
@@ -251,23 +251,23 @@ const fetchGameVerision = function () {
     })
 }
 
-const fetchShipTierByPage = function (pageNo) {
+const fetchShipTierByPage = (pageNo) => {
     return new Promise((resolve, reject) => {
         rp({
             url: BASE_URL + '/internal_api' + EntryPoint.Internal.SHIP_TIER.INFO,
             qs: {
                 page_no: pageNo
             }
-        }).then(function (body) {
+        }).then((body) => {
             resolve(body);
-        }).catch(function (error) {
+        }).catch((error) => {
             logger.error(error);
             reject();
         });
     });
 }
 
-const extractPlayers = function (json) {
+const extractPlayers = (json) => {
     const players = {};
     for (const player of json.vehicles) {
         // COMの場合は除外する

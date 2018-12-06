@@ -149,7 +149,7 @@ class DataPicker {
     }
 }
 
-const calculateCombatPower = function (stats, info) {
+const calculateCombatPower = (stats, info) => {
     const kill = stats.frags;
     const death = stats.battles - stats.survived_battles;
     const averageDamage = stats.damage_dealt / stats.battles;
@@ -178,14 +178,14 @@ const calculateCombatPower = function (stats, info) {
     return (averageDamage * kdRatio * averageExperience / 800 * (1 - (0.03 * info.tier)) * type_param).toFixed(0);
 }
 
-const convertToRomanNumber = function (team) {
+const convertToRomanNumber = (team) => {
     for (var player of team) {
         player.ship_info.tier = TIER_ROMAN[player.ship_info.tier];
     }
     return team;
 }
 
-const calculateTeamAverage = function (team) {
+const calculateTeamAverage = (team) => {
     var shipStat = {};
     shipStat.battles = average(team.map(x => x.ship_stat.battles)).toFixed(0);
     shipStat.win_rate = average(team.map(x => x.ship_stat.win_rate)).toFixed(1);
@@ -207,7 +207,7 @@ const calculateTeamAverage = function (team) {
     return allStat;
 }
 
-const average = function (array) {
+const average = (array) => {
     var sum = 0;
     var ignoreCount = 0;
     for (var item of array) {
@@ -221,7 +221,7 @@ const average = function (array) {
     return average;
 }
 
-const findShipStatById = function (shipStats, shipId) {
+const findShipStatById = (shipStats, shipId) => {
     for (var shipStat of shipStats) {
         if (shipId == shipStat.ship_id) {
             return shipStat;
@@ -230,7 +230,7 @@ const findShipStatById = function (shipStats, shipId) {
     return null;
 }
 
-const calculateAverageTier = function (shipStats, tiers) {
+const calculateAverageTier = (shipStats, tiers) => {
     var sum = 0;
     var battles = 0;
     for (var shipStat of shipStats) {
@@ -242,7 +242,7 @@ const calculateAverageTier = function (shipStats, tiers) {
     return sum / battles;
 }
 
-const sortByTypeAndTier = function () {
+const sortByTypeAndTier = () => {
     return function (a, b) {
         var a_type = a.ship_info.type;
         var b_type = b.ship_info.type;
