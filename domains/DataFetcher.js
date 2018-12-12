@@ -1,9 +1,3 @@
-//########## modifiable variables ##########
-
-const PORT = 3000;
-
-//##########################################
-
 const rp = require('request-promise');
 const log4js = require('log4js');
 const async = require('async');
@@ -13,6 +7,7 @@ const EntryPoint = require('./EntryPoint');
 const logger = log4js.getLogger();
 logger.level = 'DEBUG';
 
+const PORT = 3000;
 const BASE_URL = 'http://localhost:' + PORT;
 
 class DataFetcher {
