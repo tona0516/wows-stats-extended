@@ -4,6 +4,8 @@ block content
   div#app
     div(v-if="message != null")
       div(class="alert alert-primary") {{ message }}
+    div(v-if="error != null")
+      div(class="alert alert-danger") {{ error }}
     div(v-for="team of players")
       table(class="table table-sm table-dark table-bordered table-hover")
         thead

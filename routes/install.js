@@ -36,7 +36,7 @@ const validateParameter = async function (parameters) {
 
     if (!await validateAppID(appid, region)) {
         isValid = false;
-        messages.appid_error = "不正なアプリケーションIDです。<a href=\"https:\/\/developers.wargaming.net\/\">Developer Room</a>で確認してください。";
+        messages.appid_error = "不正なアプリケーションIDです。";
     }
 
     if (!validateInstallDirectory(directory)) {
@@ -64,6 +64,7 @@ const validateAppID = function (appid, region) {
 }
 
 const validateInstallDirectory = function (directory) {
+    return true
     // インストールディレクトリにexeがあるか検証する
     const exePath = directory + '\\WorldOfWarships.exe';
     try {
@@ -79,7 +80,8 @@ const saveParameter = function (parameters) {
     const rows = {
         APP_ID: '"' + parameters.appid + '"',
         REGION: '"' + parameters.region.toLowerCase() + '"',
-        DIRECTORY: '"' + parameters.directory + '"'
+        DIRECTORY: '"' + parameters.directory + '"',
+        PORT: "3000",
     };
     var list = []
     for (var key in rows) {

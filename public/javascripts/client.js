@@ -1,12 +1,17 @@
+// ##### Change port if you want #####
+const PORT = 3000;
+// ###################################
+
 var app = new Vue({
   el: '#app',
   data: {
     message: null,
+    error: null,
     players: {},
   }
 })
 
-const DOMAIN = 'http://localhost:3000';
+const DOMAIN = 'http://localhost:' + PORT;
 const FETCH_INTERVAL_MS = 1000;
 var isFetching = false;
 var isFirstFetch = true;
@@ -99,7 +104,8 @@ const updateStatus = function (status, error = null) {
   if (status === Status.FETCH_FAIL) {
     isFetching = false;
     isFirstFetch = false;
-    app.message = "読み込みに失敗しました。もう一度お試しください: " + error;
+    app.message = null;
+    app.error = "読み込みに失敗しました。もう一度お試しください: " + JSON.stringify(error);
     return;
   }
 
@@ -133,15 +139,15 @@ const fetchIfNeeded = async function () {
   if (status == 200 || isFirstFetch) {
     updateStatus(Status.FETCHING);
 
-    await fetch().catch((error) => {
+    await fetch().then(() => {
+      updateStatus(Status.FETCH_SUCCESS);
+    })
+    .catch((error) => {
+      clearInterval(timer);
       updateStatus(Status.FETCH_FAIL, error);
-      return;
     });
-
-    updateStatus(Status.FETCH_SUCCESS);
-    return;
   }
 }
 
 // fetchShipConcealment();
-setInterval(fetchIfNeeded, FETCH_INTERVAL_MS);
+timer = setInterval(fetchIfNeeded, FETCH_INTERVAL_MS);

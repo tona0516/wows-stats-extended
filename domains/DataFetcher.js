@@ -2,13 +2,11 @@ const rp = require('request-promise');
 const log4js = require('log4js');
 const async = require('async');
 const Util = require('./Util');
+const Env = require('./Env');
 const EntryPoint = require('./EntryPoint');
 
 const logger = log4js.getLogger();
 logger.level = 'DEBUG';
-
-const PORT = 3000;
-const BASE_URL = 'http://localhost:' + PORT;
 
 class DataFetcher {
 
@@ -20,6 +18,8 @@ class DataFetcher {
     constructor(parallelRequestLimit = 10) {
         this.parallelRequestLimit = parallelRequestLimit;
         this.players = {};
+        Env.refresh();
+        this.baseUrl = 'http://localhost:' + Env.port;
     }
 
     /**
@@ -29,11 +29,11 @@ class DataFetcher {
      */
     async fetch(json, callback) {
         await this.fetchPlayerId(json).then(async () => {
+            await this.fetchShipTierIfNeeded().catch((error) => {return callback(null, null, error)});
+            this.fetchShipInfo(); // fetchShipTierIfNeededの後にコール
             await this.fetchPlayerStats().catch((error) => {return callback(null, null, error)});
             await this.fetchPlayerShipStats().catch((error) => {return callback(null, null, error)});
-            await this.fetchShipInfo().catch((error) => {return callback(null, null, error)});
             await this.fetchClanInfo().catch((error) => {return callback(null, null, error)});
-            await this.fetchShipTierIfNeeded().catch((error) => {return callback(null, null, error)});
             return callback(this.players, this.tiers, null);
         }).catch((error) => {
             return callback(null, null, error);
@@ -50,7 +50,7 @@ class DataFetcher {
 
             // プレイヤー名からIDを取得
             rp({
-                url: BASE_URL + '/internal_api' + EntryPoint.Internal.PLAYER.ID,
+                url: self.baseUrl + '/internal_api' + EntryPoint.Internal.PLAYER.ID,
                 qs: {
                     search: joinedPlayerNames
                 }
@@ -78,7 +78,7 @@ class DataFetcher {
 
             // IDから詳細なプレイヤー統計を取得
             rp({
-                url: BASE_URL + '/internal_api' + EntryPoint.Internal.PLAYER.STAT,
+                url: self.baseUrl + '/internal_api' + EntryPoint.Internal.PLAYER.STAT,
                 qs: {
                     playerid: joinedPlayerIds
                 }
@@ -101,7 +101,7 @@ class DataFetcher {
             async.mapValuesLimit(self.players, self.parallelRequestLimit, (value, playerId, next) => {
                 // 各プレイヤーの使用艦艇の統計を並列で取得する
                 rp({
-                    url: BASE_URL + '/internal_api' + EntryPoint.Internal.SHIP.STAT,
+                    url: self.baseUrl + '/internal_api' + EntryPoint.Internal.SHIP.STAT,
                     qs: {
                         playerid: playerId
                     }
@@ -125,29 +125,10 @@ class DataFetcher {
     }
 
     fetchShipInfo() {
-        const self = this;
-        return new Promise((resolve, reject) => {
-            // コンマ区切りの艦艇ID文字列を生成
-            const joinedShipIds = Util.joinByComma(Object.keys(self.players).map(playerId => self.players[playerId].info.shipId));
-
-            // IDから艦艇情報を取得する
-            rp({
-                url: BASE_URL + '/internal_api/' + EntryPoint.Internal.SHIP.INFO,
-                qs: {
-                    shipid: joinedShipIds
-                }
-            }).then((body) => {
-                const data = JSON.parse(body).data;
-                for (const playerId in self.players) {
-                    const shipId = self.players[playerId].info.shipId;
-                    self.players[playerId].shipinfo = data[shipId];
-                }
-                return resolve();
-            }).catch((error) => {
-                logger.error(error);
-                return reject(error);
-            });
-        });
+        for (const playerId in this.players) {
+            const shipId = this.players[playerId].info.shipId;
+            this.players[playerId].shipinfo = this.tiers[shipId];
+        }
     }
 
     fetchClanInfo() {
@@ -161,7 +142,7 @@ class DataFetcher {
 
             // プレイヤーIDからクラン名を取得する
             rp({
-                url: BASE_URL + '/internal_api' + EntryPoint.Internal.CLAN.ID,
+                url: self.baseUrl + '/internal_api' + EntryPoint.Internal.CLAN.ID,
                 qs: {
                     playerid: joinedPlayerIds
                 }
@@ -177,7 +158,7 @@ class DataFetcher {
                 }
                 const joinedClanIds = clanIds.join(',');
                 return rp({
-                    url: BASE_URL + '/internal_api' + EntryPoint.Internal.CLAN.INFO,
+                    url: self.baseUrl + '/internal_api' + EntryPoint.Internal.CLAN.INFO,
                     qs: {
                         clanid: joinedClanIds
                     }
@@ -202,12 +183,12 @@ class DataFetcher {
     }
 
     async fetchShipTierIfNeeded() {
-        const currentGameVersion = await fetchGameVerision();
+        const currentGameVersion = await fetchGameVerision(this.baseUrl);
         const filePath = '.ships_' + currentGameVersion + '.json'
         const isExist = Util.checkFile(filePath);
 
         if (!isExist) {
-            this.tiers = await fetchShipTier();
+            this.tiers = await fetchShipTier(this.baseUrl);
         } else {
             const contents = Util.readFile(filePath);
             this.tiers = JSON.parse(contents);
@@ -216,12 +197,12 @@ class DataFetcher {
     }
 }
 
-const fetchShipTier = async () => {
+const fetchShipTier = async (baseUrl) => {
     var allShip = {};
     var pageNo = 0;
     var pageTotal = 0;
     do {
-        const body = await fetchShipTierByPage(++pageNo);
+        const body = await fetchShipTierByPage(baseUrl, ++pageNo);
         const newJson = JSON.parse(body);
         const data = newJson.data
         pageTotal = newJson.meta.page_total;
@@ -232,10 +213,10 @@ const fetchShipTier = async () => {
     return allShip;
 }
 
-const fetchGameVerision = () => {
+const fetchGameVerision = (baseUrl) => {
     return new Promise((resolve, reject) => {
         rp({
-            url: BASE_URL + '/internal_api' + EntryPoint.Internal.VERSION
+            url: baseUrl + '/internal_api' + EntryPoint.Internal.VERSION
         }).then((body) => {
             const data = JSON.parse(body).data;
             resolve(data.game_version);
@@ -246,10 +227,10 @@ const fetchGameVerision = () => {
     })
 }
 
-const fetchShipTierByPage = (pageNo) => {
+const fetchShipTierByPage = (baseUrl, pageNo) => {
     return new Promise((resolve, reject) => {
         rp({
-            url: BASE_URL + '/internal_api' + EntryPoint.Internal.SHIP_TIER.INFO,
+            url: baseUrl + '/internal_api' + EntryPoint.Internal.SHIP_TIER.INFO,
             qs: {
                 page_no: pageNo
             }

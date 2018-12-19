@@ -102,8 +102,8 @@ router.get(EntryPoint.Internal.SHIP_TIER.INFO, function (req, res, next) {
         url: Util.generateApiUrl('/encyclopedia/ships/'),
         qs: {
             application_id: Env.appid,
-            fields: "name,tier",
-            page_no: req.query.page_no
+            fields: "name,tier,type,nation,default_profile.concealment.detect_distance_by_ship",
+            page_no: req.query.page_no,
         }
     }, req, res);
 });
