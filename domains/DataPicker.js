@@ -1,4 +1,5 @@
-const Util = require('./Util');
+const Env = require('./Env');
+const Config = require('./Config');
 
 const log4js = require('log4js');
 const logger = log4js.getLogger();
@@ -28,6 +29,7 @@ class DataPicker {
             var shipStat = {};
             var playerStat = {};
             playerStat.name = player.info.name;
+            playerStat.wows_numbers = 'https://' + Env.region + '.' + Config.URL.WOWS_NUMBERS + id + ',' + player.info.name;
             playerStat.is_myself = player.info.relation == 0 ? true : false;
             playerStat.clan_tag = player.clan_info != null ? "[" + player.clan_info.tag + "] " : "";
 
