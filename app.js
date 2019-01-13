@@ -1,11 +1,11 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
+var createError  = require('http-errors');
+var express      = require('express');
+var path         = require('path');
 var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+var logger       = require('morgan');
 
-var indexRouter = require('./routes/index');
-var installRouter = require('./routes/install');
+var indexRouter       = require('./routes/index');
+var installRouter     = require('./routes/install');
 var externalApiRouter = require('./routes/external_api');
 var internalApiRouter = require('./routes/internal_api');
 

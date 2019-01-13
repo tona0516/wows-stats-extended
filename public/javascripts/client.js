@@ -1,7 +1,3 @@
-// ##### Change port if you want #####
-const PORT = 3000;
-// ###################################
-
 var app = new Vue({
   el: '#app',
   data: {
@@ -11,7 +7,6 @@ var app = new Vue({
   }
 })
 
-const DOMAIN = 'http://localhost:' + PORT;
 const FETCH_INTERVAL_MS = 1000;
 var isFetching = false;
 var isFirstFetch = true;
