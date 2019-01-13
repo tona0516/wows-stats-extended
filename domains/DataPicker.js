@@ -244,20 +244,28 @@ const calculateAverageTier = (shipStats, tiers) => {
 
 const sortByTypeAndTier = () => {
     return function (a, b) {
+        // 艦種でソード
         var a_type = a.ship_info.type;
         var b_type = b.ship_info.type;
         a_type = a_type.toUpperCase();
         b_type = b_type.toUpperCase();
-        if (a_type < b_type) return -1;
         if (a_type > b_type) return 1;
-        if (a_type == b_type) {
-            var a_tier = a.ship_info.tier;
-            var b_tier = b.ship_info.tier;
-            a_tier = parseInt(a_tier);
-            b_tier = parseInt(b_tier);
-            if (a_tier < b_tier) return 1;
-            if (a_tier > b_tier) return -1;
-        }
+        if (a_type < b_type) return -1;
+
+        // Tierでソート
+        var a_tier = a.ship_info.tier;
+        var b_tier = b.ship_info.tier;
+        a_tier = parseInt(a_tier);
+        b_tier = parseInt(b_tier);
+        if (a_tier < b_tier) return 1;
+        if (a_tier > b_tier) return -1;
+
+        // 艦名でソート
+        var a_name = a.ship_info.name;
+        var b_name = b.ship_info.name;
+        if (a_name > b_name) return 1;
+        if (a_name < b_name) return -1;
+
         return 0;
     }
 }
