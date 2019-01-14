@@ -23,117 +23,107 @@ class DataPicker {
         var friends = [];
         var enemies = [];
         for (const id in playersJson) {
-            const player = playersJson[id];
-            const isPrivate = player.playerstat.hidden_profile ? true : false;
+            try {
+                const player = playersJson[id];
+                
+                var personalData = {};
+                personalData.name = player.info.name;
+                personalData.wows_numbers = 'https://' + Env.region + '.' + Config.URL.WOWS_NUMBERS + id + ',' + player.info.name;
+                personalData.is_myself = player.info.relation == 0 ? true : false;
+                personalData.clan_tag = player.clan_info != null ? "[" + player.clan_info.tag + "] " : "";
 
-            var shipStat = {};
-            var playerStat = {};
-            playerStat.name = player.info.name;
-            playerStat.wows_numbers = 'https://' + Env.region + '.' + Config.URL.WOWS_NUMBERS + id + ',' + player.info.name;
-            playerStat.is_myself = player.info.relation == 0 ? true : false;
-            playerStat.clan_tag = player.clan_info != null ? "[" + player.clan_info.tag + "] " : "";
+                if (isValidPersonalData(player.personalData)) {
+                    if (!isPrivate(player.personalData)) {
+                        const originPlayerStat = player.personalData.statistics;
+                        personalData.battles = originPlayerStat.pvp.battles;
+                        personalData.win_rate = (originPlayerStat.pvp.wins / personalData.battles * 100).toFixed(1);
+                        personalData.average_damage = (originPlayerStat.pvp.damage_dealt / personalData.battles).toFixed(0);
+                        personalData.kill_death_rate = (originPlayerStat.pvp.frags / (personalData.battles - originPlayerStat.pvp.survived_battles)).toFixed(1);
+                        personalData.average_tier = calculateAverageTier(player.shipStatistics, tiersJson).toFixed(1);
+                    } else {     
+                        personalData.battles = '?';
+                        personalData.win_rate = '?';
+                        personalData.average_damage = '?';
+                        personalData.kill_death_rate = '?';
+                        personalData.average_tier = '?';
+                    }
+                } else {
+                    personalData.battles = '0';
+                    personalData.win_rate = '-';
+                    personalData.average_damage = '-';
+                    personalData.kill_death_rate = '-';
+                    personalData.average_tier = '-';
+                }
 
-            shipStat.cp = '';
-            shipStat.battles = '';
-            shipStat.win_rate = '';
-            shipStat.average_damage = '';
-            shipStat.kill_death_rate = '';
-
-            playerStat.battles = '';
-            playerStat.win_rate = '';
-            playerStat.average_damage = '';
-            playerStat.kill_death_rate = '';
-            playerStat.average_tier = '';
-
-            if (!isPrivate) {
-                // プレイヤーが使用する艦艇の成績
-                const originShipStat = findShipStatById(player.shipstat, player.info.shipId);
-                const isFirstMatchByShip = (originShipStat == null || originShipStat.pvp == null || originShipStat.pvp.battles == 0) ? true : false ;
-                if (isFirstMatchByShip) {
+                var shipStat = {};
+                const originShipStat = findShipStatById(player.shipStatistics, player.info.shipId);
+                if (isValidShipStatistics(originShipStat)) {
+                    if (!isPrivate(player.shipStatistics)) {
+                        shipStat.cp = calculateCombatPower(originShipStat.pvp, player.shipinfo);
+                        shipStat.battles = originShipStat.pvp.battles;
+                        shipStat.win_rate = (originShipStat.pvp.wins / shipStat.battles * 100).toFixed(1);
+                        shipStat.average_damage = (originShipStat.pvp.damage_dealt / shipStat.battles).toFixed(0);
+                        shipStat.kill_death_rate = (originShipStat.pvp.frags / (shipStat.battles - originShipStat.pvp.survived_battles)).toFixed(1);
+                    } else {
+                        shipStat.cp = '?';
+                        shipStat.battles = '?';
+                        shipStat.win_rate = '?';
+                        shipStat.average_damage = '?';
+                        shipStat.kill_death_rate = '?';
+                    }
+                } else {
                     shipStat.cp = '-'
                     shipStat.battles = '0';
                     shipStat.win_rate = '-';
                     shipStat.average_damage = '-';
                     shipStat.kill_death_rate = '-';
-                } else {
-                    shipStat.cp = calculateCombatPower(originShipStat.pvp, player.shipinfo);
-                    shipStat.battles = originShipStat.pvp.battles;
-                    shipStat.win_rate = (originShipStat.pvp.wins / shipStat.battles * 100).toFixed(1);
-                    shipStat.average_damage = (originShipStat.pvp.damage_dealt / shipStat.battles).toFixed(0);
-                    shipStat.kill_death_rate = (originShipStat.pvp.frags / (shipStat.battles - originShipStat.pvp.survived_battles)).toFixed(1);
                 }
-
-                // プレイヤーに関する成績
-                const originPlayerStat = player.playerstat.statistics
-                const isFirstMachByPlayer = (originPlayerStat == null || originPlayerStat.pvp == null || originPlayerStat.pvp.battles == 0) ? true : false;
-                if (isFirstMachByPlayer) {
-                    playerStat.battles = '0';
-                    playerStat.win_rate = '-';
-                    playerStat.average_damage = '-';
-                    playerStat.kill_death_rate = '-';
-                    playerStat.average_tier = '-';
-                } else {
-                    playerStat.battles = originPlayerStat.pvp.battles;
-                    playerStat.win_rate = (originPlayerStat.pvp.wins / playerStat.battles * 100).toFixed(1);
-                    playerStat.average_damage = (originPlayerStat.pvp.damage_dealt / playerStat.battles).toFixed(0);
-                    playerStat.kill_death_rate = (originPlayerStat.pvp.frags / (playerStat.battles - originPlayerStat.pvp.survived_battles)).toFixed(1);
-                    playerStat.average_tier = calculateAverageTier(player.shipstat, tiersJson).toFixed(1);
+    
+                // プレイヤーが使用する艦艇の情報
+                var shipInfo = {};
+                shipInfo.name = player.shipinfo.name;
+                shipInfo.type = player.shipinfo.type;
+                shipInfo.tier = player.shipinfo.tier;
+                shipInfo.nation = player.shipinfo.nation;
+                shipInfo.detect_distance_by_ship = player.shipinfo.default_profile.concealment.detect_distance_by_ship;
+                const camouflage_coefficient = 1.00 - 0.03;
+                let module_coefficient = 1.00;
+                if (shipInfo.name == "Gearing") {
+                    module_coefficient = 1.00 - 0.15;
+                } else if (shipInfo.tier > 7) {
+                    module_coefficient = 1.00 - 0.10;
                 }
-            } else {
-                shipStat.cp = '?';
-                shipStat.battles = '?';
-                shipStat.win_rate = '?';
-                shipStat.average_damage = '?';
-                shipStat.kill_death_rate = '?';
-
-                playerStat.battles = '?';
-                playerStat.win_rate = '?';
-                playerStat.average_damage = '?';
-                playerStat.kill_death_rate = '?';
-                playerStat.average_tier = '?';
+                var commander_coefficient = 1;
+                switch (shipInfo.type) {
+                    case "AirCarrier":
+                        commander_coefficient = 1.00 - 0.16;
+                        break;
+                    case "Battleship":
+                        commander_coefficient = 1.00 - 0.14;
+                        break;
+                    case "Cruiser":
+                        commander_coefficient = 1.00 - 0.12;
+                        break;
+                    case "Destroyer":
+                        commander_coefficient = 1.00 - 0.10;
+                        break;
+                    default:
+                        break;
+                }
+    
+                shipInfo.detect_distance_by_ship = (shipInfo.detect_distance_by_ship * camouflage_coefficient * module_coefficient * commander_coefficient).toFixed(2);
+    
+                var allStat = {};
+                allStat.player_stat = personalData;
+                allStat.ship_stat = shipStat;
+                allStat.ship_info = shipInfo;
+    
+                const relation = player.info.relation
+                relation == 0 || relation == 1 ? friends.push(allStat) : enemies.push(allStat);
+            } catch (error) {
+                logger.error("player_id=" + id + ",player_name=" + playersJson[id].info.name + ",error=" + error)
+                continue;
             }
-
-            // プレイヤーが使用する艦艇の情報
-            var shipInfo = {};
-            shipInfo.name = player.shipinfo.name;
-            shipInfo.type = player.shipinfo.type;
-            shipInfo.tier = player.shipinfo.tier;
-            shipInfo.nation = player.shipinfo.nation;
-            shipInfo.detect_distance_by_ship = player.shipinfo.default_profile.concealment.detect_distance_by_ship;
-            const camouflage_coefficient = 1.00 - 0.03;
-            let module_coefficient = 1.00;
-            if (shipInfo.name == "Gearing") {
-                module_coefficient = 1.00 - 0.15;
-            } else if (shipInfo.tier > 7) {
-                module_coefficient = 1.00 - 0.10;
-            }
-            var commander_coefficient = 1;
-            switch (shipInfo.type) {
-                case "AirCarrier":
-                    commander_coefficient = 1.00 - 0.16;
-                    break;
-                case "Battleship":
-                    commander_coefficient = 1.00 - 0.14;
-                    break;
-                case "Cruiser":
-                    commander_coefficient = 1.00 - 0.12;
-                    break;
-                case "Destroyer":
-                    commander_coefficient = 1.00 - 0.10;
-                    break;
-                default:
-                    break;
-            }
-
-            shipInfo.detect_distance_by_ship = (shipInfo.detect_distance_by_ship * camouflage_coefficient * module_coefficient * commander_coefficient).toFixed(2);
-
-            var allStat = {};
-            allStat.player_stat = playerStat;
-            allStat.ship_stat = shipStat;
-            allStat.ship_info = shipInfo;
-
-            const relation = player.info.relation
-            relation == 0 || relation == 1 ? friends.push(allStat) : enemies.push(allStat);
         }
 
         const outputData = {};
@@ -149,6 +139,31 @@ class DataPicker {
 
         return outputData;
     }
+}
+
+const isPrivate = (personalData) => {
+    return personalData.hidden_profile
+}
+
+const isValidPersonalData = (personalData) => {
+    if (personalData == null ||
+        personalData.statistics == null ||
+        personalData.statistics.pvp == null ||
+        personalData.statistics.pvp.battles == 0) {
+            return false;
+        }
+    
+    return true;
+}
+
+const isValidShipStatistics = (statistics) => {
+    if (statistics == null ||
+        statistics.pvp == null ||
+        statistics.pvp.battles == 0) {
+            return false;
+        }
+    
+    return true;
 }
 
 const calculateCombatPower = (stats, info) => {

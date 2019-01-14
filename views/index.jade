@@ -2,10 +2,6 @@ extends layout
 
 block content
   div#app
-    div(v-if="message != null")
-      div(class="alert alert-primary") {{ message }}
-    div(v-if="error != null")
-      div(class="alert alert-danger") {{ error }}
     div(v-for="team of players")
       table(class="table table-sm table-dark table-bordered table-hover")
         thead
@@ -101,4 +97,8 @@ block content
             td {{ player.player_stat.kill_death_rate }}
             td {{ player.player_stat.battles }}
             td {{ player.player_stat.average_tier }}
+    div(v-if="message != null")
+      div(class="alert alert-primary") {{ message }}
+    div(v-if="error != null")
+      div(class="alert alert-danger") {{ error }}
   script(src='/javascripts/client.js')

@@ -31,8 +31,8 @@ class DataFetcher {
         await this.fetchPlayerId(json).then(async () => {
             await this.fetchShipTierIfNeeded().catch((error) => {return callback(null, null, error)});
             this.fetchShipInfo(); // fetchShipTierIfNeededの後にコール
-            await this.fetchPlayerStats().catch((error) => {return callback(null, null, error)});
-            await this.fetchPlayerShipStats().catch((error) => {return callback(null, null, error)});
+            await this.fetchPersonalData().catch((error) => {return callback(null, null, error)});
+            await this.fetchPlayerShipStatistics().catch((error) => {return callback(null, null, error)});
             await this.fetchClanInfo().catch((error) => {return callback(null, null, error)});
             return callback(this.players, this.tiers, null);
         }).catch((error) => {
@@ -70,7 +70,7 @@ class DataFetcher {
         });
     }
 
-    fetchPlayerStats() {
+    fetchPersonalData() {
         const self = this;
         return new Promise((resolve, reject) => {
             // コンマ区切りのプレイヤーID文字列を生成
@@ -85,7 +85,7 @@ class DataFetcher {
             }).then((body) => {
                 const data = JSON.parse(body).data;
                 for (const playerId in data) {
-                    self.players[playerId].playerstat = Util.isValid(data[playerId]) ? data[playerId] : null;
+                    self.players[playerId].personalData = Util.isValid(data[playerId]) ? data[playerId] : null;
                 }
                 return resolve();
             }).catch((error) => {
@@ -95,7 +95,7 @@ class DataFetcher {
         });
     }
 
-    fetchPlayerShipStats() {
+    fetchPlayerShipStatistics() {
         const self = this;
         return new Promise((resolve, reject) => {
             async.mapValuesLimit(self.players, self.parallelRequestLimit, (value, playerId, next) => {
@@ -107,11 +107,11 @@ class DataFetcher {
                     }
                 }).then((body) => {
                     const data = JSON.parse(body).data;
-                    self.players[playerId].shipstat = Util.isValid(data[playerId]) ? data[playerId] : null;
+                    self.players[playerId].shipStatistics = Util.isValid(data[playerId]) ? data[playerId] : null;
                     next();
                 }).catch((error) => {
                     logger.error(error);
-                    self.players[playerId].shipstat = null;
+                    self.players[playerId].shipStatistics = null;
                     next();
                 });
             }, (error) => {
