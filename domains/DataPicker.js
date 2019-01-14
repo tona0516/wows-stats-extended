@@ -48,7 +48,7 @@ class DataPicker {
             if (!isPrivate) {
                 // プレイヤーが使用する艦艇の成績
                 const originShipStat = findShipStatById(player.shipstat, player.info.shipId);
-                const isFirstMatchByShip = originShipStat == null || originShipStat.pvp == null ? true : false;
+                const isFirstMatchByShip = (originShipStat == null || originShipStat.pvp == null || originShipStat.pvp.battles == 0) ? true : false ;
                 if (isFirstMatchByShip) {
                     shipStat.cp = '-'
                     shipStat.battles = '0';
@@ -65,7 +65,7 @@ class DataPicker {
 
                 // プレイヤーに関する成績
                 const originPlayerStat = player.playerstat.statistics
-                const isFirstMachByPlayer = originPlayerStat == null || originPlayerStat.pvp == null ? true : false;
+                const isFirstMachByPlayer = (originPlayerStat == null || originPlayerStat.pvp == null || originPlayerStat.pvp.battles == 0) ? true : false;
                 if (isFirstMachByPlayer) {
                     playerStat.battles = '0';
                     playerStat.win_rate = '-';
@@ -80,17 +80,17 @@ class DataPicker {
                     playerStat.average_tier = calculateAverageTier(player.shipstat, tiersJson).toFixed(1);
                 }
             } else {
-                shipStat.cp = 'priv.';
-                shipStat.battles = 'priv.';
-                shipStat.win_rate = 'priv.';
-                shipStat.average_damage = 'priv.';
-                shipStat.kill_death_rate = 'priv.';
+                shipStat.cp = '?';
+                shipStat.battles = '?';
+                shipStat.win_rate = '?';
+                shipStat.average_damage = '?';
+                shipStat.kill_death_rate = '?';
 
-                playerStat.battles = 'priv.';
-                playerStat.win_rate = 'priv.';
-                playerStat.average_damage = 'priv.';
-                playerStat.kill_death_rate = 'priv.';
-                playerStat.average_tier = 'priv.';
+                playerStat.battles = '?';
+                playerStat.win_rate = '?';
+                playerStat.average_damage = '?';
+                playerStat.kill_death_rate = '?';
+                playerStat.average_tier = '?';
             }
 
             // プレイヤーが使用する艦艇の情報
