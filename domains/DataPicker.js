@@ -239,6 +239,10 @@ const average = (array) => {
 }
 
 const findShipStatById = (shipStats, shipId) => {
+    if (shipStats == null) {
+        return null;
+    }
+
     for (var shipStat of shipStats) {
         if (shipId == shipStat.ship_id) {
             return shipStat;
