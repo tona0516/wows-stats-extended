@@ -1,5 +1,7 @@
 const Env = require('../domains/Env');
 const EntryPoint = require('../domains/EntryPoint');
+const WoWsAPIWrapper = require('../domains/WoWsAPIWrapper');
+const WoWsDataShaper = require('../domains/WoWsDataShaper');
 
 const rp = require('request-promise');
 
@@ -54,7 +56,7 @@ router.get(EntryPoint.External.CHECK_UPDATE, async function (req, res, next) {
 /**
  * APIから取得したデータを返却する
  */
-router.get(EntryPoint.External.FETCH, function (req, res, next) {
+router.get(EntryPoint.External.FETCH, async function (req, res, next) {
   const startTime = new Date();
 
   // 環境変数の再読み込み
@@ -66,20 +68,43 @@ router.get(EntryPoint.External.FETCH, function (req, res, next) {
     return;
   }
 
-  const dataFetcher = new DataFetcher();
-  dataFetcher.fetch(JSON.parse(latestTempArenaInfo), function (players, tiers, error) {
-    if (error !== null) {
-      res.status(500);
-      res.send(JSON.stringify({ 'error': error }));
-      return;
-    }
+  const wrapper = new WoWsAPIWrapper(JSON.parse(latestTempArenaInfo));
+  logger.info('WowsAPIWrapper.fetchPlayers() start');
+  
+  let players;
+  try {
+    players = wrapper.fetchPlayers();
+  } catch (e) {
+    res.status(500);
+    res.send(JSON.stringify({ 'error': fetchPlayerError }));
+    return;
+  }
 
-    const dataPicker = new DataPicker();
-    const picked = dataPicker.pick(players, tiers);
-    res.status(200);
-    res.send(picked);
-    logger.info('Elapsed time: ' + ((new Date().getTime() - startTime.getTime()) / 1000.0).toFixed(2) + ' seconds')
-  });
+  let allShips;
+  try {
+    allShips = wrapper.fetchAllShips();
+  } catch (e) {
+    res.status(500);
+    res.send(JSON.stringify({ 'error': fetchAllShipError}));
+    return;
+  }
+
+  logger.info(allShips);
+
+  const shaper = new WoWsDataShaper();
+
+  let shaped;
+  try {
+    shaped = shaper.shape(players, allShips);
+  } catch (e) {
+    res.status(500);
+    res.send(JSON.stringify({ 'error': shapeError }));
+    return;
+  }
+
+  res.status(200);
+  res.send(shaped);
+  logger.info('Elapsed time: ' + ((new Date().getTime() - startTime.getTime()) / 1000.0).toFixed(2) + ' seconds');
 });
 
 /**
