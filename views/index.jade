@@ -32,11 +32,16 @@ block content
           tr(v-for="player of team")
             // プレイヤー情報
             td(style="width: 12.5%")
-              a(v-bind:href="player.player_stat.wows_numbers", target="_blank")
+              span(v-if="player.player_stat.wows_numbers !== null")
+                a(v-bind:href="player.player_stat.wows_numbers", target="_blank")
+                  font(color="#B6FF01") {{ player.player_stat.clan_tag }}
+                  font(color="#FFFFFF")
+                    span {{ player.player_stat.name }}
+              span(v-else)
                 font(color="#B6FF01") {{ player.player_stat.clan_tag }}
-                font(color="#FFFFFF")
-                  span {{ player.player_stat.name }}
-            
+                  font(color="#FFFFFF")
+                    span {{ player.player_stat.name }}
+                    
             td(style="width: 7.5%")
               span(v-if="player.ship_stat.cp < 10000")
                 font(color="#FE0E00") {{ player.ship_stat.cp }}

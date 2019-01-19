@@ -20,7 +20,7 @@ const TIER_ROMAN = {
 }
 
 class WoWsDataShaper {
-    async shape(players, allShips) {
+    shape(players, allShips) {
         var friends = [];
         var enemies = [];
         for (const name in players) {

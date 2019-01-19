@@ -54,13 +54,14 @@ router.get(EntryPoint.External.CHECK_UPDATE, async function (req, res, next) {
  * APIから取得したデータを返却する
  */
 router.get(EntryPoint.External.FETCH, (req, res, next) => {
+  res.set('Content-Type', 'application/json');
   const startTime = new Date();
 
   // 環境変数の再読み込み
   Env.refresh();
 
   if (latestTempArenaInfo === null) {
-    res.status(500).send({'error': 'tempArenaInfo.json has not been read yet. please request /check_update endpoint before requesting to me' });
+    res.status(500).json({'error': 'tempArenaInfo.json has not been read yet. please request /check_update endpoint before requesting to me'});
     return;
   }
 
@@ -72,12 +73,15 @@ router.get(EntryPoint.External.FETCH, (req, res, next) => {
   Promise.all([promise1, promise2]).then(([players, allShips]) => {    
     const shaper = new WoWsDataShaper();
     let shaped = shaper.shape(players, allShips);
-    logger.debug(shaped);
 
-    res.status(200).send(shaped);
-    logger.info('Elapsed time: ' + ((new Date().getTime() - startTime.getTime()) / 1000.0).toFixed(2) + ' seconds');
+    logger.debug(JSON.stringify(shaped));
+
+    const elapsedTime = (new Date().getTime() - startTime.getTime()) / 1000.0;
+    logger.info(`処理時間: ${elapsedTime.toFixed(2)}秒`);
+
+    res.status(200).json(shaped);
   }).catch((error) => {
-    res.status(500).send({'error': error});
+    res.status(500).json({'error': error});
   });
 });
 
