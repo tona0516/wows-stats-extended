@@ -2,4 +2,3 @@ node_modules/
 .env
 .ships_*.json
 .idea/
-tmp/
