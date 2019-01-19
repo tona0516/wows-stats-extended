@@ -98,22 +98,21 @@ class WoWsAPIWrapper {
             }
         }
 
-        logger.debug([players, null]);
-        return [players, null];
+        return players;
     }
 
     /**
      * @returns {Array} [allShips, error]
      */
     async fetchAllShips () {
-        const currentGameVersion = await this._fetchGameVerision().catch((error) => {
+        const currentGameVersion = await this._fetchGameVersion().catch((error) => {
             throw new Error(error);
         });
         const filePath = '.ships_' + currentGameVersion + '.json'
         const isExist = Util.checkFile(filePath);
 
         if (!isExist) {
-            const [allShips, error] = this._fetchAllShips();
+            const [allShips, error] = await this._fetchAllShips();
             if (error !== null) {
                 throw new Error(error);
             }
@@ -139,7 +138,7 @@ class WoWsAPIWrapper {
             const name = player.name;
             const id = player.id;
             players[name] = {
-                shipId:    player.shipId,
+                ship_id:    player.shipId,
                 relation:  player.relation,
                 is_player: this._isPlayer(name, id),
             };
@@ -264,7 +263,7 @@ class WoWsAPIWrapper {
                     qs: {
                         application_id: Env.appid,
                         account_id: account_id,
-                        fields: 'pvp.frags,pvp.battles,pvp.survived_battles,pvp.damage_dealt,pvp.xp,pvp.wins',
+                        fields: 'pvp.frags,pvp.battles,pvp.survived_battles,pvp.damage_dealt,pvp.xp,pvp.wins,ship_id',
                     }
                 }).then((body) => {
                     const data = JSON.parse(body).data;
@@ -338,7 +337,7 @@ class WoWsAPIWrapper {
             }).catch((error) => {
                 reject(error);
             });
-        })
+        });
     }
 
     async _fetchAllShips () {

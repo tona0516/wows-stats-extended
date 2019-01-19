@@ -20,27 +20,29 @@ const TIER_ROMAN = {
 }
 
 class WoWsDataShaper {
-    shape(playersJson, tiersJson) {
+    async shape(players, allShips) {
         var friends = [];
         var enemies = [];
-        for (const id in playersJson) {
+        for (const name in players) {
             try {
-                const player = playersJson[id];
+                const player = players[name];
                 
                 var personalData = {};
-                personalData.name = player.info.name;
-                personalData.wows_numbers = 'https://' + Env.region + '.' + Config.URL.WOWS_NUMBERS + id + ',' + player.info.name;
-                personalData.is_myself = player.info.relation == 0 ? true : false;
-                personalData.clan_tag = player.clan_info != null ? "[" + player.clan_info.tag + "] " : "";
+                personalData.name = name;
+                personalData.wows_numbers = player.account_id !== null ? 'https://' + Env.region + '.' + Config.URL.WOWS_NUMBERS + player.account_id + ',' + name : null;
+                personalData.is_myself = player.relation == 0 ? true : false;
+                personalData.clan_tag = _.get(player, 'clan.tag', null);
+                personalData.clan_tag = personalData.clan_tag !== null ? '[' + personalData.clan_tag + ']' : null;
 
-                if (isValidPersonalData(player.personalData)) {
-                    if (!isPrivate(player.personalData)) {
-                        const originPlayerStat = player.personalData.statistics;
-                        personalData.battles = originPlayerStat.pvp.battles;
-                        personalData.win_rate = (originPlayerStat.pvp.wins / personalData.battles * 100).toFixed(1);
-                        personalData.average_damage = (originPlayerStat.pvp.damage_dealt / personalData.battles).toFixed(0);
-                        personalData.kill_death_rate = (originPlayerStat.pvp.frags / (personalData.battles - originPlayerStat.pvp.survived_battles)).toFixed(1);
-                        personalData.average_tier = calculateAverageTier(player.shipStatistics, tiersJson).toFixed(1);
+                let playerStatistics = _.get(player, 'personal_data.statistics', null);
+                if (playerStatistics !== null) {
+                    if (!playerStatistics.hidden_profile) {
+                        let pvp = playerStatistics.pvp;
+                        personalData.battles = pvp.battles;
+                        personalData.win_rate = (pvp.wins / pvp.battles * 100).toFixed(1);
+                        personalData.average_damage = (pvp.damage_dealt / pvp.battles).toFixed(0);
+                        personalData.kill_death_rate = (pvp.frags / (pvp.battles - pvp.survived_battles)).toFixed(1);
+                        personalData.average_tier = calculateAverageTier(player.ship_statistics, allShips).toFixed(1);
                     } else {     
                         personalData.battles = '?';
                         personalData.win_rate = '?';
@@ -57,14 +59,17 @@ class WoWsDataShaper {
                 }
 
                 var shipStat = {};
-                const originShipStat = findShipStatById(player.shipStatistics, player.info.shipId);
-                if (isValidShipStatistics(originShipStat)) {
-                    if (!isPrivate(player.shipStatistics)) {
-                        shipStat.cp = calculateCombatPower(originShipStat.pvp, player.shipinfo);
-                        shipStat.battles = originShipStat.pvp.battles;
-                        shipStat.win_rate = (originShipStat.pvp.wins / shipStat.battles * 100).toFixed(1);
-                        shipStat.average_damage = (originShipStat.pvp.damage_dealt / shipStat.battles).toFixed(0);
-                        shipStat.kill_death_rate = (originShipStat.pvp.frags / (shipStat.battles - originShipStat.pvp.survived_battles)).toFixed(1);
+                let ship_id = player.ship_id;
+                const theShipStatistics = pickShipStatisticsById(player.ship_statistics, ship_id);
+                const theShipInfo = _.get(allShips, ship_id, null);
+                if (theShipStatistics !== null && theShipInfo !== null) {
+                    if (!playerStatistics.hidden_profile) {
+                        let pvp = theShipStatistics.pvp;
+                        shipStat.cp = calculateCombatPower(pvp, theShipInfo);
+                        shipStat.battles = pvp.battles;
+                        shipStat.win_rate = (pvp.wins / pvp.battles * 100).toFixed(1);
+                        shipStat.average_damage = (pvp.damage_dealt / pvp.battles).toFixed(0);
+                        shipStat.kill_death_rate = (pvp.frags / (pvp.battles - pvp.survived_battles)).toFixed(1);
                     } else {
                         shipStat.cp = '?';
                         shipStat.battles = '?';
@@ -82,11 +87,11 @@ class WoWsDataShaper {
     
                 // プレイヤーが使用する艦艇の情報
                 var shipInfo = {};
-                shipInfo.name = player.shipinfo.name;
-                shipInfo.type = player.shipinfo.type;
-                shipInfo.tier = player.shipinfo.tier;
-                shipInfo.nation = player.shipinfo.nation;
-                shipInfo.detect_distance_by_ship = player.shipinfo.default_profile.concealment.detect_distance_by_ship;
+                shipInfo.name = allShips[ship_id].name;
+                shipInfo.type = allShips[ship_id].type;
+                shipInfo.tier = allShips[ship_id].tier;
+                shipInfo.nation = allShips[ship_id].nation;
+                shipInfo.detect_distance_by_ship = allShips[ship_id].default_profile.concealment.detect_distance_by_ship;
                 const camouflage_coefficient = 1.00 - 0.03;
                 let module_coefficient = 1.00;
                 if (shipInfo.name == "Gearing") {
@@ -119,10 +124,10 @@ class WoWsDataShaper {
                 allStat.ship_stat = shipStat;
                 allStat.ship_info = shipInfo;
     
-                const relation = player.info.relation
+                const relation = player.relation
                 relation == 0 || relation == 1 ? friends.push(allStat) : enemies.push(allStat);
             } catch (error) {
-                logger.error("player_id=" + id + ",player_name=" + playersJson[id].info.name + ",error=" + error)
+                logger.error(`player_name=${name}, error=${error}`);
                 continue;
             }
         }
@@ -142,29 +147,18 @@ class WoWsDataShaper {
     }
 }
 
-const isPrivate = (personalData) => {
-    return personalData.hidden_profile
-}
+const pickShipStatisticsById = (ship_statistics, ship_id) => {
+    if (ship_statistics === null) {
+        return null;
+    }
 
-const isValidPersonalData = (personalData) => {
-    if (personalData == null ||
-        personalData.statistics == null ||
-        personalData.statistics.pvp == null ||
-        personalData.statistics.pvp.battles == 0) {
-            return false;
+    for (stat of ship_statistics) {
+        if (ship_id === stat.ship_id) {
+            return stat;
         }
-    
-    return true;
-}
+    }
 
-const isValidShipStatistics = (statistics) => {
-    if (statistics == null ||
-        statistics.pvp == null ||
-        statistics.pvp.battles == 0) {
-            return false;
-        }
-    
-    return true;
+    return null;
 }
 
 const calculateCombatPower = (stats, info) => {
@@ -239,29 +233,16 @@ const average = (array) => {
     return average;
 }
 
-const findShipStatById = (shipStats, shipId) => {
-    if (shipStats == null) {
-        return null;
+const calculateAverageTier = (shipStatistics, allShips) => {
+    let battlesSum = 0;
+    let tierSum = 0;
+    for (var stat of shipStatistics) {
+        let shipBattles = _.get(stat, 'pvp.battles', 0);
+        let shipTier =  _.get(allShips, '[' + stat.ship_id + '].tier', 0);
+        battlesSum += shipBattles;
+        tierSum += shipBattles * shipTier;
     }
-
-    for (var shipStat of shipStats) {
-        if (shipId == shipStat.ship_id) {
-            return shipStat;
-        }
-    }
-    return null;
-}
-
-const calculateAverageTier = (shipStats, tiers) => {
-    var sum = 0;
-    var battles = 0;
-    for (var shipStat of shipStats) {
-        if (shipStat.pvp.battles != null && tiers[shipStat.ship_id] != null) {
-            battles += shipStat.pvp.battles;
-            sum += shipStat.pvp.battles * tiers[shipStat.ship_id].tier;
-        }
-    }
-    return sum / battles;
+    return tierSum / battlesSum;
 }
 
 const sortByTypeAndTier = () => {

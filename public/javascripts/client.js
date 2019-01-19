@@ -66,6 +66,7 @@ const fetch = function () {
       const statusCode = event.target.status;
       const responseBody = event.target.responseText;
       const fetchedData = JSON.parse(responseBody);
+      console.log(responseBody);
 
       if (statusCode == 500) {
         return reject(fetchedData.error);

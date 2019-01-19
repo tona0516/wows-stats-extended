@@ -35,99 +35,50 @@ router.get(EntryPoint.External.CHECK_UPDATE, async function (req, res, next) {
 
   // 戦闘が開始していない場合
   if (tempArenaInfo === null) {
-    res.status(299);
-    res.send();
+    res.sendStatus(299);
     return;
   }
 
   // 戦闘が継続している場合
   if (tempArenaInfo === latestTempArenaInfo) {
-    res.status(209);
-    res.send();
+    res.sendStatus(209);
     return;
   }
 
   // 新しい戦闘が開始された場合
   latestTempArenaInfo = tempArenaInfo;
-  res.status(200);
-  res.send();
+  res.sendStatus(200);
 });
 
 /**
  * APIから取得したデータを返却する
  */
-router.get(EntryPoint.External.FETCH, async function (req, res, next) {
+router.get(EntryPoint.External.FETCH, (req, res, next) => {
   const startTime = new Date();
 
   // 環境変数の再読み込み
   Env.refresh();
 
   if (latestTempArenaInfo === null) {
-    res.status(500);
-    res.send(JSON.stringify({ 'error': 'tempArenaInfo.json has not been read yet. please request /check_update endpoint before requesting to me' }));
+    res.status(500).send({'error': 'tempArenaInfo.json has not been read yet. please request /check_update endpoint before requesting to me' });
     return;
   }
 
   const wrapper = new WoWsAPIWrapper(JSON.parse(latestTempArenaInfo));
   logger.info('WowsAPIWrapper.fetchPlayers() start');
   
-  let players;
-  try {
-    players = wrapper.fetchPlayers();
-  } catch (e) {
-    res.status(500);
-    res.send(JSON.stringify({ 'error': fetchPlayerError }));
-    return;
-  }
+  let promise1 = wrapper.fetchPlayers();
+  let promise2 = wrapper.fetchAllShips();
+  Promise.all([promise1, promise2]).then(([players, allShips]) => {    
+    const shaper = new WoWsDataShaper();
+    let shaped = shaper.shape(players, allShips);
+    logger.debug(shaped);
 
-  let allShips;
-  try {
-    allShips = wrapper.fetchAllShips();
-  } catch (e) {
-    res.status(500);
-    res.send(JSON.stringify({ 'error': fetchAllShipError}));
-    return;
-  }
-
-  logger.info(allShips);
-
-  const shaper = new WoWsDataShaper();
-
-  let shaped;
-  try {
-    shaped = shaper.shape(players, allShips);
-  } catch (e) {
-    res.status(500);
-    res.send(JSON.stringify({ 'error': shapeError }));
-    return;
-  }
-
-  res.status(200);
-  res.send(shaped);
-  logger.info('Elapsed time: ' + ((new Date().getTime() - startTime.getTime()) / 1000.0).toFixed(2) + ' seconds');
+    res.status(200).send(shaped);
+    logger.info('Elapsed time: ' + ((new Date().getTime() - startTime.getTime()) / 1000.0).toFixed(2) + ' seconds');
+  }).catch((error) => {
+    res.status(500).send({'error': error});
+  });
 });
-
-/**
- * WIP
- * ページをスクレイピングして正確な隠蔽距離を取得する
- * バージョンがあがったときにたたくようにする
- */
-router.get('/info/ship_concealment', function (req, res, next) {
-  rp({
-    url: 'http://wiki.wargaming.net/en/Ship:' + req.query.ship_name
-  })
-    .then(function (body) {
-      const dom = new JSDOM(body);
-      const shipParams = dom.window.document.querySelectorAll('.t-performance_right');
-      const concealment = shipParams[shipParams.length - 2].textContent.replace('km.', '').trim();
-      logger.debug(concealment);
-      res.send(concealment);
-    })
-    .catch(function (error) {
-      logger.error(error);
-      res.status(500);
-      res.send(JSON.stringify({ 'error': error }));
-    });
-})
 
 module.exports = router;
