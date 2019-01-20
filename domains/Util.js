@@ -3,29 +3,20 @@ const fs = require('fs');
 
 const Env = require('./Env');
 
+const TIER_ROMAN = {
+    1: "Ⅰ",
+    2: "Ⅱ",
+    3: "Ⅲ",
+    4: "Ⅳ",
+    5: "Ⅴ",
+    6: "Ⅵ",
+    7: "Ⅶ",
+    8: "Ⅷ",
+    9: "Ⅸ",
+    10: "Ⅹ",
+}
+
 class Util {
-    /**
-     * 文字列のリストをコンマ区切りの文字列に変換する
-     * 
-     * @param {[String]} list 
-     */
-    static joinByComma(list) {
-        const tmp = [];
-        for (const item of list) {
-            tmp.push(item)
-        }
-        return tmp.join(',');
-    }
-
-    /**
-     * 有効なデータかを検証する
-     * 
-     * @param {Any} data 
-     */
-    static isValid(data) {
-        return data !== null && data !== undefined;
-    }
-
     /**
      * WOWS-APIのURLを生成する
      *
@@ -33,23 +24,6 @@ class Util {
      */
     static generateApiUrl(path) {
         return 'https://api.worldofwarships.' + Env.region + '/wows' + path;
-    }
-
-    /**
-     * APIにリクエストする共通メソッド
-     * 
-     * @param {Object} option 
-     * @param {Object} req 
-     * @param {Object} res 
-     */
-    static requestCommon(option, req, res) {
-        rp(option).then(function (body) {
-            res.send(body);
-        }).catch(function (error) {
-            logger.error(error);
-            res.status(500);
-            res.send(JSON.stringify({ 'error': error }));
-        });
     }
 
     /**
@@ -83,6 +57,15 @@ class Util {
      */
     static writeFile(filePath, text) {
         fs.writeFileSync(filePath, text, 'utf8');
+    }
+
+    /**
+     * ローマ数字を返却する
+     * 
+     * @param {number} number 
+     */
+    static romanNumber(number) {
+        return TIER_ROMAN[number];
     }
 }
 

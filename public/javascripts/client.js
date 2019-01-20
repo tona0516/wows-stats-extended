@@ -40,7 +40,7 @@ const requestCommon = function (url, didLoad, method = 'GET') {
  */
 const fetchShipConcealment = function () {
   return new Promise((resolve) => {
-    requestCommon(DOMAIN + '/external_api/info/ship_concealment', (event) => {
+    requestCommon(DOMAIN + '/api/info/ship_concealment', (event) => {
       resolve();
     });
   });
@@ -51,7 +51,7 @@ const fetchShipConcealment = function () {
  */
 const checkUpdate = function () {
   return new Promise((resolve) => {
-    requestCommon(DOMAIN + '/external_api/check_update', (event) => {
+    requestCommon(DOMAIN + '/api/check_update', (event) => {
       resolve(event.target.status);
     });
   });
@@ -62,11 +62,10 @@ const checkUpdate = function () {
  */
 const fetch = function () {
   return new Promise((resolve, reject) => {
-    requestCommon(DOMAIN + '/external_api/fetch', (event) => {
+    requestCommon(DOMAIN + '/api/fetch', (event) => {
       const statusCode = event.target.status;
       const responseBody = event.target.responseText;
       const fetchedData = JSON.parse(responseBody);
-      console.log(responseBody);
 
       if (statusCode == 500) {
         return reject(fetchedData.error);
