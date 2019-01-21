@@ -1,6 +1,7 @@
 const fs = require('fs')
 
 const Env = require('./Env');
+const Config = require('./Config');
 
 const TIER_ROMAN = {
     1: "Ⅰ",
@@ -22,7 +23,7 @@ class Util {
      * @param {String} path
      */
     static generateApiUrl(path) {
-        return 'https://api.worldofwarships.' + Env.region + '/wows' + path;
+        return Config.URL.WOWS_API + Env.region + Config.PATH.WOWS_PATH + path;
     }
 
     /**

@@ -23,7 +23,7 @@ router.get('/check_update', async (req, res, next) => {
   Env.refresh();
 
   // tempArenaInfo.jsonの読み込み
-  const tempArenaInfo = fs.readFileSync(Env.installDir + Config.FILE.TEMP_ARENA_INFO_PATH, 'utf8')
+  const tempArenaInfo = fs.readFileSync(Env.installDir + Config.PATH.TEMP_ARENA_INFO_PATH, 'utf8')
 
   // 戦闘が開始していない場合
   if (tempArenaInfo === null) {
