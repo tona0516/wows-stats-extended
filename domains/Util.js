@@ -1,5 +1,4 @@
-const rp = require('request-promise');
-const fs = require('fs');
+const fs = require('fs')
 
 const Env = require('./Env');
 
@@ -38,25 +37,6 @@ class Util {
         } catch (err) {
             return false;
         }
-    }
-
-    /**
-     * ファイルを読み込む
-     * 
-     * @param {String} filePath 
-     */
-    static readFile(filePath) {
-        return fs.readFileSync(filePath, 'utf8');
-    }
-
-    /**
-     * ファイルに書き込む
-     * 
-     * @param {String} filePath 
-     * @param {String} text 
-     */
-    static writeFile(filePath, text) {
-        fs.writeFileSync(filePath, text, 'utf8');
     }
 
     /**

@@ -2,6 +2,7 @@ const Env = require('./Env');
 const Config = require('./Config');
 const Util = require('./Util');
 
+const fs = require('fs');
 const _ = require('lodash');
 const rp = require('request-promise');
 const async = require('async');
@@ -116,12 +117,12 @@ class WoWsAPIWrapper {
             if (error !== null) {
                 throw new Error(error);
             }
-
-            Util.writeFile(filePath, JSON.stringify(allShips));
+            
+            fs.writeFileSync(filePath, JSON.stringify(allShips), 'utf8');
             return allShips;
         }
 
-        const contents = Util.readFile(filePath);
+        const contents = fs.readFileSync(filePath, 'utf8')
         return JSON.parse(contents);
     }
 

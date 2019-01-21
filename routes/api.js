@@ -1,4 +1,6 @@
 const Env = require('../domains/Env');
+const Util = require('../domains/Util');
+const Config = require('../domains/Config');
 const WoWsAPIWrapper = require('../domains/WoWsAPIWrapper');
 const WoWsDataShaper = require('../domains/WoWsDataShaper');
 
@@ -9,7 +11,7 @@ const log4js = require('log4js');
 const logger = log4js.getLogger();
 logger.level = 'DEBUG';
 
-const FileObserver = require('../domains/FileObserver');
+const fs = require('fs');
 
 let latestTempArenaInfo;
 
@@ -21,8 +23,7 @@ router.get('/check_update', async (req, res, next) => {
   Env.refresh();
 
   // tempArenaInfo.jsonの読み込み
-  const fileObserver = new FileObserver(Env.installDir);
-  const tempArenaInfo = await fileObserver.read().catch(() => null);
+  const tempArenaInfo = fs.readFileSync(Env.installDir + Config.FILE.TEMP_ARENA_INFO_PATH, 'utf8')
 
   // 戦闘が開始していない場合
   if (tempArenaInfo === null) {
