@@ -1,9 +1,6 @@
 const Env = require('../domains/Env');
-const EntryPoint = require('../domains/EntryPoint');
 const WoWsAPIWrapper = require('../domains/WoWsAPIWrapper');
 const WoWsDataShaper = require('../domains/WoWsDataShaper');
-
-const rp = require('request-promise');
 
 const express = require('express');
 const router = express.Router();
@@ -12,12 +9,6 @@ const log4js = require('log4js');
 const logger = log4js.getLogger();
 logger.level = 'DEBUG';
 
-const {
-  JSDOM
-} = require('jsdom');
-
-const DataFetcher = require('../domains/DataFetcher');
-const DataPicker = require('../domains/DataPicker');
 const FileObserver = require('../domains/FileObserver');
 
 let latestTempArenaInfo;
@@ -25,7 +16,7 @@ let latestTempArenaInfo;
 /**
  * 戦闘開始したかチェックする
  */
-router.get(EntryPoint.External.CHECK_UPDATE, async function (req, res, next) {
+router.get('/check_update', async (req, res, next) => {
   // 環境変数の再読み込み
   Env.refresh();
 
@@ -53,12 +44,11 @@ router.get(EntryPoint.External.CHECK_UPDATE, async function (req, res, next) {
 /**
  * APIから取得したデータを返却する
  */
-router.get(EntryPoint.External.FETCH, (req, res, next) => {
-  res.set('Content-Type', 'application/json');
-  const startTime = new Date();
-
+router.get('/fetch', (req, res, next) => {
   // 環境変数の再読み込み
   Env.refresh();
+
+  const startTime = new Date();
 
   if (latestTempArenaInfo === null) {
     res.status(500).json({'error': 'tempArenaInfo.json has not been read yet. please request /check_update endpoint before requesting to me'});
@@ -68,13 +58,12 @@ router.get(EntryPoint.External.FETCH, (req, res, next) => {
   const wrapper = new WoWsAPIWrapper(JSON.parse(latestTempArenaInfo));
   logger.info('WowsAPIWrapper.fetchPlayers() start');
   
-  let promise1 = wrapper.fetchPlayers();
-  let promise2 = wrapper.fetchAllShips();
-  Promise.all([promise1, promise2]).then(([players, allShips]) => {    
-    const shaper = new WoWsDataShaper();
-    let shaped = shaper.shape(players, allShips);
+  let fetchPlayersPromise = wrapper.fetchPlayers();
+  let fetchAllShipsPromise = wrapper.fetchAllShips();
 
-    logger.debug(JSON.stringify(shaped));
+  Promise.all([fetchPlayersPromise, fetchAllShipsPromise]).then(([players, allShips]) => {    
+    const shaper = new WoWsDataShaper(players, allShips);
+    let shaped = shaper.shape();
 
     const elapsedTime = (new Date().getTime() - startTime.getTime()) / 1000.0;
     logger.info(`処理時間: ${elapsedTime.toFixed(2)}秒`);

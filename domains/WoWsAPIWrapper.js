@@ -177,7 +177,7 @@ class WoWsAPIWrapper {
             }
         }
 
-        return Util.joinByComma(exactPlayerNames);
+        return exactPlayerNames.join(',');
     }
 
     /**
@@ -192,7 +192,7 @@ class WoWsAPIWrapper {
             }
         }
 
-        return Util.joinByComma(exactPlayerIDs);
+        return exactPlayerIDs.join(',');
     }
 
     /**
@@ -207,7 +207,7 @@ class WoWsAPIWrapper {
             }
         }
 
-        return Util.joinByComma(exactClanIDs);
+        return exactClanIDs.join(',');
     }
 
     /**
