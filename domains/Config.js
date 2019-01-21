@@ -5,6 +5,6 @@ module.exports = {
     },
     PATH: {
         TEMP_ARENA_INFO_PATH: '/replays/tempArenaInfo.json',
-        WOWS_PATH = '/wows',
+        WOWS_PATH: '/wows',
     },
 };

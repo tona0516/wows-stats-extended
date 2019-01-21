@@ -60,9 +60,14 @@ class WoWsAPIWrapper {
 
         // 艦ごとの成績の取得
         {
-            await this._fetchShipStatistics(players).catch((error) => {
+            const data = await this._fetchShipStatistics(players).catch((error) => {
                 throw new Error(error);
             });
+
+            for (let name in players) {
+                const account_id = players[name].account_id;
+                players[name].ship_statistics = _.get(data, account_id, null);
+            }
         }
         
         // クランIDの取得
@@ -73,8 +78,8 @@ class WoWsAPIWrapper {
 
             for (var name in players) {
                 const account_id = players[name].account_id;
-                const clan_id = _.get(data, '[' + account_id + '].clan_id');
-                if (clan_id !== undefined) {
+                const clan_id = _.get(data, '[' + account_id + '].clan_id', null);
+                if (clan_id !== null) {
                     players[name].clan = {};
                     players[name].clan.clan_id = data[account_id].clan_id;
                 } else {
@@ -92,8 +97,8 @@ class WoWsAPIWrapper {
             });
             
             for (var name in players) {
-                const clan_id = _.get(players, '[' + name + '].clan.clan_id');
-                if (clan_id !== undefined) {
+                const clan_id = _.get(players, '[' + name + '].clan.clan_id', null);
+                if (clan_id !== null) {
                     players[name].clan.tag = _.get(data, '[' + clan_id + '].tag', null);
                 }
             }
@@ -204,7 +209,7 @@ class WoWsAPIWrapper {
         const exactClanIDs = [];
         for (var name in players) {
             if (players[name].is_player) {
-                exactClanIDs.push(_.get(players, '[' + name + '].clan.clan_id'));
+                exactClanIDs.push(_.get(players, '[' + name + '].clan.clan_id', null));
             }
         }
 
@@ -256,6 +261,7 @@ class WoWsAPIWrapper {
      */
     _fetchShipStatistics (players) {
         return new Promise((resolve, reject) => {
+            let allData = {};
             async.mapValuesLimit(players, this.parallelRequestLimit, (value, key, next) => {
                 // 各プレイヤーの使用艦艇の統計を並列で取得する
                 const account_id = players[key].account_id;
@@ -268,15 +274,15 @@ class WoWsAPIWrapper {
                     }
                 }).then((body) => {
                     const data = JSON.parse(body).data;
-                    players[key].ship_statistics = _.get(data, '[' + account_id + ']', null);
+                    allData[account_id] = _.get(data, '[' + account_id + ']', null);
                     next();
                 }).catch((error) => {
                     // TODO 取得失敗した場合もnullになってしまう
-                    players[key].ship_statistics = null;
+                    allData[account_id] = null;
                     next();
                 });
             }, (error) => {
-                return error ? reject('_fetchShipStatistics(): ' + error) : resolve();
+                return error ? reject('_fetchShipStatistics(): ' + error) : resolve(allData);
             });
         });
     }
