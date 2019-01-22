@@ -27,20 +27,6 @@ class Util {
     }
 
     /**
-     * ファイルの存在チェックする
-     * 
-     * @param {String} filePath 
-     */
-    static checkFile(filePath) {
-        try {
-            fs.statSync(filePath);
-            return true;
-        } catch (err) {
-            return false;
-        }
-    }
-
-    /**
      * ローマ数字を返却する
      * 
      * @param {number} number 

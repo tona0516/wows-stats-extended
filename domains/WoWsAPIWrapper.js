@@ -20,89 +20,82 @@ class WoWsAPIWrapper {
         this.parallelRequestLimit = parallelRequestLimit;
     }
 
+    _storeAccountID (players, data) {
+        for (var playerInData of data) {
+            players[playerInData.nickname].account_id = playerInData.account_id;
+        }
+        for (var name in players) {
+            if (players[name].account_id === undefined) {
+                players[name].account_id = null;
+            }
+        }
+    }
+
+    _storePersonalData (players, data) {
+        for (var name in players) {
+            const account_id = players[name].account_id;
+            players[name].personal_data = _.get(data, '[' + account_id + ']', null);
+        }
+    }
+
+    _storeShipStatistics (players, data) {
+        for (let name in players) {
+            const account_id = players[name].account_id;
+            players[name].ship_statistics = _.get(data, account_id, null);
+        }
+    }
+
+    _storeClanID (players, data) {
+        for (var name in players) {
+            const account_id = players[name].account_id;
+            const clan_id = _.get(data, '[' + account_id + '].clan_id', null);
+            if (clan_id !== null) {
+                players[name].clan = {};
+                players[name].clan.clan_id = data[account_id].clan_id;
+            } else {
+                players[name].clan = null;
+            }
+        }
+    }
+
+    _storeClanTag (players, data) {    
+        for (var name in players) {
+            const clan_id = _.get(players, '[' + name + '].clan.clan_id', null);
+            if (clan_id !== null) {
+                players[name].clan.tag = _.get(data, '[' + clan_id + '].tag', null);
+            }
+        }
+    }
+
     /**
      * @returns {Array} [players, error]
+     * @throws {Error}
      */
     async fetchPlayers () {
         const players = this._pickPlayerInfo();
 
-        const commaSeparatedPlayerName = this._generateCommaSeparatedPlayerName(players);
-        
         // アカウントIDの取得
-        {
-            const data = await this._fetchAccountId(commaSeparatedPlayerName).catch((error) => {
-                throw new Error(error);
-            });
-            
-            for (var playerInData of data) {
-                players[playerInData.nickname].account_id = playerInData.account_id;
-            }
-            for (var name in players) {
-                if (players[name].account_id === undefined) {
-                    players[name].account_id = null;
-                }
-            }
-        }
-        
-        const commaSeparatedAccountID = this._generateCommaSeparatedAccountID(players);
+        const commaSeparatedPlayerName = this._generateCommaSeparatedPlayerName(players);
+        const accountIDs = await this._fetchAccountId(commaSeparatedPlayerName);
+        this._storeAccountID(players, accountIDs);
         
         // 個人データの取得
-        {
-            const data = await this._fetchPersonalData(commaSeparatedAccountID).catch((error) => {
-                throw new Error(error);
-            });
-
-            for (var name in players) {
-                const account_id = players[name].account_id;
-                players[name].personal_data = _.get(data, '[' + account_id + ']', null);
-            }
-        }
+        const commaSeparatedAccountID = this._generateCommaSeparatedAccountID(players);
+        const personalData = await this._fetchPersonalData(commaSeparatedAccountID);
+        this._storePersonalData(players, personalData);
 
         // 艦ごとの成績の取得
-        {
-            const data = await this._fetchShipStatistics(players).catch((error) => {
-                throw new Error(error);
-            });
-
-            for (let name in players) {
-                const account_id = players[name].account_id;
-                players[name].ship_statistics = _.get(data, account_id, null);
-            }
-        }
+        const shipStatistics = await this._fetchShipStatistics(players);
+        this._storeShipStatistics(players, shipStatistics);
         
         // クランIDの取得
-        {
-            const data = await this._fetchClanId(commaSeparatedAccountID).catch((error) => {
-                throw new Error(error);
-            });
-
-            for (var name in players) {
-                const account_id = players[name].account_id;
-                const clan_id = _.get(data, '[' + account_id + '].clan_id', null);
-                if (clan_id !== null) {
-                    players[name].clan = {};
-                    players[name].clan.clan_id = data[account_id].clan_id;
-                } else {
-                    players[name].clan = null;
-                }
-            }
-        }
-
-        const commaSeparatedClanID = this._generateCommaSeparatedClanID(players);
+        const ClanIDs = await this._fetchClanId(commaSeparatedAccountID);
+        this._storeClanID(players, ClanIDs);
 
         // クランタグの取得
-        {
-            const data = await this._fetchClanTag(commaSeparatedClanID).catch((error) => {
-                throw new Error(error);
-            });
-            
-            for (var name in players) {
-                const clan_id = _.get(players, '[' + name + '].clan.clan_id', null);
-                if (clan_id !== null) {
-                    players[name].clan.tag = _.get(data, '[' + clan_id + '].tag', null);
-                }
-            }
-        }
+        const commaSeparatedClanID = this._generateCommaSeparatedClanID(players);
+        const clanTags = await this._fetchClanTag(commaSeparatedClanID);
+        this._storeClanTag(players, clanTags);
 
         return players;
     }
@@ -110,25 +103,24 @@ class WoWsAPIWrapper {
     /**
      * @returns {Array} [allShips, error]
      */
-    async fetchAllShips () {
+    async fetchAllShipsIfNeeded () {
         const currentGameVersion = await this._fetchGameVersion().catch((error) => {
-            throw new Error(error);
+            throw new Error(`fetAllShips(): ${error}`);
         });
-        const filePath = '.ships_' + currentGameVersion + '.json'
-        const isExist = Util.checkFile(filePath);
+        const cachedFileName = '.ships_' + currentGameVersion + '.json';
 
-        if (!isExist) {
-            const [allShips, error] = await this._fetchAllShips();
-            if (error !== null) {
-                throw new Error(error);
-            }
-            
-            fs.writeFileSync(filePath, JSON.stringify(allShips), 'utf8');
-            return allShips;
+        if (fs.existsSync(cachedFileName)) {
+            const contents = fs.readFileSync(cachedFileName, 'utf8');
+            return JSON.parse(contents);
         }
 
-        const contents = fs.readFileSync(filePath, 'utf8')
-        return JSON.parse(contents);
+        const [allShips, error] = await this._fetchAllShips();
+        if (error !== null) {
+            throw new Error(`fetAllShips(): ${error}`);
+        }
+        fs.writeFileSync(cachedFileName, JSON.stringify(allShips), 'utf8');
+
+        return allShips;
     }
 
     /**
@@ -173,7 +165,7 @@ class WoWsAPIWrapper {
 
     /**
      * @param {Object} players
-     * @returns {Array} カンマ区切りの実際のプレイヤー名
+     * @returns {Array} 実際のプレイヤー名のカンマ区切り文字列
      */
     _generateCommaSeparatedPlayerName (players) {
         const exactPlayerNames = [];
@@ -188,7 +180,7 @@ class WoWsAPIWrapper {
 
     /**
      * @param {Object} players
-     * @returns {Array} カンマ区切りの実際のプレイヤーID
+     * @returns {Array} 実際のプレイヤーIDのカンマ区切り文字列
      */
     _generateCommaSeparatedAccountID (players) {
         const exactPlayerIDs = [];
@@ -202,21 +194,26 @@ class WoWsAPIWrapper {
     }
 
     /**
+     * 
      * @param {Object} players
-     * @returns {Array} カンマ区切りの実際のプレイヤーが所属するクランのID
+     * @returns {Array} 実際のプレイヤーが所属するクランのIDのカンマ区切り文字列
      */
     _generateCommaSeparatedClanID (players) {
         const exactClanIDs = [];
         for (var name in players) {
             if (players[name].is_player) {
-                exactClanIDs.push(_.get(players, '[' + name + '].clan.clan_id', null));
+                const clanID = _.get(players, '[' + name + '].clan.clan_id', null);
+                if (clanID !== null) {
+                    exactClanIDs.push(clanID);
+                }
             }
         }
-
         return exactClanIDs.join(',');
     }
 
     /**
+     * アカウントIDを取得する
+     * 
      * @param {string} commaSeparatedPlayerName カンマ区切りの実際のプレイヤー名 
      */
     _fetchAccountId (commaSeparatedPlayerName) {
@@ -237,6 +234,8 @@ class WoWsAPIWrapper {
     }
 
     /**
+     * 個人データを取得する
+     * 
      * @param {string} commaSeparatedPlayerID カンマ区切りの実際のプレイヤーID
      */
     _fetchPersonalData (commaSeparatedPlayerID) {
@@ -257,14 +256,15 @@ class WoWsAPIWrapper {
     }
 
     /**
+     * 各プレイヤーの使用艦艇の統計を並列で取得する
+     * 
      * @param {Object} players 
      */
     _fetchShipStatistics (players) {
         return new Promise((resolve, reject) => {
             let allData = {};
-            async.mapValuesLimit(players, this.parallelRequestLimit, (value, key, next) => {
-                // 各プレイヤーの使用艦艇の統計を並列で取得する
-                const account_id = players[key].account_id;
+            async.mapValuesLimit(players, this.parallelRequestLimit, (value, playerName, next) => {
+                const account_id = players[playerName].account_id;
                 rp({
                     url: Util.generateApiUrl('/ships/stats/'),
                     qs: {
@@ -277,7 +277,7 @@ class WoWsAPIWrapper {
                     allData[account_id] = _.get(data, '[' + account_id + ']', null);
                     next();
                 }).catch((error) => {
-                    // TODO 取得失敗した場合もnullになってしまう
+                    logger.error(`Failed to fetch statistics of ships the player have used from WoWs API: ${playerName}`);
                     allData[account_id] = null;
                     next();
                 });
@@ -288,6 +288,8 @@ class WoWsAPIWrapper {
     }
 
     /**
+     * プレイヤーのクランIDを取得する
+     * 
      * @param {string} commaSeparatedAccountID 
      */
     _fetchClanId (commaSeparatedAccountID) {
@@ -309,6 +311,8 @@ class WoWsAPIWrapper {
     }
 
     /**
+     * プレイヤーのクランタグを取得する
+     * 
      * @param {string} commaSeparatedClanID 
      */
     _fetchClanTag(commaSeparatedClanID) {
@@ -319,7 +323,7 @@ class WoWsAPIWrapper {
                 qs: {
                     application_id: Env.appid,
                     clan_id: commaSeparatedClanID,
-                    fields: 'tag'
+                    fields: 'tag',
                 }
             }).then((body) => {
                 resolve(JSON.parse(body).data);
@@ -329,6 +333,9 @@ class WoWsAPIWrapper {
         });
     }
 
+    /**
+     * 現在のゲームバージョンを取得する
+     */
     _fetchGameVersion () {
         return new Promise((resolve, reject) => {
             rp({
@@ -336,7 +343,7 @@ class WoWsAPIWrapper {
                 qs: {
                     application_id: Env.appid,
                     fields: "game_version",
-                    language: "ja"
+                    language: "ja",
                 }
             }).then((body) => {
                 const data = JSON.parse(body).data;
@@ -347,41 +354,44 @@ class WoWsAPIWrapper {
         });
     }
 
+    /**
+     * すべての艦艇情報(艦名、ティア、艦種、国籍、隠蔽距離)を取得する
+     */
     async _fetchAllShips () {
+        const fetchAllShipsByPage = (pageNo) => {
+            return new Promise((resolve, reject) => {
+                rp({
+                    url: Util.generateApiUrl('/encyclopedia/ships/'),
+                    qs: {
+                        application_id: Env.appid,
+                        fields: "name,tier,type,nation,default_profile.concealment.detect_distance_by_ship",
+                        page_no: pageNo,
+                    }
+                }).then((body) => {
+                    resolve(JSON.parse(body));
+                }).catch((error) => {
+                    reject('_fetchAllShipsByPage(): ' + error);
+                });
+            });
+        };
+
         let allShips = {};
         let pageNo = 0;
         let pageTotal = 0;
 
         do {
-            // TODO エラーハンドリング
-            const newJson = await this._fetchAllShipsByPage(++pageNo).catch((error) => {
+            const json = await fetchAllShipsByPage(++pageNo).catch((error) => {
                 return [null, error];
             });
-            const data = newJson.data
-            pageTotal = newJson.meta.page_total;
+            pageTotal = json.meta.page_total;
+
+            const data = json.data;
             for (let ship_id in data) {
                 allShips[ship_id] = data[ship_id];
             }
-        } while (pageNo != pageTotal);
+        } while (pageNo !== pageTotal);
 
-        return [allShips, error];
-    }
-
-    _fetchAllShipsByPage (pageNo) {
-        return new Promise((resolve, reject) => {
-            rp({
-                url: Util.generateApiUrl('/encyclopedia/ships/'),
-                qs: {
-                    application_id: Env.appid,
-                    fields: "name,tier,type,nation,default_profile.concealment.detect_distance_by_ship",
-                    page_no: pageNo
-                }
-            }).then((body) => {
-                resolve(JSON.parse(body));
-            }).catch((error) => {
-                reject('_fetchAllShipsByPage(): ' + error);
-            });
-        });
+        return [allShips, null];
     }
 }
 

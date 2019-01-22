@@ -60,7 +60,7 @@ router.get('/fetch', (req, res, next) => {
   logger.info('WowsAPIWrapper.fetchPlayers() start');
   
   let fetchPlayersPromise = wrapper.fetchPlayers();
-  let fetchAllShipsPromise = wrapper.fetchAllShips();
+  let fetchAllShipsPromise = wrapper.fetchAllShipsIfNeeded();
 
   Promise.all([fetchPlayersPromise, fetchAllShipsPromise]).then(([players, allShips]) => {    
     const shaper = new WoWsDataShaper(players, allShips);
