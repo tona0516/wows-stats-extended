@@ -1,6 +1,7 @@
 const Env = require('./Env');
 const Config = require('./Config');
 const Util = require('./Util');
+const Response = require('./Response');
 
 const fs = require('fs');
 const _ = require('lodash');
@@ -14,57 +15,11 @@ class WoWsAPIWrapper {
     /**
      * 
      * @param {Object} tempAreaInfo tempArenaInfoの連想配列
+     * @param {number} parallelRequestLimit 艦ごとの成績を取得するときの最大並列リクエスト数
      */
     constructor (tempAreaInfo, parallelRequestLimit = 5) {
         this.tempArenaInfo = tempAreaInfo;
         this.parallelRequestLimit = parallelRequestLimit;
-    }
-
-    _storeAccountID (players, data) {
-        for (var playerInData of data) {
-            players[playerInData.nickname].account_id = playerInData.account_id;
-        }
-        for (var name in players) {
-            if (players[name].account_id === undefined) {
-                players[name].account_id = null;
-            }
-        }
-    }
-
-    _storePersonalData (players, data) {
-        for (var name in players) {
-            const account_id = players[name].account_id;
-            players[name].personal_data = _.get(data, '[' + account_id + ']', null);
-        }
-    }
-
-    _storeShipStatistics (players, data) {
-        for (let name in players) {
-            const account_id = players[name].account_id;
-            players[name].ship_statistics = _.get(data, account_id, null);
-        }
-    }
-
-    _storeClanID (players, data) {
-        for (var name in players) {
-            const account_id = players[name].account_id;
-            const clan_id = _.get(data, '[' + account_id + '].clan_id', null);
-            if (clan_id !== null) {
-                players[name].clan = {};
-                players[name].clan.clan_id = data[account_id].clan_id;
-            } else {
-                players[name].clan = null;
-            }
-        }
-    }
-
-    _storeClanTag (players, data) {    
-        for (var name in players) {
-            const clan_id = _.get(players, '[' + name + '].clan.clan_id', null);
-            if (clan_id !== null) {
-                players[name].clan.tag = _.get(data, '[' + clan_id + '].tag', null);
-            }
-        }
     }
 
     /**
@@ -77,47 +32,43 @@ class WoWsAPIWrapper {
         // アカウントIDの取得
         const commaSeparatedPlayerName = this._generateCommaSeparatedPlayerName(players);
         const accountIDs = await this._fetchAccountId(commaSeparatedPlayerName);
-        this._storeAccountID(players, accountIDs);
+        this._addAccountID(players, accountIDs);
         
         // 個人データの取得
         const commaSeparatedAccountID = this._generateCommaSeparatedAccountID(players);
         const personalData = await this._fetchPersonalData(commaSeparatedAccountID);
-        this._storePersonalData(players, personalData);
+        this._addPersonalData(players, personalData);
 
         // 艦ごとの成績の取得
         const shipStatistics = await this._fetchShipStatistics(players);
-        this._storeShipStatistics(players, shipStatistics);
+        this._addShipStatistics(players, shipStatistics);
         
         // クランIDの取得
         const ClanIDs = await this._fetchClanId(commaSeparatedAccountID);
-        this._storeClanID(players, ClanIDs);
+        this._addClanID(players, ClanIDs);
 
         // クランタグの取得
         const commaSeparatedClanID = this._generateCommaSeparatedClanID(players);
         const clanTags = await this._fetchClanTag(commaSeparatedClanID);
-        this._storeClanTag(players, clanTags);
+        this._addClanTag(players, clanTags);
 
         return players;
     }
 
     /**
      * @returns {Array} [allShips, error]
+     * @throws {Error}
      */
     async fetchAllShipsIfNeeded () {
-        const currentGameVersion = await this._fetchGameVersion().catch((error) => {
-            throw new Error(`fetAllShips(): ${error}`);
-        });
-        const cachedFileName = '.ships_' + currentGameVersion + '.json';
+        const currentGameVersion = await this._fetchGameVersion();
 
+        const cachedFileName = '.ships_' + currentGameVersion + '.json';
         if (fs.existsSync(cachedFileName)) {
             const contents = fs.readFileSync(cachedFileName, 'utf8');
             return JSON.parse(contents);
         }
 
-        const [allShips, error] = await this._fetchAllShips();
-        if (error !== null) {
-            throw new Error(`fetAllShips(): ${error}`);
-        }
+        const allShips = await this._fetchAllShipsInfo();
         fs.writeFileSync(cachedFileName, JSON.stringify(allShips), 'utf8');
 
         return allShips;
@@ -141,7 +92,6 @@ class WoWsAPIWrapper {
                 is_player: this._isPlayer(name, id),
             };
         }
-
         return players;
     }
 
@@ -155,11 +105,9 @@ class WoWsAPIWrapper {
         if (name.startsWith(':') && name.endsWith(':')) {
             return false;
         }
-
         if (id < 0) {
             return false;
         }
-
         return true;
     }
 
@@ -169,12 +117,12 @@ class WoWsAPIWrapper {
      */
     _generateCommaSeparatedPlayerName (players) {
         const exactPlayerNames = [];
+
         for (var name in players) {
             if (players[name].is_player) {
                 exactPlayerNames.push(name)
             }
         }
-
         return exactPlayerNames.join(',');
     }
 
@@ -184,22 +132,22 @@ class WoWsAPIWrapper {
      */
     _generateCommaSeparatedAccountID (players) {
         const exactPlayerIDs = [];
+
         for (var name in players) {
             if (players[name].is_player) {
                 exactPlayerIDs.push(players[name].account_id);
             }
         }
-
         return exactPlayerIDs.join(',');
     }
 
     /**
-     * 
      * @param {Object} players
      * @returns {Array} 実際のプレイヤーが所属するクランのIDのカンマ区切り文字列
      */
     _generateCommaSeparatedClanID (players) {
         const exactClanIDs = [];
+
         for (var name in players) {
             if (players[name].is_player) {
                 const clanID = _.get(players, '[' + name + '].clan.clan_id', null);
@@ -228,7 +176,7 @@ class WoWsAPIWrapper {
             }).then((body) => {
                 resolve(JSON.parse(body).data);
             }).catch((error) => {
-                reject('_fetchPlayerId(): ' + error);
+                throw new Error(Response.fetch_account_id_error);
             })
         });
     }
@@ -250,7 +198,7 @@ class WoWsAPIWrapper {
             }).then((body) => {
                 resolve(JSON.parse(body).data);
             }).catch((error) => {
-                reject('_fetchPersonalData(): ' + error);
+                throw new Error(Response.fetch_personal_data_error);
             })
         });
     }
@@ -282,7 +230,10 @@ class WoWsAPIWrapper {
                     next();
                 });
             }, (error) => {
-                return error ? reject('_fetchShipStatistics(): ' + error) : resolve(allData);
+                if (error !== null) {
+                    throw new Error(Response.fetch_ship_statistics_error);
+                }
+                return resolve(allData);
             });
         });
     }
@@ -305,7 +256,7 @@ class WoWsAPIWrapper {
             }).then((body) => {
                 resolve(JSON.parse(body).data);
             }).catch((error) => {
-                reject('_fetchClanId(): ' + error);
+                throw new Error(Response.fetch_clan_id_error);
             });
         });
     }
@@ -328,13 +279,92 @@ class WoWsAPIWrapper {
             }).then((body) => {
                 resolve(JSON.parse(body).data);
             }).catch((error) => {
-                reject('_fetchClanTag(): ' + error);
+                throw new Error(Response.fetch_clan_tag_error);
             });
         });
     }
 
     /**
+     * players内の該当プレイヤーにアカウントIDを紐づける
+     * 
+     * @param {Object} players 
+     * @param {Object} data 
+     */
+    _addAccountID (players, data) {
+        for (var playerInData of data) {
+            players[playerInData.nickname].account_id = playerInData.account_id;
+        }
+        for (var name in players) {
+            if (players[name].account_id === undefined) {
+                players[name].account_id = null;
+            }
+        }
+    }
+
+    /**
+     * players内のプレイヤーに個人データを紐づける
+     * 
+     * @param {Object} players 
+     * @param {Object} data 
+     */
+    _addPersonalData (players, data) {
+        for (var name in players) {
+            const account_id = players[name].account_id;
+            players[name].personal_data = _.get(data, '[' + account_id + ']', null);
+        }
+    }
+
+    /**
+     * players内のプレイヤーに艦種ごとの成績を紐づける
+     * 
+     * @param {Object} players 
+     * @param {Object} data 
+     */
+    _addShipStatistics (players, data) {
+        for (let name in players) {
+            const account_id = players[name].account_id;
+            players[name].ship_statistics = _.get(data, account_id, null);
+        }
+    }
+
+    /**
+     * players内の該当プレイヤーにクランIDを紐づける
+     * 
+     * @param {Object} players 
+     * @param {Object} data 
+     */
+    _addClanID (players, data) {
+        for (var name in players) {
+            const account_id = players[name].account_id;
+            const clan_id = _.get(data, '[' + account_id + '].clan_id', null);
+            if (clan_id !== null) {
+                players[name].clan = {};
+                players[name].clan.clan_id = data[account_id].clan_id;
+            } else {
+                players[name].clan = null;
+            }
+        }
+    }
+
+    /**
+     * players内の該当プレイヤーにクランタグを紐づける
+     * 
+     * @param {Object} players 
+     * @param {Object} data 
+     */
+    _addClanTag (players, data) {
+        for (var name in players) {
+            const clan_id = _.get(players, '[' + name + '].clan.clan_id', null);
+            if (clan_id !== null) {
+                players[name].clan.tag = _.get(data, '[' + clan_id + '].tag', null);
+            }
+        }
+    }
+
+    /**
      * 現在のゲームバージョンを取得する
+     * 
+     * @returns {string} バージョン名
      */
     _fetchGameVersion () {
         return new Promise((resolve, reject) => {
@@ -349,16 +379,18 @@ class WoWsAPIWrapper {
                 const data = JSON.parse(body).data;
                 resolve(data.game_version);
             }).catch((error) => {
-                reject(error);
+                throw new Error(Response.fetch_game_version_error);
             });
         });
     }
 
     /**
      * すべての艦艇情報(艦名、ティア、艦種、国籍、隠蔽距離)を取得する
+     * 
+     * @returns {Object} 艦種情報
      */
-    async _fetchAllShips () {
-        const fetchAllShipsByPage = (pageNo) => {
+    async _fetchAllShipsInfo () {
+        const fetchAllShipsInfoByPage = (pageNo) => {
             return new Promise((resolve, reject) => {
                 rp({
                     url: Util.generateApiUrl('/encyclopedia/ships/'),
@@ -370,7 +402,7 @@ class WoWsAPIWrapper {
                 }).then((body) => {
                     resolve(JSON.parse(body));
                 }).catch((error) => {
-                    reject('_fetchAllShipsByPage(): ' + error);
+                    throw new Error(Response.fetch_all_ships_info_error);
                 });
             });
         };
@@ -380,9 +412,7 @@ class WoWsAPIWrapper {
         let pageTotal = 0;
 
         do {
-            const json = await fetchAllShipsByPage(++pageNo).catch((error) => {
-                return [null, error];
-            });
+            const json = await fetchAllShipsInfoByPage(++pageNo);
             pageTotal = json.meta.page_total;
 
             const data = json.data;
@@ -391,7 +421,7 @@ class WoWsAPIWrapper {
             }
         } while (pageNo !== pageTotal);
 
-        return [allShips, null];
+        return allShips;
     }
 }
 

@@ -57,7 +57,7 @@ router.get('/fetch', (req, res, next) => {
   }
 
   const wrapper = new WoWsAPIWrapper(JSON.parse(latestTempArenaInfo));
-  logger.info('WowsAPIWrapper.fetchPlayers() start');
+  logger.info('取得開始');
   
   let fetchPlayersPromise = wrapper.fetchPlayers();
   let fetchAllShipsPromise = wrapper.fetchAllShipsIfNeeded();
@@ -67,11 +67,12 @@ router.get('/fetch', (req, res, next) => {
     let shaped = shaper.shape();
 
     const elapsedTime = (new Date().getTime() - startTime.getTime()) / 1000.0;
-    logger.info(`処理時間: ${elapsedTime.toFixed(2)}秒`);
+    logger.info(`取得完了 処理時間: ${elapsedTime.toFixed(2)}秒`);
 
     res.status(200).json(shaped);
   }).catch((error) => {
-    res.status(500).json({'error': error});
+    logger.error(error.message);
+    res.status(500).json(error.message);
   });
 });
 

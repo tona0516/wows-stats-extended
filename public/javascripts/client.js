@@ -68,12 +68,11 @@ const fetch = function () {
       const fetchedData = JSON.parse(responseBody);
 
       if (statusCode == 500) {
-        return reject(fetchedData.error);
+        return reject(fetchedData);
       }
 
       if (statusCode == 200) {
-        app.players = fetchedData;
-        return resolve();
+        return resolve(fetchedData);
       }
     });
   });
@@ -84,7 +83,7 @@ const fetch = function () {
  * 
  * @param {Status} status 
  */
-const updateStatus = function (status, error = null) {
+const updateStatus = function (status, players = null, error = null) {
   if (status === Status.NEED_NOT_FETCH) {
     app.message = '現在戦闘中ではありません。戦闘開始時に自動更新します。';
     return;
@@ -108,6 +107,7 @@ const updateStatus = function (status, error = null) {
     isFetching = false;
     isFirstFetch = false;
     app.message = null;
+    app.players = players;
     return;
   }
 }
@@ -126,20 +126,20 @@ const fetchIfNeeded = async function () {
 
   // 戦闘中でない場合
   if (status == 299) {
-    updateStatus(Status.NEED_NOT_FETCH);
+    updateStatus(Status.NEED_NOT_FETCH, null, null);
     return;
   }
 
   // 新しい戦闘が開始された、もしくはユーザが画面をリロードした場合
   if (status == 200 || isFirstFetch) {
-    updateStatus(Status.FETCHING);
+    updateStatus(Status.FETCHING, null, null);
 
-    await fetch().then(() => {
-      updateStatus(Status.FETCH_SUCCESS);
+    await fetch().then((players) => {
+      updateStatus(Status.FETCH_SUCCESS, players, null);
     })
     .catch((error) => {
       clearInterval(timer);
-      updateStatus(Status.FETCH_FAIL, error);
+      updateStatus(Status.FETCH_FAIL, null, error);
     });
   }
 }
