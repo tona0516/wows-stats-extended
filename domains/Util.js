@@ -1,7 +1,7 @@
-const rp = require('request-promise');
-const fs = require('fs');
+const fs = require('fs')
 
 const Env = require('./Env');
+const Config = require('./Config');
 
 const TIER_ROMAN = {
     1: "Ⅰ",
@@ -23,40 +23,7 @@ class Util {
      * @param {String} path
      */
     static generateApiUrl(path) {
-        return 'https://api.worldofwarships.' + Env.region + '/wows' + path;
-    }
-
-    /**
-     * ファイルの存在チェックする
-     * 
-     * @param {String} filePath 
-     */
-    static checkFile(filePath) {
-        try {
-            fs.statSync(filePath);
-            return true;
-        } catch (err) {
-            return false;
-        }
-    }
-
-    /**
-     * ファイルを読み込む
-     * 
-     * @param {String} filePath 
-     */
-    static readFile(filePath) {
-        return fs.readFileSync(filePath, 'utf8');
-    }
-
-    /**
-     * ファイルに書き込む
-     * 
-     * @param {String} filePath 
-     * @param {String} text 
-     */
-    static writeFile(filePath, text) {
-        fs.writeFileSync(filePath, text, 'utf8');
+        return Config.URL.WOWS_API + Env.region + Config.PATH.WOWS_PATH + path;
     }
 
     /**
