@@ -18,15 +18,6 @@ const TIER_ROMAN = {
 
 class Util {
     /**
-     * WOWS-APIのURLを生成する
-     *
-     * @param {String} path
-     */
-    static generateApiUrl(path) {
-        return Config.URL.WOWS_API + Env.region + Config.PATH.WOWS_PATH + path;
-    }
-
-    /**
      * ローマ数字を返却する
      * 
      * @param {number} number 

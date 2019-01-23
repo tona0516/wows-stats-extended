@@ -1,6 +1,5 @@
 const Env = require('./Env');
 const Config = require('./Config');
-const Util = require('./Util');
 const Response = require('./Response');
 
 const fs = require('fs');
@@ -167,7 +166,7 @@ class WoWsAPIWrapper {
     _fetchAccountId (commaSeparatedPlayerName) {
         return new Promise((resolve, reject) => {
             rp({
-                url: Util.generateApiUrl('/account/list/'),
+                url: this._generateApiUrl('/account/list/'),
                 qs: {
                     application_id: Env.appid,
                     search: commaSeparatedPlayerName,
@@ -189,7 +188,7 @@ class WoWsAPIWrapper {
     _fetchPersonalData (commaSeparatedPlayerID) {
         return new Promise((resolve, reject) => {
             rp({
-                url: Util.generateApiUrl('/account/info/'),
+                url: this._generateApiUrl('/account/info/'),
                 qs: {
                     application_id: Env.appid,
                     account_id: commaSeparatedPlayerID,
@@ -214,7 +213,7 @@ class WoWsAPIWrapper {
             async.mapValuesLimit(players, this.parallelRequestLimit, (value, playerName, next) => {
                 const account_id = players[playerName].account_id;
                 rp({
-                    url: Util.generateApiUrl('/ships/stats/'),
+                    url: this._generateApiUrl('/ships/stats/'),
                     qs: {
                         application_id: Env.appid,
                         account_id: account_id,
@@ -247,7 +246,7 @@ class WoWsAPIWrapper {
         return new Promise((resolve, reject) => {
             // プレイヤーIDからクラン名を取得する
             rp({
-                url: Util.generateApiUrl('/clans/accountinfo/'),
+                url: this._generateApiUrl('/clans/accountinfo/'),
                 qs: {
                     application_id: Env.appid,
                     account_id: commaSeparatedAccountID,
@@ -270,7 +269,7 @@ class WoWsAPIWrapper {
         return new Promise((resolve, reject) => {
             // プレイヤーIDからクラン名を取得する
             rp({
-                url: Util.generateApiUrl('/clans/info/'),
+                url: this._generateApiUrl('/clans/info/'),
                 qs: {
                     application_id: Env.appid,
                     clan_id: commaSeparatedClanID,
@@ -369,7 +368,7 @@ class WoWsAPIWrapper {
     _fetchGameVersion () {
         return new Promise((resolve, reject) => {
             rp({
-                url: Util.generateApiUrl('/encyclopedia/info/'),
+                url: this._generateApiUrl('/encyclopedia/info/'),
                 qs: {
                     application_id: Env.appid,
                     fields: "game_version",
@@ -393,7 +392,7 @@ class WoWsAPIWrapper {
         const fetchAllShipsInfoByPage = (pageNo) => {
             return new Promise((resolve, reject) => {
                 rp({
-                    url: Util.generateApiUrl('/encyclopedia/ships/'),
+                    url: this._generateApiUrl('/encyclopedia/ships/'),
                     qs: {
                         application_id: Env.appid,
                         fields: "name,tier,type,nation,default_profile.concealment.detect_distance_by_ship",
@@ -422,6 +421,15 @@ class WoWsAPIWrapper {
         } while (pageNo !== pageTotal);
 
         return allShips;
+    }
+
+    /**
+     * WOWS-APIのURLを生成する
+     *
+     * @param {String} path
+     */
+    _generateApiUrl(path) {
+        return Config.URL.WOWS_API + Env.region + Config.PATH.WOWS_PATH + path;
     }
 }
 
