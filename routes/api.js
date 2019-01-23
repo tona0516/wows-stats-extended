@@ -1,5 +1,4 @@
 const Env = require('../domains/Env');
-const Util = require('../domains/Util');
 const Config = require('../domains/Config');
 const WoWsAPIWrapper = require('../domains/WoWsAPIWrapper');
 const WoWsDataShaper = require('../domains/WoWsDataShaper');
@@ -71,7 +70,7 @@ router.get('/fetch', (req, res, next) => {
 
     res.status(200).json(shaped);
   }).catch((error) => {
-    logger.error(error.message);
+    logger.error(error);
     res.status(500).json(error.message);
   });
 });

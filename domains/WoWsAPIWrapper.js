@@ -1,6 +1,5 @@
-const Env = require('./Env');
-const Config = require('./Config');
-const Response = require('./Response');
+const WoWsAPIConfig = require('./WoWsAPIConfig');
+const WoWsAPIClient = require('./WoWsAPIClient');
 
 const fs = require('fs');
 const _ = require('lodash');
@@ -130,14 +129,14 @@ class WoWsAPIWrapper {
      * @returns {Array} 実際のプレイヤーIDのカンマ区切り文字列
      */
     _generateCommaSeparatedAccountID (players) {
-        const exactPlayerIDs = [];
+        const exactAccountIDs = [];
 
         for (var name in players) {
             if (players[name].is_player) {
-                exactPlayerIDs.push(players[name].account_id);
+                exactAccountIDs.push(players[name].account_id);
             }
         }
-        return exactPlayerIDs.join(',');
+        return exactAccountIDs.join(',');
     }
 
     /**
@@ -163,43 +162,23 @@ class WoWsAPIWrapper {
      * 
      * @param {string} commaSeparatedPlayerName カンマ区切りの実際のプレイヤー名 
      */
-    _fetchAccountId (commaSeparatedPlayerName) {
-        return new Promise((resolve, reject) => {
-            rp({
-                url: this._generateApiUrl('/account/list/'),
-                qs: {
-                    application_id: Env.appid,
-                    search: commaSeparatedPlayerName,
-                    type: "exact",
-                }
-            }).then((body) => {
-                resolve(JSON.parse(body).data);
-            }).catch((error) => {
-                throw new Error(Response.fetch_account_id_error);
-            })
-        });
+    async _fetchAccountId (commaSeparatedPlayerName) {
+        let wowsConfig = WoWsAPIConfig.fetch_account_id;
+        wowsConfig.qs.search = commaSeparatedPlayerName;
+        const json = await WoWsAPIClient.request(wowsConfig);
+        return json.data;
     }
 
     /**
      * 個人データを取得する
      * 
-     * @param {string} commaSeparatedPlayerID カンマ区切りの実際のプレイヤーID
+     * @param {string} commaSeparatedAccountID カンマ区切りの実際のプレイヤーID
      */
-    _fetchPersonalData (commaSeparatedPlayerID) {
-        return new Promise((resolve, reject) => {
-            rp({
-                url: this._generateApiUrl('/account/info/'),
-                qs: {
-                    application_id: Env.appid,
-                    account_id: commaSeparatedPlayerID,
-                    fields: 'hidden_profile,statistics'
-                }
-            }).then((body) => {
-                resolve(JSON.parse(body).data);
-            }).catch((error) => {
-                throw new Error(Response.fetch_personal_data_error);
-            })
-        });
+    async _fetchPersonalData (commaSeparatedAccountID) {
+        let wowsConfig = WoWsAPIConfig.fetch_personal_data;
+        wowsConfig.qs.account_id = commaSeparatedAccountID;
+        const json = await WoWsAPIClient.request(wowsConfig);
+        return json.data;
     }
 
     /**
@@ -209,16 +188,14 @@ class WoWsAPIWrapper {
      */
     _fetchShipStatistics (players) {
         return new Promise((resolve, reject) => {
+            let wowsConfig = WoWsAPIConfig.fetch_ship_statistics;
             let allData = {};
             async.mapValuesLimit(players, this.parallelRequestLimit, (value, playerName, next) => {
                 const account_id = players[playerName].account_id;
+                wowsConfig.qs.account_id = account_id;
                 rp({
-                    url: this._generateApiUrl('/ships/stats/'),
-                    qs: {
-                        application_id: Env.appid,
-                        account_id: account_id,
-                        fields: 'pvp.frags,pvp.battles,pvp.survived_battles,pvp.damage_dealt,pvp.xp,pvp.wins,ship_id',
-                    }
+                    url: wowsConfig.url,
+                    qs: wowsConfig.qs,
                 }).then((body) => {
                     const data = JSON.parse(body).data;
                     allData[account_id] = _.get(data, '[' + account_id + ']', null);
@@ -230,7 +207,7 @@ class WoWsAPIWrapper {
                 });
             }, (error) => {
                 if (error !== null) {
-                    throw new Error(Response.fetch_ship_statistics_error);
+                    throw new Error(wowsConfig.error);
                 }
                 return resolve(allData);
             });
@@ -242,22 +219,11 @@ class WoWsAPIWrapper {
      * 
      * @param {string} commaSeparatedAccountID 
      */
-    _fetchClanId (commaSeparatedAccountID) {
-        return new Promise((resolve, reject) => {
-            // プレイヤーIDからクラン名を取得する
-            rp({
-                url: this._generateApiUrl('/clans/accountinfo/'),
-                qs: {
-                    application_id: Env.appid,
-                    account_id: commaSeparatedAccountID,
-                    fields: 'clan_id',
-                }
-            }).then((body) => {
-                resolve(JSON.parse(body).data);
-            }).catch((error) => {
-                throw new Error(Response.fetch_clan_id_error);
-            });
-        });
+    async _fetchClanId (commaSeparatedAccountID) {
+        let wowsConfig = WoWsAPIConfig.fetch_clan_id;
+        wowsConfig.qs.account_id = commaSeparatedAccountID;
+        const json = await WoWsAPIClient.request(wowsConfig);
+        return json.data;
     }
 
     /**
@@ -265,22 +231,11 @@ class WoWsAPIWrapper {
      * 
      * @param {string} commaSeparatedClanID 
      */
-    _fetchClanTag(commaSeparatedClanID) {
-        return new Promise((resolve, reject) => {
-            // プレイヤーIDからクラン名を取得する
-            rp({
-                url: this._generateApiUrl('/clans/info/'),
-                qs: {
-                    application_id: Env.appid,
-                    clan_id: commaSeparatedClanID,
-                    fields: 'tag',
-                }
-            }).then((body) => {
-                resolve(JSON.parse(body).data);
-            }).catch((error) => {
-                throw new Error(Response.fetch_clan_tag_error);
-            });
-        });
+    async _fetchClanTag(commaSeparatedClanID) {
+        let wowsConfig = WoWsAPIConfig.fetch_clan_tag;
+        wowsConfig.qs.clan_id = commaSeparatedClanID;
+        const json = await WoWsAPIClient.request(wowsConfig);
+        return json.data;
     }
 
     /**
@@ -365,22 +320,10 @@ class WoWsAPIWrapper {
      * 
      * @returns {string} バージョン名
      */
-    _fetchGameVersion () {
-        return new Promise((resolve, reject) => {
-            rp({
-                url: this._generateApiUrl('/encyclopedia/info/'),
-                qs: {
-                    application_id: Env.appid,
-                    fields: "game_version",
-                    language: "ja",
-                }
-            }).then((body) => {
-                const data = JSON.parse(body).data;
-                resolve(data.game_version);
-            }).catch((error) => {
-                throw new Error(Response.fetch_game_version_error);
-            });
-        });
+    async _fetchGameVersion () {
+        let wowsConfig = WoWsAPIConfig.fetch_game_version;
+        const json = await WoWsAPIClient.request(wowsConfig);
+        return json.data.game_version;
     }
 
     /**
@@ -389,21 +332,11 @@ class WoWsAPIWrapper {
      * @returns {Object} 艦種情報
      */
     async _fetchAllShipsInfo () {
-        const fetchAllShipsInfoByPage = (pageNo) => {
-            return new Promise((resolve, reject) => {
-                rp({
-                    url: this._generateApiUrl('/encyclopedia/ships/'),
-                    qs: {
-                        application_id: Env.appid,
-                        fields: "name,tier,type,nation,default_profile.concealment.detect_distance_by_ship",
-                        page_no: pageNo,
-                    }
-                }).then((body) => {
-                    resolve(JSON.parse(body));
-                }).catch((error) => {
-                    throw new Error(Response.fetch_all_ships_info_error);
-                });
-            });
+        const fetchAllShipsInfoByPage = async (pageNo) => {
+            let wowsConfig = WoWsAPIConfig.fetch_all_ships_info;
+            wowsConfig.qs.page_no = pageNo;
+            const json = await WoWsAPIClient.request(wowsConfig);
+            return json;
         };
 
         let allShips = {};
@@ -413,7 +346,6 @@ class WoWsAPIWrapper {
         do {
             const json = await fetchAllShipsInfoByPage(++pageNo);
             pageTotal = json.meta.page_total;
-
             const data = json.data;
             for (let ship_id in data) {
                 allShips[ship_id] = data[ship_id];
@@ -421,15 +353,6 @@ class WoWsAPIWrapper {
         } while (pageNo !== pageTotal);
 
         return allShips;
-    }
-
-    /**
-     * WOWS-APIのURLを生成する
-     *
-     * @param {String} path
-     */
-    _generateApiUrl(path) {
-        return Config.URL.WOWS_API + Env.region + Config.PATH.WOWS_PATH + path;
     }
 }
 
