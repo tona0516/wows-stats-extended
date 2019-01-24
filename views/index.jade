@@ -77,7 +77,22 @@ block content
 
             // 艦艇統計
             td {{ player.ship_stat.average_damage }}
-            td {{ player.ship_stat.win_rate }}
+            td
+              span(v-if="player.ship_stat.win_rate < 40")
+                font(color="#FE0E00") {{ player.ship_stat.win_rate }}
+              span(v-else-if="player.ship_stat.win_rate < 45")
+                font(color="#FE7903") {{ player.ship_stat.win_rate }}
+              span(v-else-if="player.ship_stat.win_rate < 50")
+                font(color="#FFC71F") {{ player.ship_stat.win_rate }}
+              span(v-else-if="player.ship_stat.win_rate < 55")
+                font(color="#44B300") {{ player.ship_stat.win_rate }}
+              span(v-else-if="player.ship_stat.win_rate < 60")
+                font(color="#02C9B3") {{ player.ship_stat.win_rate }}
+              span(v-else-if="player.ship_stat.win_rate < 65")
+                font(color="#D042F3") {{ player.ship_stat.win_rate }}
+              span(v-else-if="player.ship_stat.win_rate >= 65")
+                font(color="#920783") {{ player.ship_stat.win_rate }}
+              span(v-else) {{ player.ship_stat.win_rate }}
             td {{ player.ship_stat.kill_death_rate }}
             td {{ player.ship_stat.battles }}
             
