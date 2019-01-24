@@ -64,8 +64,10 @@ const validateAppID = function (appid, region) {
 }
 
 const validateInstallDirectory = function (directory) {
-    // インストールディレクトリにexeがあるか検証する
-    /*
+    if (process.env.NODE_ENV === 'development') {
+        return true;
+    }
+
     const exePath = directory + '\\WorldOfWarships.exe';
     try {
         fs.statSync(exePath);
@@ -73,8 +75,6 @@ const validateInstallDirectory = function (directory) {
     } catch (err) {
         return false;
     }
-    */
-   return true;
 }
 
 const saveParameter = function (parameters) {
