@@ -36,7 +36,7 @@ class WoWsDataShaper {
                 const relation = player.relation;
                 relation == 0 || relation == 1 ? friends.push(allStat) : enemies.push(allStat);
             } catch (error) {
-                logger.error(`player_name=${name}, error=${error}`);
+                logger.error(`Failed to make data for displaying in browser. player_name: ${name}, error: ${error}`);
                 continue;
             }
         }
