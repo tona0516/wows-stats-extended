@@ -100,7 +100,7 @@ class WoWsAPIWrapper {
         if (name.startsWith(':') && name.endsWith(':')) {
             return false;
         }
-        if (id < 0) {
+        if (parseInt(id) < 0) {
             return false;
         }
         return true;
