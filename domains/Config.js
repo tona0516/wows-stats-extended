@@ -4,7 +4,7 @@ module.exports = {
         WOWS_API: 'https://api.worldofwarships.',
     },
     PATH: {
-        TEMP_ARENA_INFO_PATH: '/replays/tempArenaInfo.json',
+        TEMP_ARENA_INFO_PATH: 'replays/tempArenaInfo.json',
         WOWS_PATH: '/wows',
     },
 };
