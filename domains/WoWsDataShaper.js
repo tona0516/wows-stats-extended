@@ -1,5 +1,5 @@
 const Env = require('./Env');
-const Config = require('./Config');
+const Config = require('./Constants');
 const Util = require('./Util');
 
 const _ = require('lodash');

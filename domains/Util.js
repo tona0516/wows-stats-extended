@@ -1,8 +1,5 @@
 const fs = require('fs')
 
-const Env = require('./Env');
-const Config = require('./Config');
-
 const TIER_ROMAN = {
     1: "Ⅰ",
     2: "Ⅱ",

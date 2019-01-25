@@ -1,5 +1,3 @@
-const log4js = require('log4js');
-const dotenv = require('dotenv');
 const request = require('request');
 const fs = require('fs');
 var express = require('express');

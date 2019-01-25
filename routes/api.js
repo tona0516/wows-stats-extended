@@ -1,5 +1,5 @@
 const Env = require('../domains/Env');
-const Config = require('../domains/Config');
+const Constants = require('../domains/Constants');
 const WoWsAPIWrapper = require('../domains/WoWsAPIWrapper');
 const WoWsDataShaper = require('../domains/WoWsDataShaper');
 
@@ -19,7 +19,7 @@ router.get('/check_update', async (req, res, next) => {
   // tempArenaInfo.jsonの読み込み
   let tempArenaInfo;
   try {
-    tempArenaInfo = fs.readFileSync(Env.installDir + Config.PATH.TEMP_ARENA_INFO_PATH, 'utf8');
+    tempArenaInfo = fs.readFileSync(Env.installDir + Constants.PATH.TEMP_ARENA_INFO_PATH, 'utf8');
   } catch (error) {
     // 戦闘が開始していない場合
     res.sendStatus(299);
