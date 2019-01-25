@@ -25,10 +25,11 @@ class WoWsDataShaper {
 
                 const shipInfo = this._makeShipInfo(ship_id);
     
-                var allStat = {};
-                allStat.player_stat = personalData;
-                allStat.ship_stat = shipStat;
-                allStat.ship_info = shipInfo;
+                let allStat = {
+                    'player_stat': personalData,
+                    'ship_stat': shipStat,
+                    'ship_info': shipInfo,
+                };
     
                 const relation = player.relation;
                 relation == 0 || relation == 1 ? friends.push(allStat) : enemies.push(allStat);
@@ -54,9 +55,9 @@ class WoWsDataShaper {
     }
 
     _makePersonalData(name, player) {
-        let personalData = {};
         const isPrivate = _.get(player, 'personal_data.hidden_profile', false);
 
+        let personalData = {};
         personalData.name = name;
         personalData.wows_numbers = player.account_id !== null ? 'https://' + Env.region + '.' + Config.URL.WOWS_NUMBERS + player.account_id + ',' + name : null;
         personalData.is_myself = player.relation == 0 ? true : false;
@@ -93,46 +94,48 @@ class WoWsDataShaper {
     }
 
     _makeShipStatistics(ship_id, player) {
-        let shipStatistics = {};
         const theShipStatistics = this._pickShipStatisticsById(player.ship_statistics, ship_id);
         const theShipInfo = _.get(this.allShips, ship_id, null);
         const isPrivate = _.get(player, 'personal_data.hidden_profile', false);
 
         if (isPrivate) {
-            shipStatistics.cp = '?';
-            shipStatistics.battles = '?';
-            shipStatistics.win_rate = '?';
-            shipStatistics.average_damage = '?';
-            shipStatistics.kill_death_rate = '?';
-            return shipStatistics;
+            return {
+                'cp': '?',
+                'battles': '?',
+                'win_rate': '?',
+                'average_damage':'?',
+                'kill_death_rate': '?',
+            }
         }
 
         if (theShipStatistics === null || theShipInfo === null || _.get(theShipStatistics, 'pvp.battles') === 0) {
-            shipStatistics.cp = '-'
-            shipStatistics.battles = '0';
-            shipStatistics.win_rate = '-';
-            shipStatistics.average_damage = '-';
-            shipStatistics.kill_death_rate = '-';
-            return shipStatistics;
+            return {
+                'cp': '-',
+                'battles': '0',
+                'win_rate': '-',
+                'average_damage':'-',
+                'kill_death_rate': '-',
+            }
         }
 
         let pvp = theShipStatistics.pvp;
-        shipStatistics.cp = this._calculateCombatPower(pvp, theShipInfo);
-        shipStatistics.battles = pvp.battles;
-        shipStatistics.win_rate = (pvp.wins / pvp.battles * 100).toFixed(1);
-        shipStatistics.average_damage = (pvp.damage_dealt / pvp.battles).toFixed(0);
-        shipStatistics.kill_death_rate = (pvp.frags / (pvp.battles - pvp.survived_battles)).toFixed(1);
-        return shipStatistics;
+        return {
+            'cp': this._calculateCombatPower(pvp, theShipInfo),
+            'battles': pvp.battles,
+            'win_rate': (pvp.wins / pvp.battles * 100).toFixed(1),
+            'average_damage': (pvp.damage_dealt / pvp.battles).toFixed(0),
+            'kill_death_rate': (pvp.frags / (pvp.battles - pvp.survived_battles)).toFixed(1),
+        }
     }
 
     _makeShipInfo(ship_id) {
-        var shipInfo = {};
-        shipInfo.name = this.allShips[ship_id].name;
-        shipInfo.type = this.allShips[ship_id].type;
-        shipInfo.tier = this.allShips[ship_id].tier;
-        shipInfo.nation = this.allShips[ship_id].nation;
-        shipInfo.detect_distance_by_ship = this._calculateConcealment(ship_id, this.allShips);
-        return shipInfo;
+        return {
+            'name': this.allShips[ship_id].name,
+            'type': this.allShips[ship_id].type,
+            'tier': this.allShips[ship_id].tier,
+            'nation': this.allShips[ship_id].nation,
+            'detect_distance_by_ship': this._calculateConcealment(ship_id, this.allShips),
+        }
     }
 
     _calculateConcealment(ship_id) {
@@ -228,28 +231,27 @@ class WoWsDataShaper {
     }
     
     _calculateTeamAverage(team) {
-        let shipStat = {};
-        shipStat.battles = this._average(team.map(x => x.ship_stat.battles)).toFixed(0);
-        shipStat.win_rate = this._average(team.map(x => x.ship_stat.win_rate)).toFixed(1);
-        shipStat.average_damage = this._average(team.map(x => x.ship_stat.average_damage)).toFixed(0);
-        shipStat.kill_death_rate = this._average(team.map(x => x.ship_stat.kill_death_rate)).toFixed(1);
+        let shipStat = {
+            'battles': this._average(team.map(x => x.ship_stat.battles)).toFixed(0),
+            'win_rate': this._average(team.map(x => x.ship_stat.win_rate)).toFixed(1),
+            'average_damage': this._average(team.map(x => x.ship_stat.average_damage)).toFixed(0),
+            'kill_death_rate': this._average(team.map(x => x.ship_stat.kill_death_rate)).toFixed(1),
+        };
 
-        let playerStat = {};
-        playerStat.name = "チーム平均";
-        playerStat.battles = this._average(team.map(x => x.player_stat.battles)).toFixed(0);
-        playerStat.win_rate = this._average(team.map(x => x.player_stat.win_rate)).toFixed(1);
-        playerStat.average_damage = this._average(team.map(x => x.player_stat.average_damage)).toFixed(0);
-        playerStat.kill_death_rate = this._average(team.map(x => x.player_stat.kill_death_rate)).toFixed(1);
-        playerStat.average_tier = this._average(team.map(x => x.player_stat.average_tier)).toFixed(1);
-        
-        let shipInfo = {};
+        let playerStat = {
+            'name': 'チーム平均',
+            'battles': this._average(team.map(x => x.player_stat.battles)).toFixed(0),
+            'win_rate': this._average(team.map(x => x.player_stat.win_rate)).toFixed(1),
+            'average_damage': this._average(team.map(x => x.player_stat.average_damage)).toFixed(0),
+            'kill_death_rate': this._average(team.map(x => x.player_stat.kill_death_rate)).toFixed(1),
+            'average_tier': this._average(team.map(x => x.player_stat.average_tier)).toFixed(1),
+        };
 
-        var allStat = {};
-        allStat.player_stat = playerStat;
-        allStat.ship_stat = shipStat;
-        allStat.ship_info = shipInfo;
-    
-        return allStat;
+        return {
+            'player_stat': playerStat,
+            'ship_stat': shipStat,
+            'ship_info': {},
+        };;
     }
     
     _average(array) {
