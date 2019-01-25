@@ -5,10 +5,6 @@ const fs = require('fs');
 var express = require('express');
 var router = express.Router();
 
-const logger = log4js.getLogger();
-logger.level = 'DEBUG';
-dotenv.config();
-
 const SERVERS = ['RU', 'EU', 'NA', 'ASIA'];
 
 /* GET home page. */

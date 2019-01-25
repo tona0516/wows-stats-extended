@@ -5,11 +5,6 @@ const WoWsDataShaper = require('../domains/WoWsDataShaper');
 
 const express = require('express');
 const router = express.Router();
-
-const log4js = require('log4js');
-const logger = log4js.getLogger();
-logger.level = 'DEBUG';
-
 const fs = require('fs');
 
 let latestTempArenaInfo;

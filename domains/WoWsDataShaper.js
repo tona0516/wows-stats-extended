@@ -3,9 +3,6 @@ const Config = require('./Config');
 const Util = require('./Util');
 
 const _ = require('lodash');
-const log4js = require('log4js');
-const logger = log4js.getLogger();
-logger.level = 'DEBUG';
 
 class WoWsDataShaper {
 
