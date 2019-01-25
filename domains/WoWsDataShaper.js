@@ -74,7 +74,7 @@ class WoWsDataShaper {
             return personalData;
         }
 
-        if (playerStatistics === null) {
+        if (playerStatistics === null || _.get(playerStatistics, 'pvp.battles') === 0) {
             personalData.battles = '0';
             personalData.win_rate = '-';
             personalData.average_damage = '-';
@@ -107,7 +107,7 @@ class WoWsDataShaper {
             return shipStatistics;
         }
 
-        if (theShipStatistics === null || theShipInfo === null) {
+        if (theShipStatistics === null || theShipInfo === null || _.get(theShipStatistics, 'pvp.battles') === 0) {
             shipStatistics.cp = '-'
             shipStatistics.battles = '0';
             shipStatistics.win_rate = '-';
