@@ -39,11 +39,11 @@ class WoWsDataShaper {
         }
 
         const outputData = {};
-        var sortedFriends = friends.sort(this._sortByTypeAndTier());
+        let sortedFriends = friends.sort(this._sortByTypeAndTier());
         sortedFriends = this._convertToRomanNumber(sortedFriends);
         sortedFriends.push(this._calculateTeamAverage(sortedFriends));
         
-        var sortedEnemies = enemies.sort(this._sortByTypeAndTier());
+        let sortedEnemies = enemies.sort(this._sortByTypeAndTier());
         sortedEnemies = this._convertToRomanNumber(sortedEnemies);
         sortedEnemies.push(this._calculateTeamAverage(sortedEnemies));
 
@@ -144,7 +144,7 @@ class WoWsDataShaper {
         } else if (this.allShips[ship_id].tier > 7) {
             module_coefficient = 1.00 - 0.10;
         }
-        var commander_coefficient = 1;
+        let commander_coefficient = 1;
         switch (this.allShips[ship_id].type) {
             case "AirCarrier":
                 commander_coefficient = 1.00 - 0.16;
@@ -221,7 +221,7 @@ class WoWsDataShaper {
     }
     
     _convertToRomanNumber(team) {
-        for (var player of team) {
+        for (let player of team) {
             player.ship_info.tier = Util.romanNumber(player.ship_info.tier);
         }
         return team;
@@ -253,9 +253,9 @@ class WoWsDataShaper {
     }
     
     _average(array) {
-        var sum = 0;
-        var ignoreCount = 0;
-        for (var item of array) {
+        let sum = 0;
+        let ignoreCount = 0;
+        for (let item of array) {
             if (isFinite(item)) {
                 sum += Number(item);
                 continue;
@@ -269,24 +269,20 @@ class WoWsDataShaper {
     _sortByTypeAndTier() {
         return function (a, b) {
             // 艦種でソート
-            var a_type = a.ship_info.type;
-            var b_type = b.ship_info.type;
-            a_type = a_type.toUpperCase();
-            b_type = b_type.toUpperCase();
+            const a_type = a.ship_info.type.toUpperCase();
+            const b_type = b.ship_info.type.toUpperCase();
             if (a_type > b_type) return 1;
             if (a_type < b_type) return -1;
     
             // Tierでソート
-            var a_tier = a.ship_info.tier;
-            var b_tier = b.ship_info.tier;
-            a_tier = parseInt(a_tier);
-            b_tier = parseInt(b_tier);
+            const a_tier = parseInt(a.ship_info.tier);
+            const b_tier = parseInt(b.ship_info.tier);
             if (a_tier < b_tier) return 1;
             if (a_tier > b_tier) return -1;
     
             // 艦名でソート
-            var a_name = a.ship_info.name;
-            var b_name = b.ship_info.name;
+            const a_name = a.ship_info.name;
+            const b_name = b.ship_info.name;
             if (a_name > b_name) return 1;
             if (a_name < b_name) return -1;
     

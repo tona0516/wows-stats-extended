@@ -78,7 +78,7 @@ class WoWsAPIWrapper {
         const players = {};
         const vehicles = this.tempArenaInfo.vehicles;
 
-        for (var player of vehicles) {
+        for (let player of vehicles) {
             const name = player.name;
             const id = player.id;
             players[name] = {
@@ -113,7 +113,7 @@ class WoWsAPIWrapper {
     _generateCommaSeparatedPlayerName (players) {
         const exactPlayerNames = [];
 
-        for (var name in players) {
+        for (let name in players) {
             if (players[name].is_player) {
                 exactPlayerNames.push(name)
             }
@@ -128,7 +128,7 @@ class WoWsAPIWrapper {
     _generateCommaSeparatedAccountID (players) {
         const exactAccountIDs = [];
 
-        for (var name in players) {
+        for (let name in players) {
             if (players[name].is_player) {
                 exactAccountIDs.push(players[name].account_id);
             }
@@ -143,7 +143,7 @@ class WoWsAPIWrapper {
     _generateCommaSeparatedClanID (players) {
         const exactClanIDs = [];
 
-        for (var name in players) {
+        for (let name in players) {
             if (players[name].is_player) {
                 const clanID = _.get(players, '[' + name + '].clan.clan_id', null);
                 if (clanID !== null) {
@@ -242,10 +242,10 @@ class WoWsAPIWrapper {
      * @param {Object} data 
      */
     _addAccountID (players, data) {
-        for (var playerInData of data) {
+        for (let playerInData of data) {
             players[playerInData.nickname].account_id = playerInData.account_id;
         }
-        for (var name in players) {
+        for (let name in players) {
             if (players[name].account_id === undefined) {
                 players[name].account_id = null;
             }
@@ -259,7 +259,7 @@ class WoWsAPIWrapper {
      * @param {Object} data 
      */
     _addPersonalData (players, data) {
-        for (var name in players) {
+        for (let name in players) {
             const account_id = players[name].account_id;
             players[name].personal_data = _.get(data, '[' + account_id + ']', null);
         }
@@ -285,7 +285,7 @@ class WoWsAPIWrapper {
      * @param {Object} data 
      */
     _addClanID (players, data) {
-        for (var name in players) {
+        for (let name in players) {
             const account_id = players[name].account_id;
             const clan_id = _.get(data, '[' + account_id + '].clan_id', null);
             if (clan_id !== null) {
@@ -304,7 +304,7 @@ class WoWsAPIWrapper {
      * @param {Object} data 
      */
     _addClanTag (players, data) {
-        for (var name in players) {
+        for (let name in players) {
             const clan_id = _.get(players, '[' + name + '].clan.clan_id', null);
             if (clan_id !== null) {
                 players[name].clan.tag = _.get(data, '[' + clan_id + '].tag', null);

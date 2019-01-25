@@ -1,7 +1,7 @@
 const request = require('request');
 const fs = require('fs');
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
 
 const SERVERS = ['RU', 'EU', 'NA', 'ASIA'];
 
@@ -25,8 +25,8 @@ const validateParameter = async function (parameters) {
     const appid = parameters.appid;
     const region = parameters.region;
     const directory = parameters.directory;
-    var isValid = true;
-    var messages = {};
+    let isValid = true;
+    let messages = {};
 
     if (!await validateAppID(appid, region)) {
         isValid = false;
@@ -83,8 +83,8 @@ const saveParameter = function (parameters) {
         DIRECTORY: '"' + parameters.directory + '"',
         PORT: "3000",
     };
-    var list = []
-    for (var key in rows) {
+    let list = []
+    for (let key in rows) {
         list.push(key + "=" + rows[key]);
     }
     const contents = list.join('\n');

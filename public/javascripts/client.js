@@ -1,4 +1,4 @@
-var app = new Vue({
+const app = new Vue({
   el: '#app',
   data: {
     message: null,
@@ -8,8 +8,8 @@ var app = new Vue({
 })
 
 const FETCH_INTERVAL_MS = 1000;
-var isFetching = false;
-var isFirstFetch = true;
+let isFetching = false;
+let isFirstFetch = true;
 
 const Status = {
   NEED_NOT_FETCH: 1,
