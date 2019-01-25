@@ -2,7 +2,7 @@ const Env = require('./Env');
 const Constants = require('./Constants');
 
 const generateApiUrl = (path) => {
-    return Constants.URL.WOWS_API + Env.region + Constants.PATH.WOWS_PATH + path;
+    return Constants.URL.WOWS_API + Env.region + '/' + Constants.PATH.WOWS_PATH + path;
 }
 
 module.exports = {
