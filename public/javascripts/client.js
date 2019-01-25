@@ -35,18 +35,6 @@ const requestCommon = function (url, didLoad, method = 'GET') {
 }
 
 /**
- * 開発用
- * 艦の隠蔽距離を公式サイトから取得する
- */
-const fetchShipConcealment = function () {
-  return new Promise((resolve) => {
-    requestCommon(DOMAIN + '/api/info/ship_concealment', (event) => {
-      resolve();
-    });
-  });
-}
-
-/**
  * 新しい戦闘が始まったかをチェックする
  */
 const checkUpdate = function () {
@@ -60,7 +48,7 @@ const checkUpdate = function () {
 /**
  * 戦闘データを取得する
  */
-const fetch = function () {
+const fetchData = function () {
   return new Promise((resolve, reject) => {
     requestCommon(DOMAIN + '/api/fetch', (event) => {
       const statusCode = event.target.status;
@@ -134,7 +122,7 @@ const fetchIfNeeded = async function () {
   if (status == 200 || isFirstFetch) {
     updateStatus(Status.FETCHING, null, null);
 
-    await fetch().then((players) => {
+    await fetchData().then((players) => {
       updateStatus(Status.FETCH_SUCCESS, players, null);
     })
     .catch((error) => {
@@ -144,5 +132,4 @@ const fetchIfNeeded = async function () {
   }
 }
 
-// fetchShipConcealment();
 timer = setInterval(fetchIfNeeded, FETCH_INTERVAL_MS);
