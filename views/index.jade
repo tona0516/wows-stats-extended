@@ -91,7 +91,7 @@ block content
               span(v-else-if="player.ship_stat.win_rate < 65")
                 font(color="#D042F3") {{ player.ship_stat.win_rate }}
               span(v-else-if="player.ship_stat.win_rate >= 65")
-                font(color="#920783") {{ player.ship_stat.win_rate }}
+                font(color="#FF88FF") {{ player.ship_stat.win_rate }}
               span(v-else) {{ player.ship_stat.win_rate }}
             td {{ player.ship_stat.kill_death_rate }}
             td {{ player.ship_stat.battles }}
@@ -112,7 +112,7 @@ block content
               span(v-else-if="player.player_stat.win_rate < 65")
                 font(color="#D042F3") {{ player.player_stat.win_rate }}
               span(v-else-if="player.player_stat.win_rate >= 65")
-                font(color="#920783") {{ player.player_stat.win_rate }}
+                font(color="#FF88FF") {{ player.player_stat.win_rate }}
               span(v-else) {{ player.player_stat.win_rate }}
             td {{ player.player_stat.kill_death_rate }}
             td {{ player.player_stat.battles }}
