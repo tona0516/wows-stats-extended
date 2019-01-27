@@ -197,10 +197,12 @@ class WoWsAPIWrapper {
                     const data = JSON.parse(body).data;
                     allData[account_id] = _.get(data, '[' + account_id + ']', null);
                     next();
+                    return null;
                 }).catch((error) => {
                     logger.error(`Failed to fetch statistics of ships the player have used from WoWs API: ${playerName}`);
                     allData[account_id] = null;
                     next();
+                    return null;
                 });
             }, (error) => {
                 if (error !== null) {
