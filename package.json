@@ -3,9 +3,10 @@
   "version": "0.9.0",
   "private": true,
   "scripts": {
-    "start-production": "node ./bin/www NODE_ENV=production ",
-    "start-development": "node ./bin/www NODE_ENV=development ",
-    "debug": "nodemon ./bin/www"
+    "start-production-mac": "NODE_ENV=production node ./bin/www",
+    "start-production-windows": "set NODE_ENV=production node ./bin/www",
+    "start-debug-mac": "NODE_ENV=development nodemon ./bin/www",
+    "start-debug-windows": "set NODE_ENV_development nodemon ./bin/www"
   },
   "dependencies": {
     "async": "^2.6.1",
