@@ -268,7 +268,7 @@ class WoWsDataShaper {
   }
 
   _sortByTypeAndTier () {
-    return function (a, b) {
+    return (a, b) => {
       // 艦種でソート
       const typeA = a.ship_info.type.toUpperCase()
       const typeB = b.ship_info.type.toUpperCase()
@@ -282,10 +282,15 @@ class WoWsDataShaper {
       if (tierA > tierB) return -1
 
       // 艦名でソート
-      const nameA = a.ship_info.name
-      const nameB = b.ship_info.name
-      if (nameA > nameB) return 1
-      if (nameA < nameB) return -1
+      const shipNameA = a.ship_info.name
+      const shipNameB = b.ship_info.name
+      if (shipNameA > shipNameB) return 1
+      if (shipNameA < shipNameB) return -1
+
+      const playerNameA = a.player_stat.name
+      const playerNameB = b.player_stat.name
+      if (playerNameA < playerNameB) return 1
+      if (playerNameA > playerNameB) return -1
 
       return 0
     }
