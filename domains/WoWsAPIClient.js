@@ -2,8 +2,10 @@ const rp = require('request-promise')
 
 class WoWsAPIClient {
   /**
-     * @param {Object} wowsAPIConfig WoWsAPIConfigオブジェクト
-     */
+   * WOWS-APIリクエスト用
+   *
+   * @param {Object} wowsAPIConfig WoWsAPIConfigオブジェクト
+   */
   static request (wowsAPIConfig) {
     return new Promise((resolve) => {
       rp({

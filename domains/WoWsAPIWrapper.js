@@ -8,19 +8,22 @@ const async = require('async')
 
 class WoWsAPIWrapper {
   /**
-     *
-     * @param {Object} tempAreaInfo tempArenaInfoの連想配列
-     * @param {number} parallelRequestLimit 艦ごとの成績を取得するときの最大並列リクエスト数
-     */
+   * コンストラクタ
+   *
+   * @param {Object} tempAreaInfo tempArenaInfoの連想配列
+   * @param {Number} parallelRequestLimit 艦ごとの成績を取得するときの最大並列リクエスト数
+   */
   constructor (tempAreaInfo, parallelRequestLimit = 5) {
     this.tempArenaInfo = tempAreaInfo
     this.parallelRequestLimit = parallelRequestLimit
   }
 
   /**
-     * @returns {Array} [players, error]
-     * @throws {Error}
-     */
+   * 表示するのに必要なデータをフェッチする
+   *
+   * @returns {Array} [players, error]
+   * @throws {Error}
+   */
   async fetchPlayers () {
     const players = this._pickPlayerInfo()
 
@@ -51,9 +54,11 @@ class WoWsAPIWrapper {
   }
 
   /**
-     * @returns {Array} [allShips, error]
-     * @throws {Error}
-     */
+   * 全艦データを取得する。キャッシュがあればキャッシュを返却する
+   *
+   * @returns {Array} [allShips, error]
+   * @throws {Error}
+   */
   async fetchAllShipsIfNeeded () {
     const currentGameVersion = await this._fetchGameVersion()
 
@@ -70,10 +75,10 @@ class WoWsAPIWrapper {
   }
 
   /**
-     * tempArenaInfo.jsonからプレイヤー情報を抽出する
-     *
-     * @returns {Object} プレイヤー名をキー、shipID、敵味方情報とCPU情報を値とした連想配列
-     */
+   * tempArenaInfo.jsonからプレイヤー情報を抽出する
+   *
+   * @returns {Object} プレイヤー名をキー、shipID、敵味方情報とCPU情報を値とした連想配列
+   */
   _pickPlayerInfo () {
     const players = {}
     const vehicles = this.tempArenaInfo.vehicles
@@ -91,11 +96,12 @@ class WoWsAPIWrapper {
   }
 
   /**
-     * プレイヤーかCPUかを判別する
-     *
-     * @param {string} name tempArenaInfoに記載されているname
-     * @param {string} id tempArenaInfoに記載されているid
-     */
+   * プレイヤーかCPUかを判別する
+   *
+   * @param {String} name tempArenaInfoに記載されているname
+   * @param {String} id tempArenaInfoに記載されているid
+   * @returns {Boolean} プレイヤーならtrue
+   */
   _isPlayer (name, id) {
     if (name.startsWith(':') && name.endsWith(':')) {
       return false
@@ -107,9 +113,11 @@ class WoWsAPIWrapper {
   }
 
   /**
-     * @param {Object} players
-     * @returns {Array} 実際のプレイヤー名のカンマ区切り文字列
-     */
+   * カンマ区切りのプレイヤー名文字列を生成する
+   *
+   * @param {Object} players
+   * @returns {Array} 実際のプレイヤー名のカンマ区切り文字列
+   */
   _generateCommaSeparatedPlayerName (players) {
     const exactPlayerNames = []
 
@@ -122,9 +130,11 @@ class WoWsAPIWrapper {
   }
 
   /**
-     * @param {Object} players
-     * @returns {Array} 実際のプレイヤーIDのカンマ区切り文字列
-     */
+   * カンマ区切りのアカウントID文字列を生成する
+   *
+   * @param {Object} players
+   * @returns {Array} 実際のプレイヤーIDのカンマ区切り文字列
+   */
   _generateCommaSeparatedAccountID (players) {
     const exactAccountIDs = []
 
@@ -137,9 +147,11 @@ class WoWsAPIWrapper {
   }
 
   /**
-     * @param {Object} players
-     * @returns {Array} 実際のプレイヤーが所属するクランのIDのカンマ区切り文字列
-     */
+   * カンマ区切りのクランID文字列を生成する
+   *
+   * @param {Object} players
+   * @returns {Array} 実際のプレイヤーが所属するクランのIDのカンマ区切り文字列
+   */
   _generateCommaSeparatedClanID (players) {
     const exactClanIDs = []
 
@@ -155,10 +167,11 @@ class WoWsAPIWrapper {
   }
 
   /**
-     * アカウントIDを取得する
-     *
-     * @param {string} commaSeparatedPlayerName カンマ区切りの実際のプレイヤー名
-     */
+   * アカウントIDを取得する
+   *
+   * @param {String} commaSeparatedPlayerName カンマ区切りの実際のプレイヤー名
+   * @returns {Array} レスポンス内のdata
+   */
   async _fetchAccountId (commaSeparatedPlayerName) {
     let wowsConfig = WoWsAPIConfig.fetch_account_id
     wowsConfig.qs.search = commaSeparatedPlayerName
@@ -167,10 +180,11 @@ class WoWsAPIWrapper {
   }
 
   /**
-     * 個人データを取得する
-     *
-     * @param {string} commaSeparatedAccountID カンマ区切りの実際のプレイヤーID
-     */
+   * 個人データを取得する
+   *
+   * @param {String} commaSeparatedAccountID カンマ区切りの実際のプレイヤーID
+   * @returns {Array} レスポンス内のdata
+   */
   async _fetchPersonalData (commaSeparatedAccountID) {
     let wowsConfig = WoWsAPIConfig.fetch_personal_data
     wowsConfig.qs.account_id = commaSeparatedAccountID
@@ -179,10 +193,11 @@ class WoWsAPIWrapper {
   }
 
   /**
-     * 各プレイヤーの使用艦艇の統計を並列で取得する
-     *
-     * @param {Object} players
-     */
+   * 各プレイヤーの使用艦艇の統計を並列で取得する
+   *
+   * @param {Object} players
+   * @returns {Array} レスポンス内のdata
+   */
   _fetchShipStatistics (players) {
     return new Promise((resolve, reject) => {
       let wowsConfig = WoWsAPIConfig.fetch_ship_statistics
@@ -214,10 +229,11 @@ class WoWsAPIWrapper {
   }
 
   /**
-     * プレイヤーのクランIDを取得する
-     *
-     * @param {string} commaSeparatedAccountID
-     */
+   * プレイヤーのクランIDを取得する
+   *
+   * @param {String} commaSeparatedAccountID
+   * @returns {Array} レスポンス内のdata
+   */
   async _fetchClanId (commaSeparatedAccountID) {
     let wowsConfig = WoWsAPIConfig.fetch_clan_id
     wowsConfig.qs.account_id = commaSeparatedAccountID
@@ -226,10 +242,11 @@ class WoWsAPIWrapper {
   }
 
   /**
-     * プレイヤーのクランタグを取得する
-     *
-     * @param {string} commaSeparatedClanID
-     */
+   * プレイヤーのクランタグを取得する
+   *
+   * @param {String} commaSeparatedClanID
+   * @returns {Array} レスポンス内のdata
+   */
   async _fetchClanTag (commaSeparatedClanID) {
     let wowsConfig = WoWsAPIConfig.fetch_clan_tag
     wowsConfig.qs.clan_id = commaSeparatedClanID
@@ -238,11 +255,11 @@ class WoWsAPIWrapper {
   }
 
   /**
-     * players内の該当プレイヤーにアカウントIDを紐づける
-     *
-     * @param {Object} players
-     * @param {Object} data
-     */
+   * players内の該当プレイヤーにアカウントIDを紐づける
+   *
+   * @param {Object} players
+   * @param {Object} data
+   */
   _addAccountID (players, data) {
     for (let playerInData of data) {
       players[playerInData.nickname].account_id = playerInData.account_id
@@ -255,11 +272,11 @@ class WoWsAPIWrapper {
   }
 
   /**
-     * players内のプレイヤーに個人データを紐づける
-     *
-     * @param {Object} players
-     * @param {Object} data
-     */
+   * players内のプレイヤーに個人データを紐づける
+   *
+   * @param {Object} players
+   * @param {Object} data
+   */
   _addPersonalData (players, data) {
     for (let name in players) {
       const accountID = players[name].account_id
@@ -268,11 +285,11 @@ class WoWsAPIWrapper {
   }
 
   /**
-     * players内のプレイヤーに艦種ごとの成績を紐づける
-     *
-     * @param {Object} players
-     * @param {Object} data
-     */
+   * players内のプレイヤーに艦種ごとの成績を紐づける
+   *
+   * @param {Object} players
+   * @param {Object} data
+   */
   _addShipStatistics (players, data) {
     for (let name in players) {
       const accountID = players[name].account_id
@@ -281,11 +298,11 @@ class WoWsAPIWrapper {
   }
 
   /**
-     * players内の該当プレイヤーにクランIDを紐づける
-     *
-     * @param {Object} players
-     * @param {Object} data
-     */
+   * players内の該当プレイヤーにクランIDを紐づける
+   *
+   * @param {Object} players
+   * @param {Object} data
+   */
   _addClanID (players, data) {
     for (let name in players) {
       const accountID = players[name].account_id
@@ -300,11 +317,11 @@ class WoWsAPIWrapper {
   }
 
   /**
-     * players内の該当プレイヤーにクランタグを紐づける
-     *
-     * @param {Object} players
-     * @param {Object} data
-     */
+   * players内の該当プレイヤーにクランタグを紐づける
+   *
+   * @param {Object} players
+   * @param {Object} data
+   */
   _addClanTag (players, data) {
     for (let name in players) {
       const clanID = _.get(players, '[' + name + '].clan.clan_id', null)
@@ -315,10 +332,10 @@ class WoWsAPIWrapper {
   }
 
   /**
-     * 現在のゲームバージョンを取得する
-     *
-     * @returns {string} バージョン名
-     */
+   * 現在のゲームバージョンを取得する
+   *
+   * @returns {String} バージョン名
+   */
   async _fetchGameVersion () {
     let wowsConfig = WoWsAPIConfig.fetch_game_version
     const json = await WoWsAPIClient.request(wowsConfig)
@@ -326,10 +343,10 @@ class WoWsAPIWrapper {
   }
 
   /**
-     * すべての艦艇情報(艦名、ティア、艦種、国籍、隠蔽距離)を取得する
-     *
-     * @returns {Object} 艦種情報
-     */
+   * すべての艦艇情報(艦名、ティア、艦種、国籍、隠蔽距離)を取得する
+   *
+   * @returns {Object} 艦種情報
+   */
   async _fetchAllShipsInfo () {
     const fetchAllShipsInfoByPage = async (pageNo) => {
       let wowsConfig = WoWsAPIConfig.fetch_all_ships_info

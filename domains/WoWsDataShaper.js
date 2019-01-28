@@ -10,6 +10,11 @@ class WoWsDataShaper {
     this.allShips = allShips
   }
 
+  /**
+   * 実際に表示するデータを生成する
+   *
+   * @returns {Array} プレイヤーデータ
+   */
   shape () {
     let friends = []
     let enemies = []
@@ -53,6 +58,12 @@ class WoWsDataShaper {
     return outputData
   }
 
+  /**
+   * 個人データを生成する
+   *
+   * @param {String} name
+   * @param {Array} player
+   */
   _makePersonalData (name, player) {
     const isPrivate = _.get(player, 'personal_data.hidden_profile', false)
 
@@ -92,6 +103,12 @@ class WoWsDataShaper {
     return personalData
   }
 
+  /**
+   * 艦別成績を生成する
+   *
+   * @param {String} shipID
+   * @param {Array} player
+   */
   _makeShipStatistics (shipID, player) {
     const theShipStatistics = this._pickShipStatisticsById(player.ship_statistics, shipID)
     const theShipInfo = _.get(this.allShips, shipID, null)
@@ -127,6 +144,11 @@ class WoWsDataShaper {
     }
   }
 
+  /**
+   * 艦情報を生成する
+   *
+   * @param {String} shipID
+   */
   _makeShipInfo (shipID) {
     return {
       'name': this.allShips[shipID].name,
@@ -137,6 +159,12 @@ class WoWsDataShaper {
     }
   }
 
+  /**
+   * 隠蔽距離を計算する
+   *
+   * @param {String} shipID
+   * @returns {Number} 隠蔽距離
+   */
   _calculateConcealment (shipID) {
     const detectDistance = this.allShips[shipID].default_profile.concealment.detect_distance_by_ship
     const camouflageCoefficient = 1.00 - 0.03
@@ -167,6 +195,12 @@ class WoWsDataShaper {
     return (detectDistance * camouflageCoefficient * moduleCoefficient * commanderCoefficient).toFixed(2)
   }
 
+  /**
+   * 平均Tierを計算する
+   *
+   * @param {Array} shipStatistics
+   * @returns {Number} 平均Tier
+   */
   _calculateAverageTier (shipStatistics) {
     let battlesSum = 0
     let tierSum = 0
@@ -179,6 +213,12 @@ class WoWsDataShaper {
     return tierSum / battlesSum
   }
 
+  /**
+   * shipIDから鑑別成績を取得する
+   *
+   * @param {Array} shipStatistics
+   * @param {String} shipID
+   */
   _pickShipStatisticsById (shipStatistics, shipID) {
     if (shipStatistics === null) {
       return null
@@ -193,6 +233,12 @@ class WoWsDataShaper {
     return null
   }
 
+  /**
+   * 戦闘力を計算する
+   *
+   * @param {Array} pvp
+   * @param {Array} info
+   */
   _calculateCombatPower (pvp, info) {
     const kill = pvp.frags
     const death = pvp.battles - pvp.survived_battles
@@ -222,6 +268,11 @@ class WoWsDataShaper {
     return (averageDamage * kdRatio * averageExperience / 800 * (1 - (0.03 * info.tier)) * typeCoefficient).toFixed(0)
   }
 
+  /**
+   * アラビア数字からローマ数字に変換する
+   *
+   * @param {Arrau} team
+   */
   _convertToRomanNumber (team) {
     for (let player of team) {
       player.ship_info.tier = Util.romanNumber(player.ship_info.tier)
@@ -229,6 +280,11 @@ class WoWsDataShaper {
     return team
   }
 
+  /**
+   * 平均チーム成績を計算する
+   *
+   * @param {Array} team
+   */
   _calculateTeamAverage (team) {
     let shipStat = {
       'battles': this._average(team.map(x => x.ship_stat.battles)).toFixed(0),
@@ -253,6 +309,11 @@ class WoWsDataShaper {
     }
   }
 
+  /**
+   * 平均を計算する
+   *
+   * @param {Array} array
+   */
   _average (array) {
     let sum = 0
     let ignoreCount = 0
@@ -267,6 +328,11 @@ class WoWsDataShaper {
     return average
   }
 
+  /**
+   * ルールに基づいてソートするメソッドを返却する
+   *
+   * @param {Object}
+   */
   _sortByTypeAndTier () {
     return (a, b) => {
       // 艦種でソート

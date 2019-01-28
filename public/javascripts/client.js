@@ -36,6 +36,8 @@ const requestCommon = function (url, didLoad, method = 'GET') {
 
 /**
  * 新しい戦闘が始まったかをチェックする
+ *
+ * @returns {Promise}
  */
 const checkUpdate = function () {
   return new Promise((resolve) => {
@@ -47,6 +49,8 @@ const checkUpdate = function () {
 
 /**
  * 戦闘データを取得する
+ *
+ * @returns {Promise}
  */
 const fetchData = function () {
   return new Promise((resolve, reject) => {
@@ -70,6 +74,8 @@ const fetchData = function () {
  * 状態に応じてViewと変数を更新する
  *
  * @param {Status} status
+ * @param {Array} players
+ * @param {Array} error
  */
 const updateStatus = function (status, players = null, error = null) {
   if (status === Status.NEED_NOT_FETCH) {

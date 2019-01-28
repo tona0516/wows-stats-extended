@@ -1,6 +1,12 @@
 const Env = require('./Env')
 const Constants = require('./Constants')
 
+/**
+ * WOWS-APIのリクエストURLを生成する
+ *
+ * @param {String} path region以下のパス
+ * @returns {String} WOWS-APIのURL
+ */
 const generateApiUrl = (path) => {
   return Constants.URL.WOWS_API + Env.region + '/' + Constants.PATH.WOWS_PATH + path
 }

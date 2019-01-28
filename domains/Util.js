@@ -15,10 +15,14 @@ class Util {
   /**
      * ローマ数字を返却する
      *
-     * @param {number} number
+     * @param {Number} number 1~10の整数
+     * @throws {Error}
      */
   static romanNumber (number) {
-    return TIER_ROMAN[number]
+    if (number >= 1 && number <= 10 && Number.isInteger(number)) {
+      return TIER_ROMAN[number]
+    }
+    throw new Error(`Invalid number: ${number}`)
   }
 }
 
