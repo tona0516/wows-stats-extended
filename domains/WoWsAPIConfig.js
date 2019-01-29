@@ -88,7 +88,8 @@ module.exports = {
     url: generateApiUrl('/encyclopedia/ships/'),
     qs: {
       application_id: Env.appid,
-      fields: 'name,tier,type,nation,default_profile.concealment.detect_distance_by_ship'
+      fields: 'name,tier,type,nation,default_profile.concealment.detect_distance_by_ship',
+      language: 'ja'
       // page_no: pageNo,
     },
     error: JSON.stringify({
