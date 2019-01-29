@@ -35,8 +35,14 @@ class WoWsDataShaper {
           'ship_info': shipInfo
         }
 
-        const relation = player.relation
-        relation === 0 || relation === 1 ? friends.push(allStat) : enemies.push(allStat)
+        const relation = _.get(player, 'relation', null)
+        if (relation === 0 || relation === 1) {
+          friends.push(allStat)
+        } else if (relation === 2) {
+          enemies.push(allStat)
+        } else {
+          logger.error(`Invalid relation. player_name: ${name} relation: ${relation}`)
+        }
       } catch (error) {
         logger.error(`Failed to make data for displaying in browser. player_name: ${name}, error: ${error}`)
         continue
@@ -85,7 +91,7 @@ class WoWsDataShaper {
       return personalData
     }
 
-    if (playerStatistics === null || _.get(playerStatistics, 'pvp.battles') === 0) {
+    if (playerStatistics === null || _.get(playerStatistics, 'pvp.battles', 0) === 0) {
       personalData.battles = '0'
       personalData.win_rate = '-'
       personalData.average_damage = '-'
@@ -124,7 +130,7 @@ class WoWsDataShaper {
       }
     }
 
-    if (theShipStatistics === null || theShipInfo === null || _.get(theShipStatistics, 'pvp.battles') === 0) {
+    if (theShipStatistics === null || theShipInfo === null || _.get(theShipStatistics, 'pvp.battles', 0) === 0) {
       return {
         'cp': '-',
         'battles': '0',
@@ -353,6 +359,7 @@ class WoWsDataShaper {
       if (shipNameA > shipNameB) return 1
       if (shipNameA < shipNameB) return -1
 
+      // プレイヤー名でソート
       const playerNameA = a.player_stat.name
       const playerNameB = b.player_stat.name
       if (playerNameA < playerNameB) return 1
