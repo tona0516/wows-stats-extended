@@ -21,7 +21,7 @@ table td {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 0;
+  width: 0px;
 }
 
 a {
