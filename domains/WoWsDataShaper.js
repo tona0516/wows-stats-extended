@@ -209,8 +209,8 @@ class WoWsDataShaper {
   /**
    * レーダーの有効射程を計算する
    * http://wiki.wargaming.net/en/Ship:Surveillance_Radar_Data
-   * 
-   * @param {Object} shipInfo 
+   *
+   * @param {Object} shipInfo
    * @returns {Number} レーダー有効射程
    */
   _calculateRaderDetectionRange (shipInfo) {
