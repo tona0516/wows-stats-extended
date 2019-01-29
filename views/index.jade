@@ -5,9 +5,9 @@ block content
     div(v-for="team of players")
       table(class="table table-sm table-dark table-bordered table-hover")
         thead
-          th(colspan="2", style="width: 20%") プレイヤー情報
-          th(colspan="3", style="width: 20%") 艦艇情報
-          th(colspan="5", style="width: 30%") 艦艇統計
+          th(colspan="2", style="width: 15%") プレイヤー情報
+          th(colspan="4", style="width: 25%") 艦艇情報
+          th(colspan="4", style="width: 30%") 艦艇統計
           th(colspan="5", style="width: 30%") プレイヤー統計
 
         tr
@@ -17,6 +17,7 @@ block content
           td 艦名
           td Tier
           td 隠蔽
+          td レーダー
 
           td 与ダメ
           td 勝率
@@ -31,7 +32,7 @@ block content
         
           tr(v-for="player of team")
             // プレイヤー情報
-            td(style="width: 12.5%")
+            td
               span(v-if="player.player_stat.wows_numbers !== null")
                 a(v-bind:href="player.player_stat.wows_numbers", target="_blank")
                   font(color="#B6FF01") {{ player.player_stat.clan_tag }}
@@ -42,7 +43,7 @@ block content
                   font(color="#FFFFFF")
                     span {{ player.player_stat.name }}
                     
-            td(style="width: 7.5%")
+            td
               span(v-if="player.ship_stat.cp < 10000")
                 font(color="#FE0E00") {{ player.ship_stat.cp }}
               span(v-else-if="player.ship_stat.cp < 20000")
@@ -60,7 +61,7 @@ block content
               span(v-else) {{ player.ship_stat.cp }}
 
             // 艦艇情報
-            td(style="width: 10%")
+            td
               span(v-if="player.ship_info.type === 'AirCarrier'")
                 font(color="#CFA7CD") {{ player.ship_info.name }}
               span(v-else-if="player.ship_info.type === 'Battleship'")
@@ -74,6 +75,7 @@ block content
               span(v-else) {{ player.ship_info.name }}
             td {{ player.ship_info.tier }}
             td {{ player.ship_info.detect_distance_by_ship }}
+            td {{ player.ship_info.rader_range }}
 
             // 艦艇統計
             td {{ player.ship_stat.average_damage }}

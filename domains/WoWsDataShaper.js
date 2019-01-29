@@ -156,13 +156,18 @@ class WoWsDataShaper {
    * @param {String} shipID
    */
   _makeShipInfo (shipID) {
-    return {
+    let shipInfo = {
       'name': this.allShips[shipID].name,
       'type': this.allShips[shipID].type,
       'tier': this.allShips[shipID].tier,
       'nation': this.allShips[shipID].nation,
       'detect_distance_by_ship': this._calculateConcealment(shipID, this.allShips)
     }
+
+    const raderRange = this._calculateRaderDetectionRange(shipInfo)
+    shipInfo.rader_range = raderRange !== 0 ? raderRange : '-'
+
+    return shipInfo
   }
 
   /**
@@ -199,6 +204,66 @@ class WoWsDataShaper {
     }
 
     return (detectDistance * camouflageCoefficient * moduleCoefficient * commanderCoefficient).toFixed(2)
+  }
+
+  /**
+   * レーダーの有効射程を計算する
+   * http://wiki.wargaming.net/en/Ship:Surveillance_Radar_Data
+   * 
+   * @param {Object} shipInfo 
+   * @returns {Number} レーダー有効射程
+   */
+  _calculateRaderDetectionRange (shipInfo) {
+    const name = shipInfo.name
+    const type = shipInfo.type
+    const tier = shipInfo.tier
+    const nation = shipInfo.nation
+
+    if (name.match(/Worcester/)) {
+      return 9
+    }
+    if (name.match(/Seattle/)) {
+      return 9
+    }
+    if (name.match(/Atlanta/) || name.match(/Salem/)) {
+      return 8.49
+    }
+    if (name.match(/Indianapolis/)) {
+      return 9.90
+    }
+    if (name.match(/Belfast/)) {
+      return 8.49
+    }
+    if (name.match(/Missouri/)) {
+      return 9.45
+    }
+    if (name.match(/Black/)) {
+      return 9.9
+    }
+
+    if (nation === 'pan_asia' && type === 'Destroyer') {
+      if (tier >= 8) {
+        return 7.5
+      }
+    }
+    if ((nation === 'uk' || nation === 'usa') && type === 'Cruiser') {
+      if (tier === 8) {
+        return 9
+      }
+      if (tier === 9) {
+        return 9.45
+      }
+      if (tier === 10) {
+        return 9.9
+      }
+    }
+    if (nation === 'ussr' && type === 'Cruiser') {
+      if (tier >= 8) {
+        return 11.7
+      }
+    }
+
+    return 0
   }
 
   /**
