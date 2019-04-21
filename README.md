@@ -1,6 +1,6 @@
 # wows-stats-extended
 
-![default](https://user-images.githubusercontent.com/6896790/51689344-d6c57400-2039-11e9-83b3-79e411fa76ec.png)
+![default](https://user-images.githubusercontent.com/6896790/56473954-a1e88200-64ad-11e9-87a2-947f321dd794.png)
 
 ## これは何？
 - World of WarshipsのXVM（eXtended Visualization Mod）です
@@ -10,7 +10,7 @@
 ## 動作環境
 - Windows, Macintosh
 - Google Chrome, Firefox, Safari(Google Chrome推奨)
-- バージョン 8.0.0以上の[Node.js](https://nodejs.org/)
+- バージョン8.0.0以上の[Node.js](https://nodejs.org/)
 
 ## インストール方法
 - [こちら](https://github.com/tona0516/wows-stats-extended/releases)から最新のwows-stats-extendedをダウンロードしてください
@@ -21,3 +21,7 @@
 
 ## 2回目以降
 - Windowsの場合は「run.bat」を、Macintoshの場合は「run.sh」を実行してください
+
+## 連絡先
+- 要望等がありましたら`tonango.0516@gmail.com`までご連絡ください
+- Pull Requestも大歓迎です！
