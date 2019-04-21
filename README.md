@@ -2,14 +2,22 @@
 
 ![default](https://user-images.githubusercontent.com/6896790/51689344-d6c57400-2039-11e9-83b3-79e411fa76ec.png)
 
-## Introduction
-- A XVM for World of Warships.
-- **UNDER DEVELOPMENT**
+## これは何？
+- World of WarshipsのXVM（eXtended Visualization Mod）です
+- 戦闘中のプレイヤーや使用艦の情報、成績をブラウザ上に表示します
+- **鋭意開発中**
 
-## Usage
-1. Install [Node.js](https://nodejs.org/) over **8.0.0**.
-1. Execute `git clone https://github.com/tona0516/wows-stats-extended.git` and `cd wows-stat-extended`
-1. Execute `npm install` and `npm start`
-1. Access `localhost:3000/install.`
-1. Input application id, server region and install directory.
-1. After accessing `localhost:3000` and starting battle, it will be shown player's records and the ship information. 
+## 動作環境
+- Windows, Macintosh
+- Google Chrome, Firefox, Safari(Google Chrome推奨)
+- バージョン 8.0.0以上の[Node.js](https://nodejs.org/)
+
+## インストール方法
+- [こちら](https://github.com/tona0516/wows-stats-extended/releases)から最新のwows-stats-extendedをダウンロードしてください
+- Windowsの場合は「install.bat」を、Macintoshの場合は「install.sh」を実行してください
+- 必要な情報を入力し、「保存」をクリックしてください
+  - アプリケーションIDが必要になりますので、[https://developers.wargaming.net/](https://developers.wargaming.net/)から別途発行してください
+- 戦闘を開始するとプレイヤーの様々な情報が表示されます
+
+## 2回目以降
+- Windowsの場合は「run.bat」を、Macintoshの場合は「run.sh」を実行してください
