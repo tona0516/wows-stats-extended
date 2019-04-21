@@ -3,7 +3,7 @@
 ![default](https://user-images.githubusercontent.com/6896790/56473954-a1e88200-64ad-11e9-87a2-947f321dd794.png)
 
 ## これは何？
-- World of WarshipsのXVM（eXtended Visualization Mod）です
+- World of WarshipsのXVM(eXtended Visualization Mod)です
 - 戦闘中のプレイヤーや使用艦の情報、成績をブラウザ上に表示します
 - **鋭意開発中**
 
