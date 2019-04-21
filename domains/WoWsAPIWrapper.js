@@ -61,15 +61,25 @@ class WoWsAPIWrapper {
    */
   async fetchAllShipsIfNeeded () {
     const currentGameVersion = await this._fetchGameVersion()
+    const latestCacheName = '.ships_' + currentGameVersion + '.json'
 
-    const cachedFileName = '.ships_' + currentGameVersion + '.json'
-    if (fs.existsSync(cachedFileName)) {
-      const contents = fs.readFileSync(cachedFileName, 'utf8')
+    // 古いバージョンのキャッシュを削除する
+    var cacheNames = fs.readdirSync('./').filter(fileName => fileName.startsWith('.ships_'))
+    for (const cacheName of cacheNames) {
+      if (cacheName !== latestCacheName) {
+        fs.unlinkSync(cacheName)
+      }
+    }
+
+    // 最新のバージョンのキャッシュがあればそれを返却
+    if (fs.existsSync(latestCacheName)) {
+      const contents = fs.readFileSync(latestCacheName, 'utf8')
       return JSON.parse(contents)
     }
 
+    // 最新のバージョンのキャッシュがなければフェッチして作成する
     const allShips = await this._fetchAllShipsInfo()
-    fs.writeFileSync(cachedFileName, JSON.stringify(allShips), 'utf8')
+    fs.writeFileSync(latestCacheName, JSON.stringify(allShips), 'utf8')
 
     return allShips
   }
