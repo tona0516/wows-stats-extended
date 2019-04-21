@@ -276,10 +276,14 @@ class WoWsDataShaper {
     let battlesSum = 0
     let tierSum = 0
     for (let stat of shipStatistics) {
+      let shipName = _.get(this.allShips, '[' + stat.ship_id + '].name', 0)
       let shipBattles = _.get(stat, 'pvp.battles', 0)
       let shipTier = _.get(this.allShips, '[' + stat.ship_id + '].tier', 0)
-      battlesSum += shipBattles
-      tierSum += shipBattles * shipTier
+
+      if (shipName !== 0) {
+        battlesSum += shipBattles
+        tierSum += shipBattles * shipTier
+      }
     }
     return tierSum / battlesSum
   }
