@@ -58,6 +58,7 @@ const validateAppID = function (appid, region) {
 }
 
 const validateInstallDirectory = function (directory) {
+  return true
   if (process.env.NODE_ENV === 'development') {
     return true
   }
@@ -78,10 +79,10 @@ const saveParameter = function (parameters) {
 
   // dotenvに書き込む
   const rows = {
-    APP_ID: '"' + parameters.appid + '"',
-    REGION: '"' + parameters.region.toLowerCase() + '"',
-    DIRECTORY: '"' + parameters.directory + '"',
-    PORT: '3000'
+    APP_ID: parameters.appid,
+    REGION: parameters.region.toLowerCase(),
+    DIRECTORY: parameters.directory,
+    PORT: 3000
   }
   let list = []
   for (let key in rows) {
