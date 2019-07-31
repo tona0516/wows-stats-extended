@@ -6,10 +6,11 @@ class Env {
    */
   static refresh () {
     dotenv.config()
-    this.appid = process.env.APP_ID
-    this.region = process.env.REGION
-    this.installDir = process.env.DIRECTORY
-    this.port = process.env.PORT
+    this.envs = {
+      'appid': process.env.APP_ID,
+      'region': process.env.REGION,
+      'directory': process.env.DIRECTORY,
+    }
   }
 
   /**
@@ -18,7 +19,7 @@ class Env {
    * param 有効ならtrue
    */
   static isValid () {
-    return (this.appid !== undefined && this.region !== undefined && this.installDir !== undefined && this.port !== undefined)
+    return this.envs !== undefined
   }
 }
 

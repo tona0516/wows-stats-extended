@@ -8,14 +8,14 @@ const Constants = require('./Constants')
  * @returns {String} WOWS-APIのURL
  */
 const generateApiUrl = (path) => {
-  return Constants.URL.WOWS_API + Env.region + '/' + Constants.PATH.WOWS_PATH + path
+  return Constants.URL.WOWS_API + Env.envs.region + '/' + Constants.PATH.WOWS_PATH + path
 }
 
 module.exports = {
   fetch_account_id: {
     url: generateApiUrl('/account/list/'),
     qs: {
-      application_id: Env.appid,
+      application_id: Env.envs.appid,
       // search: commaSeparatedPlayerName,
       type: 'exact'
     },
@@ -27,7 +27,7 @@ module.exports = {
   fetch_personal_data: {
     url: generateApiUrl('/account/info/'),
     qs: {
-      application_id: Env.appid,
+      application_id: Env.envs.appid,
       // account_id: commaSeparatedPlayerID,
       fields: 'hidden_profile,statistics'
     },
@@ -39,7 +39,7 @@ module.exports = {
   fetch_ship_statistics: {
     url: generateApiUrl('/ships/stats/'),
     qs: {
-      application_id: Env.appid,
+      application_id: Env.envs.appid,
       // account_id: account_id,
       fields: 'pvp.frags,pvp.battles,pvp.survived_battles,pvp.damage_dealt,pvp.xp,pvp.wins,ship_id'
     },
@@ -51,7 +51,7 @@ module.exports = {
   fetch_clan_id: {
     url: generateApiUrl('/clans/accountinfo/'),
     qs: {
-      application_id: Env.appid,
+      application_id: Env.envs.appid,
       // account_id: commaSeparatedAccountID,
       fields: 'clan_id'
     },
@@ -63,7 +63,7 @@ module.exports = {
   fetch_clan_tag: {
     url: generateApiUrl('/clans/info/'),
     qs: {
-      application_id: Env.appid,
+      application_id: Env.envs.appid,
       // clan_id: commaSeparatedClanID,
       fields: 'tag'
     },
@@ -75,7 +75,7 @@ module.exports = {
   fetch_game_version: {
     url: generateApiUrl('/encyclopedia/info/'),
     qs: {
-      application_id: Env.appid,
+      application_id: Env.envs.appid,
       fields: 'game_version',
       language: 'ja'
     },
@@ -87,7 +87,7 @@ module.exports = {
   fetch_all_ships_info: {
     url: generateApiUrl('/encyclopedia/ships/'),
     qs: {
-      application_id: Env.appid,
+      application_id: Env.envs.appid,
       fields: 'name,tier,type,nation,default_profile.concealment.detect_distance_by_ship',
       language: 'ja'
       // page_no: pageNo,

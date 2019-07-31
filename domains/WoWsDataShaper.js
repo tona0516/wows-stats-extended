@@ -75,7 +75,7 @@ class WoWsDataShaper {
 
     let personalData = {}
     personalData.name = name
-    personalData.wows_numbers = player.account_id !== null ? 'https://' + Env.region + '.' + Config.URL.WOWS_NUMBERS + player.account_id + ',' + name : null
+    personalData.wows_numbers = player.account_id !== null ? 'https://' + Env.envs.region + '.' + Config.URL.WOWS_NUMBERS + player.account_id + ',' + name : null
     personalData.is_myself = player.relation === 0
     personalData.clan_tag = _.get(player, 'clan.tag', null)
     personalData.clan_tag = personalData.clan_tag !== null ? '[' + personalData.clan_tag + ']' : null
