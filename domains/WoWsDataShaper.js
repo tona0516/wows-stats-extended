@@ -219,26 +219,40 @@ class WoWsDataShaper {
     const tier = shipInfo.tier
     const nation = shipInfo.nation
 
-    if (name.match(/Worcester/)) {
-      return 9
-    }
-    if (name.match(/Seattle/)) {
-      return 9
-    }
-    if (name.match(/Atlanta/) || name.match(/Salem/)) {
-      return 8.49
-    }
-    if (name.match(/Indianapolis/)) {
-      return 9.90
-    }
     if (name.match(/Belfast/)) {
-      return 8.49
+      return 8.5
     }
     if (name.match(/Missouri/)) {
-      return 9.45
+      return 9.5
     }
     if (name.match(/Black/)) {
-      return 9.9
+      return 7.5
+    }
+
+    if (nation === 'usa' && type === 'Cruiser') {
+      if (tier === 8) {
+        return 9.0
+      }
+
+      if (tier === 9) {
+        if (name.match(/Alaska|Buffalo/)) {
+          return 10.0
+        }
+
+        return 9.0
+      }
+
+      if (tier === 10) {
+        if (name.match(/Salem/)) {
+          return 8.5
+        }
+
+        if (name.match(/Worcester/)) {
+          return 9.0
+        }
+
+        return 10.0
+      }
     }
 
     if (nation === 'pan_asia' && type === 'Destroyer') {
@@ -246,20 +260,16 @@ class WoWsDataShaper {
         return 7.5
       }
     }
-    if ((nation === 'uk' || nation === 'usa') && type === 'Cruiser') {
-      if (tier === 8) {
-        return 9
-      }
-      if (tier === 9) {
-        return 9.45
-      }
-      if (tier === 10) {
-        return 9.9
+
+    if (nation === 'uk' && type === 'Cruiser') {
+      if (tier >= 8) {
+        return 10.0
       }
     }
+
     if (nation === 'ussr' && type === 'Cruiser') {
       if (tier >= 8) {
-        return 11.7
+        return 12.0
       }
     }
 
