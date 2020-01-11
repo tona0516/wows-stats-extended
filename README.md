@@ -19,7 +19,7 @@
   - アプリケーションIDが必要になりますので、[https://developers.wargaming.net/](https://developers.wargaming.net/)から別途発行してください
 - 戦闘を開始するとプレイヤーの様々な情報が表示されます
 
-## 2回目以降
+## 起動方法
 - Windowsの場合は「run.bat」を、Macintoshの場合は「run.sh」を実行してください
 
 ## 連絡先
