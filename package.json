@@ -3,12 +3,12 @@
   "version": "0.9.0",
   "private": true,
   "scripts": {
-    "start-production-mac": "node ./bin/www NODE_ENV=production",
+    "start-production-mac": "NODE_ENV=production node ./bin/www ",
     "start-production-windows": "set NODE_ENV=production && node ./bin/www",
-    "start-debug-mac": "nodemon ./bin/www NODE_ENV=development",
+    "start-debug-mac": "NODE_ENV=development nodemon ./bin/www",
     "start-debug-windows": "set NODE_ENV=development && nodemon ./bin/www",
-    "lint": "eslint domains/ routes public/javascripts/ app.js",
-    "lint-fix": "eslint --fix domains/ routes public/javascripts/ app.js"
+    "lint": "eslint src/ public/javascripts/ app.js",
+    "lint-fix": "eslint --fix src/ public/javascripts/ app.js"
   },
   "dependencies": {
     "async": "^2.6.3",
@@ -17,20 +17,19 @@
     "dotenv": "^6.2.0",
     "express": "^4.17.1",
     "http-errors": "^1.7.3",
-    "pug": "^2.0.4",
     "lodash": "^4.17.15",
     "log4js": "^3.0.6",
-    "morgan": "^1.9.1",
+    "pug": "^2.0.4",
     "request": "^2.88.0",
     "request-promise": "^4.2.5"
   },
   "devDependencies": {
-    "eslint": "^5.16.0",
-    "eslint-config-standard": "^12.0.0",
-    "eslint-plugin-import": "^2.20.0",
-    "eslint-plugin-node": "^8.0.1",
-    "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-standard": "^4.0.1",
+    "eslint": "^6.8.0",
+    "eslint-config-standard": "^14.1.0",
+    "eslint-plugin-import": ">=2.20.0",
+    "eslint-plugin-node": "^11.0.0",
+    "eslint-plugin-promise": ">=4.2.1",
+    "eslint-plugin-standard": ">=4.0.1",
     "nodemon": "^1.19.4"
   }
 }

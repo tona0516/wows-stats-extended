@@ -10,6 +10,7 @@ const app = new Vue({
 const FETCH_INTERVAL_MS = 1000
 let isFetching = false
 let isFirstFetch = true
+let latestTempArenaInfo = null
 
 const Status = {
   NEED_NOT_FETCH: 1,
@@ -19,54 +20,63 @@ const Status = {
 }
 
 /**
- * 共通リクエストメソッド
+ * JSONをリクエストする
  *
  * @param {String} url
- * @param {Function} didLoad
- * @param {String} method
  */
-const requestCommon = function (url, didLoad, method = 'GET') {
-  const request = new XMLHttpRequest()
-  request.open(method, url)
-  request.addEventListener('load', (event) => {
-    didLoad(event)
-  })
-  request.send()
-}
-
-/**
- * 新しい戦闘が始まったかをチェックする
- *
- * @returns {Promise}
- */
-const checkUpdate = function () {
-  return new Promise((resolve) => {
-    requestCommon(DOMAIN + '/api/check_update', (event) => {
-      resolve(event.target.status)
-    })
-  })
-}
-
-/**
- * 戦闘データを取得する
- *
- * @returns {Promise}
- */
-const fetchData = function () {
+const requestJSON = (url, method = 'GET', headers = null, body = null) => {
   return new Promise((resolve, reject) => {
-    requestCommon(DOMAIN + '/api/fetch', (event) => {
-      const statusCode = event.target.status
-      const responseBody = event.target.responseText
-      const fetchedData = JSON.parse(responseBody)
-
-      if (statusCode === 500) {
-        return reject(fetchedData)
+    try {
+      const xhr = new XMLHttpRequest()
+      xhr.open(method, url)
+      if (headers !== null) {
+        for (const [key, value] of Object.entries(headers)) {
+          xhr.setRequestHeader(key, value)
+        }
       }
+      xhr.addEventListener('load', (event) => {
+        const statusCode = event.target.status
+        const responseBody = JSON.parse(event.target.responseText)
 
-      if (statusCode === 200) {
-        return resolve(fetchedData)
-      }
-    })
+        resolve({ statusCode: statusCode, responseBody: responseBody })
+      })
+      xhr.send(body)
+    } catch (error) {
+      reject(error)
+    }
+  })
+}
+
+/**
+ * tempArenaInfo.jsonを取得する
+ */
+const fetchTempArenaInfo = () => {
+  return new Promise(async (resolve, reject) => {
+    const result = await requestJSON(DOMAIN + '/api/temp_arena_info')
+    if (result.statusCode === 200) {
+      resolve(result.responseBody)
+    } else {
+      reject(result.responseBody.error)
+    }
+  })
+}
+
+/**
+ * tempArenaInfoに基づいて戦闘データを取得すうr
+ * 
+ * @param {JSON} tempArenaInfo 
+ */
+const fetchBattle = (tempArenaInfo) => {
+  return new Promise(async (resolve, reject) => {
+    const headers = {
+      'Content-Type': 'application/json'
+    }
+    const result = await requestJSON(DOMAIN + '/api/fetch_battle', 'POST', headers, tempArenaInfo)
+    if (result.statusCode === 200) {
+      resolve(result.responseBody.players)
+    } else {
+      reject(result.responseBody.error)
+    }
   })
 }
 
@@ -77,64 +87,63 @@ const fetchData = function () {
  * @param {Array} players
  * @param {Array} error
  */
-const updateStatus = function (status, players = null, error = null) {
-  if (status === Status.NEED_NOT_FETCH) {
-    app.message = '現在戦闘中ではありません。戦闘開始時に自動更新します。'
-    return
-  }
+const updateStatus = (status, players = null, error = null) => {
+  switch (status) {
+    case Status.NEED_NOT_FETCH:
+      app.message = '現在戦闘中ではありません。戦闘開始時に自動更新します。'
+      break
 
-  if (status === Status.FETCHING) {
-    isFetching = true
-    app.message = '読み込み中...'
-    return
-  }
+    case Status.FETCHING:
+      isFetching = true
+      app.message = '読み込み中...'
+      break
 
-  if (status === Status.FETCH_FAIL) {
-    isFetching = false
-    isFirstFetch = false
-    app.message = null
-    app.error = '読み込みに失敗しました。もう一度お試しください: ' + JSON.stringify(error)
-    return
-  }
+    case Status.FETCH_FAIL:
+      isFetching = false
+      isFirstFetch = false
+      app.message = null
+      app.error = '読み込みに失敗しました。もう一度お試しください: ' + JSON.stringify(error)
+      break
 
-  if (status === Status.FETCH_SUCCESS) {
-    isFetching = false
-    isFirstFetch = false
-    app.message = null
-    app.players = players
+    case Status.FETCH_SUCCESS:
+      isFetching = false
+      isFirstFetch = false
+      app.message = null
+      app.players = players
+      break
+
+    default:
+      break
   }
 }
 
 /**
- * 更新があるときに銭湯データを取得し反映する
+ * エラーハンドリング
+ *
+ * @param {Array} error
  */
-const fetchIfNeeded = async function () {
-  // fetch中の時は新たにfetchしない
+const handleError = (error) => {
+  clearInterval(timer)
+  updateStatus(Status.FETCH_FAIL, null, error)
+}
+
+const looper = async () => {
   if (isFetching) {
     return
   }
 
-  // 戦闘の更新チェック
-  const status = await checkUpdate()
-
-  // 戦闘中でない場合
-  if (status === 299) {
+  const tempArenaInfo = await fetchTempArenaInfo().catch((error) => handleError(error))
+  if (!Object.keys(tempArenaInfo).length) {
     updateStatus(Status.NEED_NOT_FETCH, null, null)
     return
   }
 
-  // 新しい戦闘が開始された、もしくはユーザが画面をリロードした場合
-  if (status === 200 || isFirstFetch) {
+  if (tempArenaInfo !== latestTempArenaInfo) {
     updateStatus(Status.FETCHING, null, null)
-
-    await fetchData().then((players) => {
-      updateStatus(Status.FETCH_SUCCESS, players, null)
-    })
-      .catch((error) => {
-        clearInterval(timer)
-        updateStatus(Status.FETCH_FAIL, null, error)
-      })
+    const players = await fetchBattle(tempArenaInfo).catch((error) => handleError(error))
+    updateStatus(Status.FETCH_SUCCESS, players, null)
+    latestTempArenaInfo = tempArenaInfo
   }
 }
 
-timer = setInterval(fetchIfNeeded, FETCH_INTERVAL_MS)
+timer = setInterval(looper, FETCH_INTERVAL_MS)
