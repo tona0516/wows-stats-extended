@@ -51,7 +51,7 @@ const fetchAllShipsInfoByPage = async (pageNo) => {
   }
 
   const body = await request(options)
-  return body.data
+  return body
 }
 
 class WoWsAPIClient {
