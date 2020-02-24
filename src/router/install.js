@@ -18,26 +18,12 @@ router.get('/', (req, res, next) => {
 })
 
 router.post('/', (req, res, next) => {
-  if (!install.validateAppID(req.body.appid, req.body.region)) {
+  if (!install.validateAppId(req.body.appid, req.body.region)) {
     res.render(
       'Install',
       {
         messages: {
           appid_error: '不正なアプリケーションIDです。'
-        },
-        parameters: req.body,
-        servers: install.getRegions()
-      }
-    )
-    return
-  }
-
-  if (!install.validateInstallDirectory(req.body.directory)) {
-    res.render(
-      'Install',
-      {
-        messages: {
-          directory_error: 'インストール先が不正です。「WorldOfWarships.exe」があるフォルダを指定してください。'
         },
         parameters: req.body,
         servers: install.getRegions()

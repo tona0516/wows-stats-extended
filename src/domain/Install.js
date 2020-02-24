@@ -1,7 +1,5 @@
 'use strict'
 
-const fs = require('fs')
-
 class Install {
   constructor (wowsAPIClient, wowsFileRepository) {
     this.wowsAPIClient = wowsAPIClient
@@ -12,21 +10,12 @@ class Install {
     return ['RU', 'EU', 'NA', 'ASIA']
   }
 
-  async validateAppID (appid, region) {
-    await this.wowsAPIClient.fetchEncyclopediaInfo(appid, region).catch((error) => {
+  async validateAppId (appid, region) {
+    await this.wowsAPIClient.fetchEncyclopediaInfo(appid, region).catch(_ => {
       return false
     })
 
     return true
-  }
-
-  validateInstallDirectory (directory) {
-    if (process.env.NODE_ENV === 'development') {
-      return true
-    }
-
-    const exePath = directory + '\\WorldOfWarships.exe'
-    return fs.existsSync(exePath)
   }
 
   saveParameter (parameters) {
