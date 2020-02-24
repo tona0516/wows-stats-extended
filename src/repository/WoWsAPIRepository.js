@@ -1,7 +1,6 @@
 'use strict'
 
 const _ = require('lodash')
-const logger = require('log4js').getLogger()
 
 class WoWsAPIRepository {
   /**
@@ -34,30 +33,34 @@ class WoWsAPIRepository {
 
     const joinedAccountId = joinAccountId(players)
 
-    const fetchPersonalScore = new Promise(async (resolve, reject) => {
+    const fetchPersonalScore = new Promise((resolve, reject) => {
       // 個人データの取得
-      const personalScore = await this.wowsAPIClient.fetchPersonalScore(joinedAccountId)
-      addPersonalScore(players, personalScore)
-      resolve()
+      this.wowsAPIClient.fetchPersonalScore(joinedAccountId).then(personalScore => {
+        addPersonalScore(players, personalScore)
+        resolve()
+      })
     })
 
-    const fetchShipScore = new Promise(async (resolve, reject) => {
+    const fetchShipScore = new Promise((resolve, reject) => {
       // 艦ごとの成績の取得
-      const shipScore = await this.wowsAPIClient.fetchShipScore(accountIds.map(value => value.account_id), this.parallelRequestLimit)
-      addShipScore(players, shipScore)
-      resolve()
+      this.wowsAPIClient.fetchShipScore(accountIds.map(value => value.account_id), this.parallelRequestLimit).then(shipScore => {
+        addShipScore(players, shipScore)
+        resolve()
+      })
     })
 
-    const fetchClan = new Promise(async (resolve, reject) => {
+    const fetchClan = new Promise((resolve, reject) => {
       // クランIDの取得
-      const clanIds = await this.wowsAPIClient.fetchClanId(joinedAccountId)
-      addClanId(players, clanIds)
-
-      // クランタグの取得
-      const joinedClanId = joinClanId(players)
-      const clanTags = await this.wowsAPIClient.fetchClanTag(joinedClanId)
-      addClanTag(players, clanTags)
-      resolve()
+      this.wowsAPIClient.fetchClanId(joinedAccountId).then(clanIds => {
+        addClanId(players, clanIds)
+      }).then(() => {
+        // クランタグの取得
+        const joinedClanId = joinClanId(players)
+        return this.wowsAPIClient.fetchClanTag(joinedClanId)
+      }).then(clanTags => {
+        addClanTag(players, clanTags)
+        resolve()
+      })
     })
 
     return Promise.all([fetchPersonalScore, fetchShipScore, fetchClan]).then(() => {

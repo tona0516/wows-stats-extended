@@ -6,8 +6,6 @@ const WoWsAPIClient = require('../infrastructure/WoWsAPIClient')
 const WoWsAPIRepository = require('../repository/WoWsAPIRepository')
 const WoWsDataShaper = require('../domain/WoWsDataShaper')
 
-const logger = require('log4js').getLogger()
-
 const express = require('express')
 const router = express.Router()
 

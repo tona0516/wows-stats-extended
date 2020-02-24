@@ -1,3 +1,10 @@
+/* eslint-disable no-undef */
+
+// ##### Change port if you want #####
+const PORT = 3000
+// ###################################
+const DOMAIN = 'http://localhost:' + PORT
+
 const app = new Vue({
   el: '#app',
   data: {
@@ -9,7 +16,6 @@ const app = new Vue({
 
 const FETCH_INTERVAL_MS = 1000
 let isFetching = false
-let isFirstFetch = true
 let latestTempArenaInfo = null
 
 const Status = {
@@ -51,13 +57,14 @@ const requestJSON = (url, method = 'GET', headers = null, body = null) => {
  * tempArenaInfo.jsonを取得する
  */
 const fetchTempArenaInfo = () => {
-  return new Promise(async (resolve, reject) => {
-    const result = await requestJSON(DOMAIN + '/api/temp_arena_info')
-    if (result.statusCode === 200) {
-      resolve(result.responseBody)
-    } else {
-      reject(result.responseBody.error)
-    }
+  return new Promise((resolve, reject) => {
+    requestJSON(DOMAIN + '/api/temp_arena_info').then(result => {
+      if (result.statusCode === 200) {
+        resolve(result.responseBody)
+      } else {
+        reject(result.responseBody.error)
+      }
+    })
   })
 }
 
@@ -67,16 +74,15 @@ const fetchTempArenaInfo = () => {
  * @param {JSON} tempArenaInfo
  */
 const fetchBattle = (tempArenaInfo) => {
-  return new Promise(async (resolve, reject) => {
-    const headers = {
-      'Content-Type': 'application/json'
-    }
-    const result = await requestJSON(DOMAIN + '/api/fetch_battle', 'POST', headers, tempArenaInfo)
-    if (result.statusCode === 200) {
-      resolve(result.responseBody.players)
-    } else {
-      reject(result.responseBody.error)
-    }
+  return new Promise((resolve, reject) => {
+    const headers = { 'Content-Type': 'application/json' }
+    requestJSON(DOMAIN + '/api/fetch_battle', 'POST', headers, tempArenaInfo).then(result => {
+      if (result.statusCode === 200) {
+        resolve(result.responseBody.players)
+      } else {
+        reject(result.responseBody.error)
+      }
+    })
   })
 }
 

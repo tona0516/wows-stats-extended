@@ -119,7 +119,7 @@ class WoWsAPIClient {
             players[accountId] = _.get(body.data, '[' + accountId + ']', null)
             next()
             return null
-          }).catch((error) => {
+          }).catch(_ => {
             logger.warning(`Failed to fetch statistics of ships the player have used from WoWs API. ID: ${accountId}`)
             players[accountId] = null
             next()
