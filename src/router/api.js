@@ -22,7 +22,7 @@ router.get('/temp_arena_info', (req, res, next) => {
   try {
     tempArenaInfo = wowsFileRepository.readTempArenaInfo()
   } catch (error) {
-    res.status(500).json({ error : 'failed to read tempArenaInfo.json'})
+    res.status(500).json({ error: 'failed to read tempArenaInfo.json' })
     return
   }
 
@@ -43,11 +43,9 @@ router.post('/fetch_battle', async (req, res, next) => {
 
   const data = await fetchManager.fetch(tempArenaInfo).catch((error) => {
     res.status(500).json({ error: error })
-    return
   })
 
   res.status(200).json({ players: data })
 })
-
 
 module.exports = router

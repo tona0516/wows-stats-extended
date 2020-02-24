@@ -12,19 +12,19 @@ const logger = require('log4js').getLogger()
  * 共通リクエストメソッド
  *
  * @param {Object} options request-processのoptions
- * @throws {Error} 
+ * @throws {Error}
  */
 const request = (options) => {
   return new Promise((resolve) => {
     rp(options)
-    .then((body) => {
-      resolve(body)
-    }).catch((error) => {
-      throw new Error(JSON.stringify({
-        options: options,
-        error: error
-      }))
-    })
+      .then((body) => {
+        resolve(body)
+      }).catch((error) => {
+        throw new Error(JSON.stringify({
+          options: options,
+          error: error
+        }))
+      })
   })
 }
 
@@ -115,15 +115,15 @@ class WoWsAPIClient {
         options.qs.account_id = accountId
 
         rp(options)
-        .then((body) => {
-          players[accountId] = _.get(body.data, '[' + accountId + ']', null)
-          next()
-          return null
-        }).catch((error) => {
-          logger.warning(`Failed to fetch statistics of ships the player have used from WoWs API. ID: ${accountId}`)
-          players[accountId] = null
-          next()
-        })
+          .then((body) => {
+            players[accountId] = _.get(body.data, '[' + accountId + ']', null)
+            next()
+            return null
+          }).catch((error) => {
+            logger.warning(`Failed to fetch statistics of ships the player have used from WoWs API. ID: ${accountId}`)
+            players[accountId] = null
+            next()
+          })
       }, (error) => {
         if (error !== null) {
           throw new Error(JSON.stringify({
@@ -177,7 +177,7 @@ class WoWsAPIClient {
       },
       json: true
     }
-    
+
     const body = await request(options)
     return body.data.game_version
   }

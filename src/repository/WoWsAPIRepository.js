@@ -60,7 +60,7 @@ class WoWsAPIRepository {
       resolve()
     })
 
-    return await Promise.all([fetchPersonalScore, fetchShipScore, fetchClan]).then(() => {
+    return Promise.all([fetchPersonalScore, fetchShipScore, fetchClan]).then(() => {
       return players
     })
   }

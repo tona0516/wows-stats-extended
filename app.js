@@ -18,6 +18,7 @@ const logger = log4js.getLogger()
 switch (process.env.NODE_ENV) {
   case 'development':
     logger.level = log4js.levels.DEBUG
+    app.use(log4js.connectLogger(logger, { level: log4js.levels.DEBUG, format: ':method :url HTTP/:http-version" :status' }))
     break
   case 'production':
     logger.level = log4js.levels.INFO
@@ -26,7 +27,6 @@ switch (process.env.NODE_ENV) {
     logger.level = log4js.levels.TRACE
     break
 }
-app.use(log4js.connectLogger(logger, { level: log4js.levels.DEBUG, format: ':method :url HTTP/:http-version" :status' }))
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'))

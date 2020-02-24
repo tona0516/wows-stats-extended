@@ -63,8 +63,8 @@ const fetchTempArenaInfo = () => {
 
 /**
  * tempArenaInfoに基づいて戦闘データを取得すうr
- * 
- * @param {JSON} tempArenaInfo 
+ *
+ * @param {JSON} tempArenaInfo
  */
 const fetchBattle = (tempArenaInfo) => {
   return new Promise(async (resolve, reject) => {
