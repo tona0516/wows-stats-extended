@@ -1,6 +1,6 @@
 {
   "name": "wows-stats-extended",
-  "version": "0.9.0",
+  "version": "0.9.5",
   "private": true,
   "scripts": {
     "start-production-mac": "NODE_ENV=production node ./bin/www ",
