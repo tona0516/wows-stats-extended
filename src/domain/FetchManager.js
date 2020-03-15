@@ -3,8 +3,8 @@
 const logger = require('log4js').getLogger()
 
 class FetchManager {
-  constructor (wowsAPIWrapper, wowsDataShaper) {
-    this.wowsAPIWrapper = wowsAPIWrapper
+  constructor (wowsAPIRepository, wowsDataShaper) {
+    this.wowsAPIRepository = wowsAPIRepository
     this.wowsDataShaper = wowsDataShaper
   }
 
@@ -13,10 +13,10 @@ class FetchManager {
       logger.info('取得開始')
       const startTime = new Date()
 
-      this.wowsAPIWrapper.tempArenaInfo = tempArenaInfo
+      this.wowsAPIRepository.tempArenaInfo = tempArenaInfo
 
-      const fetchPlayersPromise = this.wowsAPIWrapper.fetchPlayers()
-      const fetchAllShipsPromise = this.wowsAPIWrapper.fetchAllShips()
+      const fetchPlayersPromise = this.wowsAPIRepository.fetchPlayers()
+      const fetchAllShipsPromise = this.wowsAPIRepository.fetchAllShips()
 
       Promise.all([fetchPlayersPromise, fetchAllShipsPromise])
         .then(([players, allShips]) => {
