@@ -22,9 +22,8 @@ block content
           td(style="width: 10%") 艦名
           td(style="width: 5%") Tier
           td(style="width: 5%") 隠蔽
-          td(style="width: 5%") レーダー
+          td(style="width: 5%") 与ダメ
 
-          td 与ダメ
           td 勝率
           td K/D
           td 戦闘数
@@ -80,7 +79,6 @@ block content
               span(v-else) {{ player.ship_info.name }}
             td {{ player.ship_info.tier }}
             td {{ player.ship_info.detect_distance_by_ship }}
-            td {{ player.ship_info.rader_range }}
 
             // 艦艇統計
             td {{ player.ship_stat.average_damage }}

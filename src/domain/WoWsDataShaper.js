@@ -188,9 +188,6 @@ const makeShipInfo = (shipId, allShips) => {
     detect_distance_by_ship: calculateConcealment(shipId, allShips)
   }
 
-  const raderRange = calculateRadarDetectionRange(shipInfo)
-  shipInfo.rader_range = raderRange !== 0 ? raderRange : '-'
-
   return shipInfo
 }
 
@@ -239,50 +236,6 @@ const calculateConcealment = (shipId, allShips) => {
   }
 
   return (detectDistance * camouflageCoefficient * moduleCoefficient * commanderCoefficient).toFixed(2)
-}
-
-/**
- * レーダーの有効射程を計算する
- * http://wiki.wargaming.net/en/Ship:Surveillance_Radar_Data
- *
- * @param {Object} shipInfo
- * @returns {Number} レーダー有効射程
- */
-const calculateRadarDetectionRange = (shipInfo) => {
-  const name = shipInfo.name
-  const type = shipInfo.type
-  const tier = shipInfo.tier
-  const nation = shipInfo.nation
-
-  if (name.match(/Black/)) {
-    return 7.5
-  }
-  if (name.match(/Atlanta|Salem|Belfast/)) {
-    return 8.5
-  }
-  if (name.match(/Cleveland|AL Montpelier|Wichita|Seattle|Worcester/)) {
-    return 9.0
-  }
-  if (name.match(/Missouri/)) {
-    return 9.5
-  }
-  if (name.match(/Indianapolis|Baltimore|Alaska|Buffalo|Des Moines/)) {
-    return 10.0
-  }
-
-  if (nation === 'pan_asia' && type === 'Destroyer' && tier >= 8) {
-    return 7.5
-  }
-
-  if (nation === 'uk' && type === 'Cruiser' && tier >= 8) {
-    return 10.0
-  }
-
-  if (nation === 'ussr' && type === 'Cruiser' && tier >= 8) {
-    return 12.0
-  }
-
-  return 0
 }
 
 /**
