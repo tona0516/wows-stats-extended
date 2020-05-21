@@ -1,6 +1,6 @@
 'use strict'
 
-const rp = require('request-promise')
+const axios = require('axios')
 const async = require('async')
 const _ = require('lodash')
 
@@ -16,15 +16,16 @@ const logger = require('log4js').getLogger()
  */
 const request = (options) => {
   return new Promise((resolve) => {
-    rp(options)
-      .then((body) => {
-        resolve(body)
-      }).catch((error) => {
-        throw new Error(JSON.stringify({
-          options: options,
-          error: error
-        }))
-      })
+    axios.get(options.url, {
+      params: options.qs
+    }).then(response => {
+      resolve(response.data)
+    }).catch(error => {
+      throw new Error(JSON.stringify({
+        options: options,
+        error: error
+      }))
+    })
   })
 }
 
@@ -113,17 +114,17 @@ class WoWsAPIClient {
 
       async.mapLimit(accountIds, limit, (accountId, next) => {
         options.qs.account_id = accountId
-
-        rp(options)
-          .then((body) => {
-            players[accountId] = _.get(body.data, '[' + accountId + ']', null)
-            next()
-            return null
-          }).catch(_ => {
-            logger.warning(`Failed to fetch statistics of ships the player have used from WoWs API. ID: ${accountId}`)
-            players[accountId] = null
-            next()
-          })
+        axios.get(options.url, {
+          params: options.qs
+        }).then(response => {
+          players[accountId] = _.get(response.data.data, '[' + accountId + ']', null)
+          next()
+          return null
+        }).catch(_ => {
+          logger.warning(`Failed to fetch statistics of ships the player have used from WoWs API. ID: ${accountId}`)
+          players[accountId] = null
+          next()
+        })
       }, (error) => {
         if (error !== null) {
           throw new Error(JSON.stringify({
