@@ -11,22 +11,21 @@ const logger = require('log4js').getLogger()
 /**
  * 共通リクエストメソッド
  *
- * @param {Object} options request-processのoptions
- * @throws {Error}
+ * @param {String} URL
+ * @param {Dict} クエリパラメータ
+ * @return {Dict} レスポンスボディ
  */
-const request = (options) => {
-  return new Promise((resolve) => {
-    axios.get(options.url, {
-      params: options.qs
-    }).then(response => {
-      resolve(response.data)
-    }).catch(error => {
-      throw new Error(JSON.stringify({
-        options: options,
-        error: error
-      }))
-    })
-  })
+const get = async (url, params) => {
+  try {
+    const response = await axios.get(url, { params: params })
+    return response.data
+  } catch (error) {
+    throw new Error(JSON.stringify({
+      url: url,
+      params: params,
+      error: error
+    }))
+  }
 }
 
 /**
@@ -39,83 +38,56 @@ const generateApiUrl = (path) => {
   return Constant.URL.WOWS_API + process.env.REGION + '/' + Constant.PATH.WOWS_PATH + path
 }
 
-const fetchAllShipsInfoByPage = async (pageNo) => {
-  const options = {
-    url: generateApiUrl('/encyclopedia/ships/'),
-    qs: {
-      application_id: process.env.APP_ID,
-      fields: 'name,tier,type,nation,default_profile.concealment.detect_distance_by_ship',
-      language: 'ja',
-      page_no: pageNo
-    },
-    json: true
-  }
-
-  const body = await request(options)
-  return body
-}
-
 class WoWsAPIClient {
   async fetchEncyclopediaInfo (appid, region) {
     const topLevelDomain = (region === 'NA') ? 'com' : region
-    const options = {
-      url: Constant.URL.WOWS_API + topLevelDomain.toLowerCase() + '/' + Constant.PATH.WOWS_PATH + '/encyclopedia/info/',
-      qs: {
-        application_id: appid
-      },
-      json: true
+    const url = Constant.URL.WOWS_API + topLevelDomain.toLowerCase() + '/' + Constant.PATH.WOWS_PATH + '/encyclopedia/info/'
+    const params = {
+      application_id: appid
     }
 
-    const body = await request(options)
+    const body = await get(url, params)
     return body.data
   }
 
   async fetchAccountId (playerNamesString) {
-    const options = {
-      url: generateApiUrl('/account/list/'),
-      qs: {
-        application_id: process.env.APP_ID,
-        search: playerNamesString,
-        type: 'exact'
-      },
-      json: true
+    const url = generateApiUrl('/account/list/')
+    const params = {
+      application_id: process.env.APP_ID,
+      search: playerNamesString,
+      type: 'exact'
     }
 
-    const body = await request(options)
+    const body = await get(url, params)
     return body.data
   }
 
   async fetchPersonalScore (accountIdsString) {
-    const options = {
-      url: generateApiUrl('/account/info/'),
-      qs: {
-        application_id: process.env.APP_ID,
-        account_id: accountIdsString,
-        fields: 'hidden_profile,statistics'
-      },
-      json: true
+    const url = generateApiUrl('/account/info/')
+    const params = {
+      application_id: process.env.APP_ID,
+      account_id: accountIdsString,
+      fields: 'hidden_profile,statistics'
     }
 
-    const body = await request(options)
+    const body = await get(url, params)
     return body.data
   }
 
   async fetchShipScore (accountIds, limit) {
     return new Promise((resolve, reject) => {
-      const options = {
-        url: generateApiUrl('/ships/stats/'),
-        qs: {
-          application_id: process.env.APP_ID,
-          fields: 'pvp.frags,pvp.battles,pvp.survived_battles,pvp.damage_dealt,pvp.xp,pvp.wins,ship_id'
-        },
-        json: true
+      const url = generateApiUrl('/ships/stats/')
+      var params = {
+        application_id: process.env.APP_ID,
+        fields: 'pvp.frags,pvp.battles,pvp.survived_battles,pvp.damage_dealt,pvp.xp,pvp.wins,ship_id'
       }
       const players = {}
 
       async.mapLimit(accountIds, limit, (accountId, next) => {
-        options.qs.account_id = accountId
-        axios.get(options.url, {
-          params: options.qs
+        params.account_id = accountId
+
+        axios.get(url, {
+          params: params
         }).then(response => {
           players[accountId] = _.get(response.data.data, '[' + accountId + ']', null)
           next()
@@ -128,8 +100,8 @@ class WoWsAPIClient {
       }, (error) => {
         if (error !== null) {
           throw new Error(JSON.stringify({
-            url: options.url,
-            qs: options.qs,
+            url: url,
+            params: params,
             error: error
           }))
         }
@@ -139,51 +111,54 @@ class WoWsAPIClient {
   }
 
   async fetchClanId (accountIdsString) {
-    const options = {
-      url: generateApiUrl('/clans/accountinfo/'),
-      qs: {
-        application_id: process.env.APP_ID,
-        account_id: accountIdsString,
-        fields: 'clan_id'
-      },
-      json: true
+    const url = generateApiUrl('/clans/accountinfo/')
+    const params = {
+      application_id: process.env.APP_ID,
+      account_id: accountIdsString,
+      fields: 'clan_id'
     }
 
-    const body = await request(options)
+    const body = await get(url, params)
     return body.data
   }
 
   async fetchClanTag (clanIdsString) {
-    const options = {
-      url: generateApiUrl('/clans/info/'),
-      qs: {
-        application_id: process.env.APP_ID,
-        clan_id: clanIdsString,
-        fields: 'tag'
-      },
-      json: true
+    const url = generateApiUrl('/clans/info/')
+    const params = {
+      application_id: process.env.APP_ID,
+      clan_id: clanIdsString,
+      fields: 'tag'
     }
 
-    const body = await request(options)
+    const body = await get(url, params)
     return body.data
   }
 
   async fetchGameVersion () {
-    const options = {
-      url: generateApiUrl('/encyclopedia/info/'),
-      qs: {
-        application_id: process.env.APP_ID,
-        fields: 'game_version',
-        language: 'ja'
-      },
-      json: true
+    const url = generateApiUrl('/encyclopedia/info/')
+    const params = {
+      application_id: process.env.APP_ID,
+      fields: 'game_version',
+      language: 'ja'
     }
 
-    const body = await request(options)
+    const body = await get(url, params)
     return body.data.game_version
   }
 
   async fetchAllShipsInfo () {
+    const fetchAllShipsInfoByPage = async (pageNo) => {
+      const url = generateApiUrl('/encyclopedia/ships/')
+      const params = {
+        application_id: process.env.APP_ID,
+        fields: 'name,tier,type,nation,default_profile.concealment.detect_distance_by_ship',
+        language: 'ja',
+        page_no: pageNo
+      }
+      const body = await get(url, params)
+      return body
+    }
+
     const ships = {}
     let pageNo = 0
     let pageTotal = 0
