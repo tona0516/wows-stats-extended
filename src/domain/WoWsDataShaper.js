@@ -47,7 +47,7 @@ class WoWsDataShaper {
           logger.error(`Invalid relation. player_name: ${playerName} relation: ${relation}`)
         }
       } catch (error) {
-        logger.error(`Failed to make data for displaying in browser. player_name: ${playerName}, error: ${error}`)
+        logger.error(`Failed to make data for displaying in browser. player_name: ${playerName}, error: ${error.stack}`)
         continue
       }
     }
@@ -247,6 +247,10 @@ const calculateConcealment = (shipId, allShips) => {
 const calculateAverageTier = (shipStats, allShips) => {
   let battlesSum = 0
   let tierSum = 0
+
+  if (!shipStats) {
+    return -1
+  }
 
   for (const stat of shipStats) {
     const shipBattles = _.get(stat, 'pvp.battles', 0)
