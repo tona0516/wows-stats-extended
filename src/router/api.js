@@ -40,7 +40,7 @@ router.post('/fetch_battle', async (req, res, next) => {
   }
 
   const data = await fetchManager.fetch(tempArenaInfo).catch((error) => {
-    res.status(500).json({ error: error })
+    res.status(500).json({ error: error.message })
   })
 
   res.status(200).json({ players: data })
