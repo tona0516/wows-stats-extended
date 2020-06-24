@@ -27,11 +27,20 @@ class WoWsAPIRepository {
     const players = pickPlayerInfo(this.tempArenaInfo)
 
     // アカウントIDの取得
-    const joinedPlayerName = joinPlayerName(players)
+    const joinedPlayerName = _.chain(players)
+      .pickBy(player => { return player.is_player })
+      .keys()
+      .join(',')
+      .value()
     const accountIds = await this.wowsAPIClient.fetchAccountId(joinedPlayerName)
     addAccountId(players, accountIds)
 
-    const joinedAccountId = joinAccountId(players)
+    const joinedAccountId = _.chain(players)
+      .pickBy(player => { return player.is_player })
+      .pickBy(player => { return _.isNumber(player.account_id) })
+      .map(player => { return player.account_id })
+      .join(',')
+      .value()
 
     const fetchPersonalScore = new Promise((resolve, reject) => {
       // 個人データの取得
@@ -55,7 +64,12 @@ class WoWsAPIRepository {
         addClanId(players, clanIds)
       }).then(() => {
         // クランタグの取得
-        const joinedClanId = joinClanId(players)
+        const joinedClanId = _.chain(players)
+          .pickBy(player => { return player.is_player })
+          .map(player => { return _.get(player, 'clan.clan_id', null) })
+          .filter(clanId => { return _.isNumber(clanId) })
+          .join(',')
+          .value()
         return this.wowsAPIClient.fetchClanTag(joinedClanId)
       }).then(clanTags => {
         addClanTag(players, clanTags)
@@ -96,11 +110,23 @@ class WoWsAPIRepository {
  * tempArenaInfo.jsonからプレイヤー情報を抽出する
  *
  * @returns {Object} プレイヤー名をキー、shipID、敵味方情報とCPU情報を値とした連想配列
+ * @throws {Error}
  */
 const pickPlayerInfo = (tempArenaInfo) => {
   const players = {}
 
-  for (const player of tempArenaInfo.vehicles) {
+  if (!_.isArray(tempArenaInfo.vehicles)) {
+    // TODO エラーの詳細
+    throw new Error('invalid_temp_arena_info')
+  }
+
+  const vehicles = tempArenaInfo.vehicles
+
+  for (const player of vehicles) {
+    if (_.isNil(player.name) || _.isNil(player.shipId) || _.isNil(player.relation) || _.isNil(player.id)) {
+      continue
+    }
+
     players[player.name] = {
       ship_id: player.shipId,
       relation: player.relation,
@@ -128,67 +154,6 @@ const isPlayer = (name, id) => {
   }
 
   return true
-}
-
-/**
- * カンマ区切りのプレイヤー名文字列を生成する
- *
- * @param {Object} players
- * @returns {Array} 実際のプレイヤー名のカンマ区切り文字列
- */
-const joinPlayerName = (players) => {
-  const playerNames = []
-
-  for (const playerName in players) {
-    if (players[playerName].is_player) {
-      playerNames.push(playerName)
-    }
-  }
-
-  return playerNames.join(',')
-}
-
-/**
- * カンマ区切りのアカウントID文字列を生成する
- *
- * @param {Object} players
- * @returns {Array} 実際のプレイヤーIDのカンマ区切り文字列
- */
-const joinAccountId = (players) => {
-  const accountIds = []
-
-  for (const playerName in players) {
-    if (players[playerName].is_player) {
-      accountIds.push(players[playerName].account_id)
-    }
-  }
-
-  return accountIds.join(',')
-}
-
-/**
- * カンマ区切りのクランID文字列を生成する
- *
- * @param {Object} players
- * @returns {Array} 実際のプレイヤーが所属するクランのIDのカンマ区切り文字列
- */
-const joinClanId = (players) => {
-  const clanIds = []
-
-  for (const playerName in players) {
-    if (!players[playerName].is_player) {
-      continue
-    }
-
-    const clanId = _.get(players, '[' + playerName + '].clan.clan_id', null)
-    if (clanId === null) {
-      continue
-    }
-
-    clanIds.push(clanId)
-  }
-
-  return clanIds.join(',')
 }
 
 /**
