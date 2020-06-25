@@ -76,22 +76,21 @@ class WoWsAPIClient {
 
   async fetchShipScore (accountIds, limit) {
     return new Promise((resolve, reject) => {
-      const url = generateApiUrl('/ships/stats/')
-      var params = {
-        application_id: process.env.APP_ID,
-        fields: 'pvp.frags,pvp.battles,pvp.survived_battles,pvp.damage_dealt,pvp.xp,pvp.wins,ship_id'
-      }
       const players = {}
 
       async.mapLimit(accountIds, limit, (accountId, next) => {
-        params.account_id = accountId
+        const url = generateApiUrl('/ships/stats/')
+        const params = {
+          application_id: process.env.APP_ID,
+          fields: 'pvp.frags,pvp.battles,pvp.survived_battles,pvp.damage_dealt,pvp.xp,pvp.wins,ship_id',
+          account_id: accountId
+        }
 
         axios.get(url, {
           params: params
         }).then(response => {
-          players[accountId] = _.get(response.data.data, '[' + accountId + ']', null)
+          players[accountId] = _.get(response, `data.data.${accountId}`, null)
           next()
-          return null
         }).catch(_ => {
           logger.warning(`Failed to fetch statistics of ships the player have used from WoWs API. ID: ${accountId}`)
           players[accountId] = null
@@ -99,11 +98,7 @@ class WoWsAPIClient {
         })
       }, (error) => {
         if (error !== null) {
-          throw new Error(JSON.stringify({
-            url: url,
-            params: params,
-            error: error
-          }))
+          logger.error('Failed to parallel request for fetching each ship score')
         }
         return resolve(players)
       })
