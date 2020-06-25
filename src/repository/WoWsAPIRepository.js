@@ -20,11 +20,11 @@ class WoWsAPIRepository {
   /**
    * 表示するのに必要なデータをフェッチする
    *
-   * @returns {Array} [players, error]
+   * @returns {Array}
    * @throws {Error}
    */
   async fetchPlayers () {
-    const players = pickPlayerInfo(this.tempArenaInfo)
+    var players = pickPlayerInfo(this.tempArenaInfo)
 
     // アカウントIDの取得
     const joinedPlayerName = _.chain(players)
@@ -32,8 +32,11 @@ class WoWsAPIRepository {
       .keys()
       .join(',')
       .value()
-    const accountIds = await this.wowsAPIClient.fetchAccountId(joinedPlayerName)
-    addAccountId(players, accountIds)
+
+    const accountIdResponseBody = await this.wowsAPIClient.fetchAccountId(joinedPlayerName)
+    _.chain(accountIdResponseBody)
+      .forEach(player => { players[player.nickname].account_id = player.account_id })
+      .value()
 
     const joinedAccountId = _.chain(players)
       .pickBy(player => { return player.is_player })
@@ -42,42 +45,65 @@ class WoWsAPIRepository {
       .join(',')
       .value()
 
-    const fetchPersonalScore = new Promise((resolve, reject) => {
+    var personalScoreResponseBody
+    const personalScorePromise = new Promise(resolve => {
       // 個人データの取得
-      this.wowsAPIClient.fetchPersonalScore(joinedAccountId).then(personalScore => {
-        addPersonalScore(players, personalScore)
+      this.wowsAPIClient.fetchPersonalScore(joinedAccountId).then(_personalScoreResponseBody => {
+        personalScoreResponseBody = _personalScoreResponseBody
         resolve()
       })
     })
 
-    const fetchShipScore = new Promise((resolve, reject) => {
+    var shipScoreResponseBody
+    const shipScorePromise = new Promise(resolve => {
       // 艦ごとの成績の取得
-      this.wowsAPIClient.fetchShipScore(accountIds.map(value => value.account_id), this.parallelRequestLimit).then(shipScore => {
-        addShipScore(players, shipScore)
+      const accountIds = accountIdResponseBody.map(value => value.account_id)
+      this.wowsAPIClient.fetchShipScore(accountIds, this.parallelRequestLimit).then(_shipScoreResponseBody => {
+        shipScoreResponseBody = _shipScoreResponseBody
         resolve()
       })
     })
 
-    const fetchClan = new Promise((resolve, reject) => {
+    var clanIdResponseBody
+    var clanTagResponseBody
+    const clanPromise = new Promise(resolve => {
       // クランIDの取得
-      this.wowsAPIClient.fetchClanId(joinedAccountId).then(clanIds => {
-        addClanId(players, clanIds)
+      this.wowsAPIClient.fetchClanId(joinedAccountId).then(_clanIdResponseBody => {
+        clanIdResponseBody = _clanIdResponseBody
       }).then(() => {
         // クランタグの取得
-        const joinedClanId = _.chain(players)
-          .pickBy(player => { return player.is_player })
-          .map(player => { return _.get(player, 'clan.clan_id', null) })
-          .filter(clanId => { return _.isNumber(clanId) })
+        const joinedClanId = _.chain(clanIdResponseBody)
+          .map(player => { return _.get(player, 'clan_id', null) })
           .join(',')
           .value()
         return this.wowsAPIClient.fetchClanTag(joinedClanId)
-      }).then(clanTags => {
-        addClanTag(players, clanTags)
+      }).then(_clanTagResponseBody => {
+        clanTagResponseBody = _clanTagResponseBody
         resolve()
       })
     })
 
-    return Promise.all([fetchPersonalScore, fetchShipScore, fetchClan]).then(() => {
+    // 個人成績、艦別成績、クラン情報は並列で取得する
+    return Promise.all([personalScorePromise, shipScorePromise, clanPromise]).then(() => {
+      _.chain(players)
+        .keys()
+        .forEach(playerName => {
+          const accountId = players[playerName].account_id
+          players[playerName].personal_statistics = _.get(personalScoreResponseBody, accountId, null)
+          players[playerName].ship_statistics = _.get(shipScoreResponseBody, accountId, null)
+
+          const clanId = _.get(clanIdResponseBody, `${accountId}.clan_id`, null)
+          const clanTag = _.get(clanTagResponseBody, `${clanId}.tag`, null)
+          if (!_.isNull(clanId) && !_.isNull(clanTag)) {
+            players[playerName].clan = {
+              id: clanId,
+              tag: clanTag
+            }
+          } else {
+            players[playerName].clan = null
+          }
+        })
+        .value()
       return players
     })
   }
@@ -85,7 +111,7 @@ class WoWsAPIRepository {
   /**
    * 全艦データを取得する。キャッシュがあればキャッシュを返却する
    *
-   * @returns {Array} [allShips, error]
+   * @returns {Array}
    * @throws {Error}
    */
   async fetchAllShips () {
@@ -130,102 +156,11 @@ const pickPlayerInfo = (tempArenaInfo) => {
     players[player.name] = {
       ship_id: player.shipId,
       relation: player.relation,
-      is_player: isPlayer(player.name, player.id)
+      is_player: !(player.name.startsWith(':') && player.name.endsWith(':')) && parseInt(player.id) >= 0
     }
   }
 
   return players
-}
-
-/**
- * プレイヤーかCPUかを判別する
- *
- * @param {String} name tempArenaInfoに記載されているname
- * @param {String} id tempArenaInfoに記載されているid
- * @returns {Boolean} プレイヤーならtrue
- */
-const isPlayer = (name, id) => {
-  if (name.startsWith(':') && name.endsWith(':')) {
-    return false
-  }
-
-  if (parseInt(id) < 0) {
-    return false
-  }
-
-  return true
-}
-
-/**
- * players内の該当プレイヤーにアカウントIDを紐づける
- *
- * @param {Object} players
- * @param {Object} data
- */
-const addAccountId = (players, data) => {
-  for (const player of data) {
-    players[player.nickname].account_id = player.account_id
-  }
-}
-
-/**
- * players内のプレイヤーに個人データを紐づける
- *
- * @param {Object} players
- * @param {Object} data
- */
-const addPersonalScore = (players, data) => {
-  for (const playerName in players) {
-    const accountId = players[playerName].account_id
-    players[playerName].personal_data = _.get(data, '[' + accountId + ']', null)
-  }
-}
-
-/**
- * players内のプレイヤーに艦種ごとの成績を紐づける
- *
- * @param {Object} players
- * @param {Object} data
- */
-const addShipScore = (players, data) => {
-  for (const playerName in players) {
-    const accountId = players[playerName].account_id
-    players[playerName].ship_statistics = _.get(data, accountId, null)
-  }
-}
-
-/**
- * players内の該当プレイヤーにクランIDを紐づける
- *
- * @param {Object} players
- * @param {Object} data
- */
-const addClanId = (players, data) => {
-  for (const playerName in players) {
-    const accountId = players[playerName].account_id
-    const clanId = _.get(data, '[' + accountId + '].clan_id', null)
-    if (clanId !== null) {
-      players[playerName].clan = {}
-      players[playerName].clan.clan_id = clanId
-    } else {
-      players[playerName].clan = null
-    }
-  }
-}
-
-/**
- * players内の該当プレイヤーにクランタグを紐づける
- *
- * @param {Object} players
- * @param {Object} data
- */
-const addClanTag = (players, data) => {
-  for (const playerName in players) {
-    const clanId = _.get(players, '[' + playerName + '].clan.clan_id', null)
-    if (clanId !== null) {
-      players[playerName].clan.tag = _.get(data, '[' + clanId + '].tag', null)
-    }
-  }
 }
 
 module.exports = WoWsAPIRepository

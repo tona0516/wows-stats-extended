@@ -23,7 +23,7 @@ class WoWsDataShaper {
 
     for (const [playerName, playerData] of Object.entries(this.players)) {
       try {
-        const isPrivate = _.get(playerData, 'personal_data.hidden_profile', false)
+        const isPrivate = _.get(playerData, 'personal_statistics.hidden_profile', false)
 
         const personalStats = makePersonalStats(playerName, playerData, isPrivate, this.allShips)
 
@@ -108,7 +108,7 @@ const makePersonalStats = (playerName, playerData, isPrivate, allShips) => {
     )
   }
 
-  const personalStats = _.get(playerData, 'personal_data.statistics.pvp', null)
+  const personalStats = _.get(playerData, 'personal_statistics.statistics.pvp', null)
 
   if (!personalStats || _.get(personalStats, 'battles', 0) === 0) {
     return Object.assign(
