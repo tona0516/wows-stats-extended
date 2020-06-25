@@ -34,19 +34,16 @@ const get = async (url, params) => {
  * @param {String} path region以下のパス
  * @returns {String} WOWS-APIのURL
  */
-const generateApiUrl = (path) => {
-  return Constant.URL.WOWS_API + process.env.REGION + '/' + Constant.PATH.WOWS_PATH + path
+const generateApiUrl = (path, topLevelDomain = process.env.REGION) => {
+  return `${Constant.URL.WOWS_API}${topLevelDomain}/${Constant.PATH.WOWS_PATH}${path}`
 }
 
 class WoWsAPIClient {
   async fetchEncyclopediaInfo (appid, region) {
     const topLevelDomain = (region === 'NA') ? 'com' : region
-    const url = Constant.URL.WOWS_API + topLevelDomain.toLowerCase() + '/' + Constant.PATH.WOWS_PATH + '/encyclopedia/info/'
-    const params = {
-      application_id: appid
-    }
+    const url = generateApiUrl('/encyclopedia/info/', topLevelDomain)
+    const body = await get(url, { application_id: appid })
 
-    const body = await get(url, params)
     return body.data
   }
 
@@ -57,8 +54,8 @@ class WoWsAPIClient {
       search: playerNamesString,
       type: 'exact'
     }
-
     const body = await get(url, params)
+
     return body.data
   }
 
@@ -69,40 +66,32 @@ class WoWsAPIClient {
       account_id: accountIdsString,
       fields: 'hidden_profile,statistics'
     }
-
     const body = await get(url, params)
+
     return body.data
   }
 
   async fetchShipScore (accountIds, limit) {
-    return new Promise((resolve, reject) => {
-      const players = {}
+    var players = {}
 
-      async.mapLimit(accountIds, limit, (accountId, next) => {
-        const url = generateApiUrl('/ships/stats/')
-        const params = {
-          application_id: process.env.APP_ID,
-          fields: 'pvp.frags,pvp.battles,pvp.survived_battles,pvp.damage_dealt,pvp.xp,pvp.wins,ship_id',
-          account_id: accountId
-        }
+    await async.eachLimit(accountIds, limit, async accountId => {
+      const url = generateApiUrl('/ships/stats/')
+      const params = {
+        application_id: process.env.APP_ID,
+        fields: 'pvp.frags,pvp.battles,pvp.survived_battles,pvp.damage_dealt,pvp.xp,pvp.wins,ship_id',
+        account_id: accountId
+      }
 
-        axios.get(url, {
-          params: params
-        }).then(response => {
-          players[accountId] = _.get(response, `data.data.${accountId}`, null)
-          next()
-        }).catch(_ => {
-          logger.warning(`Failed to fetch statistics of ships the player have used from WoWs API. ID: ${accountId}`)
-          players[accountId] = null
-          next()
-        })
-      }, (error) => {
-        if (error !== null) {
-          logger.error('Failed to parallel request for fetching each ship score')
-        }
-        return resolve(players)
-      })
+      try {
+        const response = await axios.get(url, { params: params })
+        players[accountId] = _.get(response, `data.data.${accountId}`, null)
+      } catch {
+        logger.warning(`Failed to fetch statistics of ships the player have used from WoWs API. ID: ${accountId}`)
+        players[accountId] = null
+      }
     })
+
+    return players
   }
 
   async fetchClanId (accountIdsString) {
