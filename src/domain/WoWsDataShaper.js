@@ -220,25 +220,9 @@ const calculateConcealment = (shipId, allShips) => {
     moduleCoefficient -= 0.10
   }
 
-  let commanderCoefficient = 1.00
-  switch (ship.type) {
-    case 'AirCarrier':
-      commanderCoefficient -= 0.16
-      break
-    case 'Battleship':
-      commanderCoefficient -= 0.14
-      break
-    case 'Cruiser':
-      commanderCoefficient -= 0.12
-      break
-    case 'Destroyer':
-      commanderCoefficient -= 0.10
-      break
-    default:
-      break
-  }
+  const commanderCoefficient = 1.00 - 0.10
 
-  return (detectDistance * camouflageCoefficient * moduleCoefficient * commanderCoefficient).toFixed(2)
+  return (detectDistance * camouflageCoefficient * moduleCoefficient * commanderCoefficient).toFixed(1)
 }
 
 /**
