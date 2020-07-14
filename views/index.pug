@@ -11,7 +11,7 @@ block content
       table(class="table table-sm table-dark table-bordered table-hover")
         thead
           th(colspan="2", style="width: 25%") プレイヤー情報
-          th(colspan="3", style="width: 25%") 艦艇情報
+          th(colspan="4", style="width: 25%") 艦艇情報
           th(colspan="4", style="width: 25%") 艦艇統計
           th(colspan="6", style="width: 25%") プレイヤー統計
 
@@ -19,9 +19,10 @@ block content
           td(style="width: 15%") プレイヤー名
           td(style="width: 10%") 戦闘力
 
-          td(style="width: 15%") 艦名
+          td(style="width: 10%") 艦名
           td(style="width: 5%") Tier
           td(style="width: 5%") 隠蔽
+          td(style="width: 5%") レーダー
 
           td 与ダメ
           td 勝率
@@ -79,6 +80,7 @@ block content
               span(v-else) {{ player.ship_info.name }}
             td {{ player.ship_info.tier }}
             td {{ player.ship_info.detect_distance_by_ship }}
+            td {{ player.ship_info.radar_range }}
 
             // 艦艇統計
             td {{ player.ship_stat.average_damage }}

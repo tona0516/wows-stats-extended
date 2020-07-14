@@ -3,9 +3,10 @@
 const logger = require('log4js').getLogger()
 
 class FetchManager {
-  constructor (wowsAPIRepository, wowsDataShaper) {
+  constructor (wowsAPIRepository, wowsDataShaper, wowsScrapeRepository) {
     this.wowsAPIRepository = wowsAPIRepository
     this.wowsDataShaper = wowsDataShaper
+    this.wowsScrapeRepository = wowsScrapeRepository
   }
 
   fetch (tempArenaInfo) {
@@ -17,11 +18,13 @@ class FetchManager {
 
       const fetchPlayersPromise = this.wowsAPIRepository.fetchPlayers()
       const fetchAllShipsPromise = this.wowsAPIRepository.fetchAllShips()
+      const fetchRadarDataPromise = this.wowsScrapeRepository.fetchRadarData()
 
-      Promise.all([fetchPlayersPromise, fetchAllShipsPromise])
-        .then(([players, allShips]) => {
+      Promise.all([fetchPlayersPromise, fetchAllShipsPromise, fetchRadarDataPromise])
+        .then(([players, allShips, radarData]) => {
           this.wowsDataShaper.players = players
           this.wowsDataShaper.allShips = allShips
+          this.wowsDataShaper.radarData = radarData
 
           const shaped = this.wowsDataShaper.shape()
 

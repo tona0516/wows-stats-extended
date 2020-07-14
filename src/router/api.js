@@ -5,6 +5,7 @@ const WoWsFileRepository = require('../repository/WoWsFileRepository')
 const WoWsAPIClient = require('../infrastructure/WoWsAPIClient')
 const WoWsAPIRepository = require('../repository/WoWsAPIRepository')
 const WoWsDataShaper = require('../domain/WoWsDataShaper')
+const WoWsScrapeRepository = require('../repository/WoWsScrapeRepository')
 
 const express = require('express')
 const router = express.Router()
@@ -13,7 +14,8 @@ const wowsFileRepository = new WoWsFileRepository()
 const wowsAPIClient = new WoWsAPIClient()
 const wowsAPIRepository = new WoWsAPIRepository(wowsFileRepository, wowsAPIClient)
 const wowsDataShaper = new WoWsDataShaper()
-const fetchManager = new FetchDataManager(wowsAPIRepository, wowsDataShaper)
+const wowsScrapeRepository = new WoWsScrapeRepository()
+const fetchManager = new FetchDataManager(wowsAPIRepository, wowsDataShaper, wowsScrapeRepository)
 
 router.get('/temp_arena_info', (req, res, next) => {
   let tempArenaInfo

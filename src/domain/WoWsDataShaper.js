@@ -10,6 +10,7 @@ class WoWsDataShaper {
   constructor () {
     this.players = null
     this.allShips = null
+    this.radarData = null
   }
 
   /**
@@ -30,7 +31,7 @@ class WoWsDataShaper {
         const shipId = playerData.ship_id
         const shipStat = makeShipStats(shipId, playerData, isPrivate, this.allShips)
 
-        const shipInfo = makeShipInfo(shipId, this.allShips)
+        const shipInfo = makeShipInfo(shipId, this.allShips, this.radarData)
 
         const allStat = {
           player_stat: personalStats,
@@ -179,13 +180,15 @@ const makeShipStats = (shipID, player, isPrivate, allShips) => {
  *
  * @param {String} shipId
  */
-const makeShipInfo = (shipId, allShips) => {
+const makeShipInfo = (shipId, allShips, radarData) => {
+  const name = _.get(allShips, `${shipId}.name`, null)
   const shipInfo = {
-    name: _.get(allShips, `${shipId}.name`, null),
+    name: name,
     type: _.get(allShips, `${shipId}.type`, null),
     tier: _.get(allShips, `${shipId}.tier`, null),
     nation: _.get(allShips, `${shipId}.nation`, null),
-    detect_distance_by_ship: calculateConcealment(shipId, allShips)
+    detect_distance_by_ship: calculateConcealment(shipId, allShips),
+    radar_range: _.get(radarData, name, '-')
   }
 
   return shipInfo
