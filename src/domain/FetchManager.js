@@ -12,11 +12,9 @@ class FetchManager {
   async fetch (tempArenaInfo) {
     const startTime = new Date()
 
-    this.wowsAPIRepository.tempArenaInfo = tempArenaInfo
-
     const gameVersion = await this.wowsAPIRepository.fetchGameVersion()
 
-    const fetchPlayersPromise = this.wowsAPIRepository.fetchPlayers()
+    const fetchPlayersPromise = this.wowsAPIRepository.fetchPlayers(tempArenaInfo)
     const fetchAllShipsPromise = this.wowsAPIRepository.fetchAllShips(gameVersion)
     const fetchRadarDataPromise = this.wowsScrapeRepository.fetchRadarData(gameVersion)
 

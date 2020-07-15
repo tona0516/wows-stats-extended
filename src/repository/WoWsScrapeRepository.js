@@ -12,35 +12,55 @@ class WoWsScrapeRepository {
     this.wowsFileRepository = wowsFileRepository
   }
 
+  /**
+   * 以下のサイトからレーダー距離の情報を取得する。
+   * https://wiki.wargaming.net/en/Ship:Surveillance_Radar_Data
+   *
+   * @param {String} gameVersion ゲームバージョン
+   * @param {Object} 艦名をキーとするレーダー距離の連想配列
+   */
   async fetchRadarData (gameVersion) {
     const prefix = '.radars_'
-    this.wowsFileRepository.deleteOldCache(prefix, gameVersion)
+    const cacheFileName = `${prefix}${gameVersion}.json`
 
-    const cache = this.wowsFileRepository.readCache(prefix, gameVersion)
-    if (cache !== null) {
+    const cache = this.wowsFileRepository.readCache(cacheFileName)
+    if (!_.isNull(cache)) {
       return JSON.parse(cache)
     }
 
-    var radarData = {}
-    const response = await axios.get(Constant.URL.RADAR_DATA_URL)
-    const dom = new JSDOM(response.data)
-    const trs = dom.window.document.querySelectorAll('#mw-content-text > div > table > tbody > tr')
-    for (const tr of trs) {
-      if (!_.isNil(tr.children[1]) && !_.isNil(tr.children[5])) {
-        const shipNames = tr.children[1].textContent.trim().split(',')
-        const range = parseFloat(tr.children[5].textContent.trim())
-        if (!_.isNaN(range)) {
-          for (const shipName of shipNames) {
-            radarData[shipName] = range
-          }
-        }
-      }
-    }
+    const radarData = await fetchRadarData()
 
-    this.wowsFileRepository.createCache(radarData, prefix, gameVersion)
+    this.wowsFileRepository.deleteCache(prefix)
+    this.wowsFileRepository.createCache(cacheFileName, radarData)
 
     return radarData
   }
+}
+
+const fetchRadarData = async () => {
+  const response = await axios.get(Constant.URL.RADAR_DATA_URL)
+  const dom = new JSDOM(response.data)
+  const trs = dom.window.document.querySelectorAll('#mw-content-text > div > table > tbody > tr')
+
+  var radarData = {}
+  for (const tr of trs) {
+    try {
+      const shipNames = tr.children[1].textContent.trim().split(',')
+      const range = parseFloat(tr.children[5].textContent.trim())
+
+      if (_.isEmpty(shipNames) || _.isNaN(range)) {
+        continue
+      }
+
+      for (const shipName of shipNames) {
+        radarData[shipName] = range
+      }
+    } catch {
+      continue
+    }
+  }
+
+  return radarData
 }
 
 module.exports = WoWsScrapeRepository

@@ -11,11 +11,16 @@ const express = require('express')
 const router = express.Router()
 
 const wowsFileRepository = new WoWsFileRepository()
-const wowsAPIClient = new WoWsAPIClient()
-const wowsAPIRepository = new WoWsAPIRepository(wowsFileRepository, wowsAPIClient)
-const wowsScrapeRepository = new WoWsScrapeRepository(wowsFileRepository)
-const wowsDataShaper = new WoWsDataShaper()
-const fetchManager = new FetchDataManager(wowsAPIRepository, wowsDataShaper, wowsScrapeRepository)
+const fetchManager = new FetchDataManager(
+  new WoWsAPIRepository(
+    wowsFileRepository,
+    new WoWsAPIClient()
+  ),
+  new WoWsDataShaper(),
+  new WoWsScrapeRepository(
+    wowsFileRepository
+  )
+)
 
 router.get('/temp_arena_info', (req, res, next) => {
   let tempArenaInfo
@@ -36,8 +41,9 @@ router.get('/temp_arena_info', (req, res, next) => {
 
 router.post('/fetch_battle', async (req, res, next) => {
   const tempArenaInfo = req.body
+
   if (!tempArenaInfo) {
-    res.status(400).json({ error: 'request body is not json format' })
+    res.status(400).json({ error: 'tempArenaInfo is not json format' })
     return
   }
 

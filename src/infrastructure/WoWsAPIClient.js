@@ -127,7 +127,7 @@ class WoWsAPIClient {
     }
 
     const body = await get(url, params)
-    return body.data.game_version
+    return body.data
   }
 
   async fetchAllShipsInfo () {

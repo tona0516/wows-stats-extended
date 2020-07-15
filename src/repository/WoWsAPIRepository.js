@@ -9,22 +9,21 @@ class WoWsAPIRepository {
    * @param {Object} tempArenaInfo tempArenaInfoの連想配列
    * @param {Number} parallelRequestLimit 艦ごとの成績を取得するときの最大並列リクエスト数
    */
-  constructor (wowsFileRepository, wowsAPIClient) {
+  constructor (wowsFileRepository, wowsAPIClient, parallelRequestLimit = 5) {
     this.wowsFileRepository = wowsFileRepository
     this.wowsAPIClient = wowsAPIClient
-
-    this.tempArenaInfo = null
-    this.parallelRequestLimit = 5
+    this.parallelRequestLimit = parallelRequestLimit
   }
 
   /**
    * 表示するのに必要なデータをフェッチする
    *
-   * @returns {Array}
+   * @param {Object} tempArenaInfo tempArenaInfo.json
+   * @returns {Array} プレイヤー名をキーとするプレイヤー情報、艦情報、艦スコア、プレイヤースコアの連想配列
    * @throws {Error}
    */
-  async fetchPlayers () {
-    var players = pickPlayerInfo(this.tempArenaInfo)
+  async fetchPlayers (tempArenaInfo) {
+    var players = pickPlayerInfo(tempArenaInfo)
 
     // アカウントIDの取得
     const joinedPlayerName = _.chain(players)
@@ -92,15 +91,14 @@ class WoWsAPIRepository {
           players[playerName].personal_statistics = _.get(personalScoreResponseBody, accountId, null)
           players[playerName].ship_statistics = _.get(shipScoreResponseBody, accountId, null)
 
-          const clanId = _.get(clanIdResponseBody, `${accountId}.clan_id`, null)
-          const clanTag = _.get(clanTagResponseBody, `${clanId}.tag`, null)
-          if (!_.isNull(clanId) && !_.isNull(clanTag)) {
+          players[playerName].clan = null
+          const clanId = _.get(clanIdResponseBody, `${accountId}.clan_id`)
+          const clanTag = _.get(clanTagResponseBody, `${clanId}.tag`)
+          if (!_.isNil(clanId) && !_.isNil(clanTag)) {
             players[playerName].clan = {
               id: clanId,
               tag: clanTag
             }
-          } else {
-            players[playerName].clan = null
           }
         })
         .value()
@@ -116,17 +114,18 @@ class WoWsAPIRepository {
    */
   async fetchAllShips (gameVersion) {
     const prefix = '.ships_'
-    this.wowsFileRepository.deleteOldCache(prefix, gameVersion)
+    const cacheFileName = `${prefix}${gameVersion}.json`
 
-    const cache = this.wowsFileRepository.readCache(prefix, gameVersion)
-    if (cache !== null) {
+    const cache = this.wowsFileRepository.readCache(cacheFileName)
+    if (!_.isNull(cache)) {
       return JSON.parse(cache)
     }
 
     // 最新のバージョンのキャッシュがなければフェッチして作成する
     const allShips = await this.wowsAPIClient.fetchAllShipsInfo()
-    this.wowsFileRepository.createCache(allShips, prefix, gameVersion)
 
+    this.wowsFileRepository.deleteCache(prefix)
+    this.wowsFileRepository.createCache(cacheFileName, allShips)
     return allShips
   }
 
@@ -136,8 +135,8 @@ class WoWsAPIRepository {
    * @returns {String}
    */
   async fetchGameVersion () {
-    const gameVersion = await this.wowsAPIClient.fetchGameVersion()
-    return gameVersion
+    const responseBody = await this.wowsAPIClient.fetchGameVersion()
+    return responseBody.game_version
   }
 }
 
@@ -148,15 +147,13 @@ class WoWsAPIRepository {
  * @throws {Error}
  */
 const pickPlayerInfo = (tempArenaInfo) => {
-  const players = {}
+  const vehicles = _.get(tempArenaInfo, 'vehicles')
 
-  if (!_.isArray(tempArenaInfo.vehicles)) {
-    // TODO エラーの詳細
-    throw new Error('invalid_temp_arena_info')
+  if (_.isNil(vehicles)) {
+    throw new Error('invalid tempArenaInfo.json')
   }
 
-  const vehicles = tempArenaInfo.vehicles
-
+  const players = {}
   for (const player of vehicles) {
     if (_.isNil(player.name) || _.isNil(player.shipId) || _.isNil(player.relation) || _.isNil(player.id)) {
       continue

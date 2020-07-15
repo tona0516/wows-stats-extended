@@ -3,26 +3,23 @@
 const fs = require('fs')
 
 const Constant = require('../common/Constant')
-
-const cacheName = (prefix, gameVersion) => {
-  return `${prefix}${gameVersion}.json`
-}
+const ENCODE = 'utf8'
 
 class WoWsFileRepository {
   /**
    * tempArenaInfo.jsonを読み込む。
    *
-   * @return JSON文字列。存在しない場合はnull。
+   * @return {String} JSON文字列。存在しない場合はnull。
    */
   readTempArenaInfo () {
     const filePaths = [
-      process.env.DIRECTORY + Constant.PATH.TEMP_ARENA_INFO_PATH,
-      process.env.DIRECTORY + 'bin64/' + Constant.PATH.TEMP_ARENA_INFO_PATH
+      `${process.env.DIRECTORY}${Constant.PATH.TEMP_ARENA_INFO_PATH}`,
+      `${process.env.DIRECTORY}bin64/${Constant.PATH.TEMP_ARENA_INFO_PATH}`
     ]
 
     for (const filePath of filePaths) {
       if (fs.existsSync(filePath)) {
-        return fs.readFileSync(filePath, 'utf8')
+        return fs.readFileSync(filePath, ENCODE)
       }
     }
 
@@ -32,12 +29,12 @@ class WoWsFileRepository {
   /**
    * 環境変数を.envに書き込む。
    *
-   * @param {Object} dict key-value形式のの環境変数
+   * @param {Object} data key-value形式の環境変数
    */
-  createDotEnv (dict) {
-    const list = []
-    for (const [key, value] of Object.entries(dict)) {
-      list.push(key + '=' + value)
+  createDotEnv (data) {
+    var list = []
+    for (const [key, value] of Object.entries(data)) {
+      list.push(`${key}=${value}`)
     }
 
     fs.writeFileSync('.env', list.join('\n'))
@@ -48,41 +45,37 @@ class WoWsFileRepository {
   /**
    * キャッシュを生成する。
    *
-   * @param {String} gameVersion ゲームバージョン
+   * @param {String} cacheFileName キャッシュファイル名
    * @param {Object} data 保存するデータ
    */
-  createCache (data, prefix, gameVersion) {
-    fs.writeFileSync(cacheName(prefix, gameVersion), JSON.stringify(data), 'utf8')
+  createCache (cacheFileName, data) {
+    fs.writeFileSync(cacheFileName, JSON.stringify(data), ENCODE)
   }
 
   /**
-   * 艦艇情報のキャッシュを読み込む。
+   * キャッシュを読み込む。
    *
-   * @param {String} gameVersion ゲームバージョン
-   * @returns {String} 艦艇情報のJSON文字列。存在しない場合はnull。
+   * @param {String} cacheFileName キャッシュファイル名
+   * @returns {String} JSON文字列。存在しない場合はnull。
    */
-  readCache (prefix, gameVersion) {
-    const latestCacheName = cacheName(prefix, gameVersion)
-
-    if (fs.existsSync(latestCacheName)) {
-      return fs.readFileSync(latestCacheName, 'utf8')
+  readCache (cacheFileName) {
+    if (fs.existsSync(cacheFileName)) {
+      return fs.readFileSync(cacheFileName, ENCODE)
     }
 
     return null
   }
 
   /**
-   * 前のバージョンの艦艇情報のキャッシュを削除する。
+   * 前のバージョンのキャッシュを削除する。
    *
-   * @param {String} gameVersion ゲームバージョン
+   * @param {String} prefix キャッシュファイル名のプレフィックス
    */
-  deleteOldCache (prefix, gameVersion) {
-    const latestCacheName = cacheName(prefix, gameVersion)
-
+  deleteCache (prefix) {
     // 古いバージョンのキャッシュを削除する
     fs.readdirSync('./')
-      .filter(fileName => fileName.startsWith(prefix) && fileName !== latestCacheName)
-      .forEach(oldCacheName => fs.unlinkSync(oldCacheName))
+      .filter(fileName => fileName.startsWith(prefix))
+      .forEach(cacheFileName => fs.unlinkSync(cacheFileName))
   }
 }
 

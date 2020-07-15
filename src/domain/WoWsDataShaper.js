@@ -392,8 +392,8 @@ const average = (array) => {
 const sort = () => {
   return (a, b) => {
     // 艦種でソート
-    const typeA = a.ship_info.type.toUpperCase()
-    const typeB = b.ship_info.type.toUpperCase()
+    const typeA = a.ship_info.type
+    const typeB = b.ship_info.type
     if (typeA > typeB) return 1
     if (typeA < typeB) return -1
 
