@@ -4,10 +4,8 @@ const fs = require('fs')
 
 const Constant = require('../common/Constant')
 
-const shipCachePrefix = '.ships_'
-
-const shipCacheName = (gameVersion) => {
-  return `${shipCachePrefix}${gameVersion}.json`
+const cacheName = (prefix, gameVersion) => {
+  return `${prefix}${gameVersion}.json`
 }
 
 class WoWsFileRepository {
@@ -48,13 +46,13 @@ class WoWsFileRepository {
   }
 
   /**
-   * 艦艇情報のキャッシュを生成する。
+   * キャッシュを生成する。
    *
    * @param {String} gameVersion ゲームバージョン
-   * @param {Object} data JSON形式の艦艇情報
+   * @param {Object} data 保存するデータ
    */
-  createShipCache (gameVersion, data) {
-    fs.writeFileSync(shipCacheName(gameVersion), JSON.stringify(data), 'utf8')
+  createCache (data, prefix, gameVersion) {
+    fs.writeFileSync(cacheName(prefix, gameVersion), JSON.stringify(data), 'utf8')
   }
 
   /**
@@ -63,8 +61,8 @@ class WoWsFileRepository {
    * @param {String} gameVersion ゲームバージョン
    * @returns {String} 艦艇情報のJSON文字列。存在しない場合はnull。
    */
-  readShipCache (gameVersion) {
-    const latestCacheName = shipCacheName(gameVersion)
+  readCache (prefix, gameVersion) {
+    const latestCacheName = cacheName(prefix, gameVersion)
 
     if (fs.existsSync(latestCacheName)) {
       return fs.readFileSync(latestCacheName, 'utf8')
@@ -78,12 +76,12 @@ class WoWsFileRepository {
    *
    * @param {String} gameVersion ゲームバージョン
    */
-  deleteOldShipCache (gameVersion) {
-    const latestCacheName = shipCacheName(gameVersion)
+  deleteOldCache (prefix, gameVersion) {
+    const latestCacheName = cacheName(prefix, gameVersion)
 
     // 古いバージョンのキャッシュを削除する
     fs.readdirSync('./')
-      .filter(fileName => fileName.startsWith(shipCachePrefix) && fileName !== latestCacheName)
+      .filter(fileName => fileName.startsWith(prefix) && fileName !== latestCacheName)
       .forEach(oldCacheName => fs.unlinkSync(oldCacheName))
   }
 }

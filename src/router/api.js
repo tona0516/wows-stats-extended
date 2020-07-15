@@ -13,8 +13,8 @@ const router = express.Router()
 const wowsFileRepository = new WoWsFileRepository()
 const wowsAPIClient = new WoWsAPIClient()
 const wowsAPIRepository = new WoWsAPIRepository(wowsFileRepository, wowsAPIClient)
+const wowsScrapeRepository = new WoWsScrapeRepository(wowsFileRepository)
 const wowsDataShaper = new WoWsDataShaper()
-const wowsScrapeRepository = new WoWsScrapeRepository()
 const fetchManager = new FetchDataManager(wowsAPIRepository, wowsDataShaper, wowsScrapeRepository)
 
 router.get('/temp_arena_info', (req, res, next) => {

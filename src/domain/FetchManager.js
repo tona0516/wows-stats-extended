@@ -9,34 +9,35 @@ class FetchManager {
     this.wowsScrapeRepository = wowsScrapeRepository
   }
 
-  fetch (tempArenaInfo) {
-    return new Promise((resolve, reject) => {
-      logger.info('取得開始')
-      const startTime = new Date()
+  async fetch (tempArenaInfo) {
+    const startTime = new Date()
 
-      this.wowsAPIRepository.tempArenaInfo = tempArenaInfo
+    this.wowsAPIRepository.tempArenaInfo = tempArenaInfo
 
-      const fetchPlayersPromise = this.wowsAPIRepository.fetchPlayers()
-      const fetchAllShipsPromise = this.wowsAPIRepository.fetchAllShips()
-      const fetchRadarDataPromise = this.wowsScrapeRepository.fetchRadarData()
+    const gameVersion = await this.wowsAPIRepository.fetchGameVersion()
 
-      Promise.all([fetchPlayersPromise, fetchAllShipsPromise, fetchRadarDataPromise])
-        .then(([players, allShips, radarData]) => {
-          this.wowsDataShaper.players = players
-          this.wowsDataShaper.allShips = allShips
-          this.wowsDataShaper.radarData = radarData
+    const fetchPlayersPromise = this.wowsAPIRepository.fetchPlayers()
+    const fetchAllShipsPromise = this.wowsAPIRepository.fetchAllShips(gameVersion)
+    const fetchRadarDataPromise = this.wowsScrapeRepository.fetchRadarData(gameVersion)
 
-          const shaped = this.wowsDataShaper.shape()
+    const result = await Promise.all([fetchPlayersPromise, fetchAllShipsPromise, fetchRadarDataPromise])
+      .then(([players, allShips, radarData]) => {
+        this.wowsDataShaper.players = players
+        this.wowsDataShaper.allShips = allShips
+        this.wowsDataShaper.radarData = radarData
 
-          const elapsedTime = (new Date().getTime() - startTime.getTime()) / 1000.0
-          logger.info(`取得完了 処理時間: ${elapsedTime.toFixed(2)}秒`)
+        const shaped = this.wowsDataShaper.shape()
 
-          return resolve(shaped)
-        }).catch((error) => {
-          logger.error(error)
-          return reject(error)
-        })
-    })
+        const elapsedTime = (new Date().getTime() - startTime.getTime()) / 1000.0
+        logger.info(`取得完了 処理時間: ${elapsedTime.toFixed(2)}秒`)
+
+        return shaped
+      }).catch((error) => {
+        logger.error(error)
+        return error
+      })
+
+    return result
   }
 }
 

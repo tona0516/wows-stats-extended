@@ -114,21 +114,30 @@ class WoWsAPIRepository {
    * @returns {Array}
    * @throws {Error}
    */
-  async fetchAllShips () {
-    const currentGameVersion = await this.wowsAPIClient.fetchGameVersion()
+  async fetchAllShips (gameVersion) {
+    const prefix = '.ships_'
+    this.wowsFileRepository.deleteOldCache(prefix, gameVersion)
 
-    this.wowsFileRepository.deleteOldShipCache(currentGameVersion)
-
-    const cache = this.wowsFileRepository.readShipCache(currentGameVersion)
+    const cache = this.wowsFileRepository.readCache(prefix, gameVersion)
     if (cache !== null) {
       return JSON.parse(cache)
     }
 
     // 最新のバージョンのキャッシュがなければフェッチして作成する
     const allShips = await this.wowsAPIClient.fetchAllShipsInfo()
-    this.wowsFileRepository.createShipCache(currentGameVersion, allShips)
+    this.wowsFileRepository.createCache(allShips, prefix, gameVersion)
 
     return allShips
+  }
+
+  /**
+   * 現在のゲームバージョンを取得する
+   *
+   * @returns {String}
+   */
+  async fetchGameVersion () {
+    const gameVersion = await this.wowsAPIClient.fetchGameVersion()
+    return gameVersion
   }
 }
 

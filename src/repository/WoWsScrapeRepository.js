@@ -8,7 +8,19 @@ const { JSDOM } = jsdom
 const Constant = require('../common/Constant')
 
 class WoWsScrapeRepository {
-  async fetchRadarData () {
+  constructor (wowsFileRepository) {
+    this.wowsFileRepository = wowsFileRepository
+  }
+
+  async fetchRadarData (gameVersion) {
+    const prefix = '.radars_'
+    this.wowsFileRepository.deleteOldCache(prefix, gameVersion)
+
+    const cache = this.wowsFileRepository.readCache(prefix, gameVersion)
+    if (cache !== null) {
+      return JSON.parse(cache)
+    }
+
     var radarData = {}
     const response = await axios.get(Constant.URL.RADAR_DATA_URL)
     const dom = new JSDOM(response.data)
@@ -24,6 +36,8 @@ class WoWsScrapeRepository {
         }
       }
     }
+
+    this.wowsFileRepository.createCache(radarData, prefix, gameVersion)
 
     return radarData
   }
