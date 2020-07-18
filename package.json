@@ -1,6 +1,6 @@
 {
   "name": "wows-stats-extended",
-  "version": "0.9.5",
+  "version": "0.9.6",
   "private": true,
   "scripts": {
     "start-production": "node ./bin/www",
