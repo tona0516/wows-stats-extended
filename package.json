@@ -3,8 +3,7 @@
   "version": "0.9.5",
   "private": true,
   "scripts": {
-    "start-production-mac": "NODE_ENV=production node ./bin/www",
-    "start-production-windows": "set NODE_ENV=production && node ./bin/www",
+    "start-production": "node ./bin/www",
     "start-debug-mac": "NODE_ENV=development nodemon ./bin/www",
     "start-debug-windows": "set NODE_ENV=development && nodemon ./bin/www",
     "lint": "eslint src/ public/javascripts/ app.js",

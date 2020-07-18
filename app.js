@@ -20,11 +20,8 @@ switch (process.env.NODE_ENV) {
     logger.level = log4js.levels.DEBUG
     app.use(log4js.connectLogger(logger, { level: log4js.levels.DEBUG, format: ':method :url HTTP/:http-version" :status' }))
     break
-  case 'production':
-    logger.level = log4js.levels.INFO
-    break
   default:
-    logger.level = log4js.levels.TRACE
+    logger.level = log4js.levels.INFO
     break
 }
 

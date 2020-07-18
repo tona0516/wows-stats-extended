@@ -1,38 +1,41 @@
-const { compile } = require('nexe')
-
-const packageJson = require('../package.json')
+const nexe = require('nexe')
 
 const baseSetting = {
   input: './bin/www',
-  output: `wows-stats-extended-${packageJson.version}`,
   resouces: [
     'public/',
     'views/'
   ]
 }
 
-const build = (setting, platform) => {
-  compile(setting).then(() => {
-    console.log(`Build ${platform} binary successfully.`)
-  }).catch(err => {
-    console.log(`Failed to build ${platform} binary: ${err}`)
+const build = (setting) => {
+  nexe.compile(setting).catch(err => {
+    console.log(`Failed to build: ${err}`)
   })
 }
 
 const main = () => {
+  const packageJson = require('../package.json')
+
   build(
     Object.assign(
       baseSetting,
-      { target: 'mac-x64-12.18.2' }
+      {
+        target: 'mac-x64-12.18.2',
+        output: `wows-stats-extended-for-mac-${packageJson.version}`
+      }
     ),
-    'Mac'
+    'mac'
   )
   build(
     Object.assign(
       baseSetting,
-      { target: 'windows-x64-12.18.2' }
+      {
+        target: 'windows-x64-12.18.2',
+        output: `wows-stats-extended-for-windows-${packageJson.version}`
+      }
     ),
-    'Windows'
+    'windows'
   )
 }
 
