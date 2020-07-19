@@ -22,8 +22,7 @@ class Install {
     const contents = {
       APP_ID: parameters.appid,
       REGION: parameters.region === 'NA' ? 'com' : parameters.region.toLowerCase(),
-      DIRECTORY: parameters.directory.endsWith('/') ? parameters.directory : parameters.directory + '/',
-      PORT: 3000
+      DIRECTORY: parameters.directory.endsWith('/') ? parameters.directory : parameters.directory + '/'
     }
 
     this.wowsFileRepository.createDotEnv(contents)
