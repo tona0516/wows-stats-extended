@@ -2,7 +2,8 @@ const nexe = require('nexe')
 
 const baseSetting = {
   input: './bin/www',
-  resouces: [
+  resources: [
+    'app.js',
     'public/',
     'views/'
   ]
@@ -15,7 +16,7 @@ const build = (setting) => {
 }
 
 const main = () => {
-  const packageJson = require('../package.json')
+  const packageJson = require('./package.json')
 
   build(
     Object.assign(
