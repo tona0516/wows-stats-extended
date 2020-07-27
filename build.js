@@ -19,24 +19,16 @@ const main = () => {
   const packageJson = require('./package.json')
 
   build(
-    Object.assign(
-      baseSetting,
-      {
-        target: 'mac-x64-12.18.2',
-        output: `wows-stats-extended-for-mac-${packageJson.version}`
-      }
-    ),
-    'mac'
+    Object.assign(baseSetting, {
+      target: 'mac-x64-12.18.2',
+      output: `wows-stats-extended-for-mac-${packageJson.version}`
+    })
   )
   build(
-    Object.assign(
-      baseSetting,
-      {
-        target: 'windows-x64-12.18.2',
-        output: `wows-stats-extended-for-windows-${packageJson.version}`
-      }
-    ),
-    'windows'
+    Object.assign(baseSetting, {
+      target: 'windows-x64-12.18.2',
+      output: `wows-stats-extended-for-windows-${packageJson.version}`
+    })
   )
 }
 
