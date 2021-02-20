@@ -58,6 +58,11 @@ class WoWsDataShaper {
     sortedFriends = convertToRomanNumber(sortedFriends)
     sortedFriends.push(calculateTeamAverage(sortedFriends))
 
+    const existedExcludeFromAveragePlayers = getPlayerNameExcludedFromAverage(sortedFriends.map(x => x.player_stat.name))
+    if (existedExcludeFromAveragePlayers.length !== 0) {
+      sortedFriends.push(calculateTeamAverage(sortedFriends, `チーム平均(${existedExcludeFromAveragePlayers}を除く)`, existedExcludeFromAveragePlayers))
+    }
+
     let sortedEnemies = enemies.sort(sort())
     sortedEnemies = convertToRomanNumber(sortedEnemies)
     sortedEnemies.push(calculateTeamAverage(sortedEnemies))
@@ -67,6 +72,25 @@ class WoWsDataShaper {
 
     return outputData
   }
+}
+
+/**
+ * 平均の算出から除外するプレイヤー名を返す
+ *
+ * @param {Array} playerNames 検索対象のプレイヤー名
+ */
+const getPlayerNameExcludedFromAverage = (playerNames) => {
+  const excludedNamesString = process.env.EXCLUDE_FROM_AVERAGE
+  if (!excludedNamesString) {
+    return []
+  }
+
+  const excludedNames = excludedNamesString.split(',')
+  if (excludedNames.length === 0) {
+    return []
+  }
+
+  return excludedNames.filter(excludedName => playerNames.includes(excludedName))
 }
 
 /**
@@ -340,22 +364,26 @@ const convertToRomanNumber = (team) => {
  * 平均チーム成績を計算する
  *
  * @param {Array} team
+ * @param {String} rowName
+ * @param {Array} excludePlayerNames
  */
-const calculateTeamAverage = (team) => {
+const calculateTeamAverage = (team, rowName = 'チーム平均', excludePlayerNames = []) => {
+  const excludedTeam = team.filter(x => !excludePlayerNames.includes(x.player_stat.name))
+
   const shipStat = {
-    battles: average(team.map(x => x.ship_stat.battles)).toFixed(0),
-    win_rate: average(team.map(x => x.ship_stat.win_rate)).toFixed(1),
-    average_damage: average(team.map(x => x.ship_stat.average_damage)).toFixed(0),
-    kill_death_rate: average(team.map(x => x.ship_stat.kill_death_rate)).toFixed(1)
+    battles: average(excludedTeam.map(x => x.ship_stat.battles)).toFixed(0),
+    win_rate: average(excludedTeam.map(x => x.ship_stat.win_rate)).toFixed(1),
+    average_damage: average(excludedTeam.map(x => x.ship_stat.average_damage)).toFixed(0),
+    kill_death_rate: average(excludedTeam.map(x => x.ship_stat.kill_death_rate)).toFixed(1)
   }
 
   const playerStat = {
-    name: 'チーム平均',
-    battles: average(team.map(x => x.player_stat.battles)).toFixed(0),
-    win_rate: average(team.map(x => x.player_stat.win_rate)).toFixed(1),
-    average_damage: average(team.map(x => x.player_stat.average_damage)).toFixed(0),
-    kill_death_rate: average(team.map(x => x.player_stat.kill_death_rate)).toFixed(1),
-    average_tier: average(team.map(x => x.player_stat.average_tier)).toFixed(1)
+    name: rowName,
+    battles: average(excludedTeam.map(x => x.player_stat.battles)).toFixed(0),
+    win_rate: average(excludedTeam.map(x => x.player_stat.win_rate)).toFixed(1),
+    average_damage: average(excludedTeam.map(x => x.player_stat.average_damage)).toFixed(0),
+    kill_death_rate: average(excludedTeam.map(x => x.player_stat.kill_death_rate)).toFixed(1),
+    average_tier: average(excludedTeam.map(x => x.player_stat.average_tier)).toFixed(1)
   }
 
   return {
