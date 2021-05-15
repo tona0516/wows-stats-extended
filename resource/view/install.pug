@@ -1,0 +1,47 @@
+doctype html
+head
+  title
+  link(crossorigin='anonymous' href='https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css' integrity='sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO' rel='stylesheet')
+  link(rel='stylesheet' href='../stylesheets/style.css')
+body.custom-dark
+#app
+  form(action='/install', method='post')
+    div(class='form-group')
+      label(for='appid') Application ID
+      if appid !== undefined
+        input(type='text', class='form-control', id='appid', name='appid', value=appid)
+      else
+        input(type='text', class='form-control', id='appid', name='appid')
+
+      if appidError !== undefined
+        .alert.alert-danger #{appidError}
+    
+    div(class='form-group') 
+      label(for='region') Region
+      select(class='form-control', id='region', name='region')
+        each server, index in servers
+          if region !== undefined && region === server
+            option(selected)= server
+          else
+            option= server
+    
+      if regionError !== undefined
+        .alert.alert-danger #{regionError}
+    
+    div(class='form-group')
+      label(for='installPath') Install path
+      if installPath !== undefined
+        input(type='text', class='form-control', id='installPath', name='installPath', value=installPath)
+      else
+        input(type='text', class='form-control', id='installPath', name='installPath', value='C:\\Games\\World_of_Warships')
+
+      if installPathError !== undefined
+        .alert.alert-danger #{installPathError}
+    
+    div(class='submit', style='margin-top: 25px')
+      button(type='submit', class='btn btn-primary mb-2') Save
+include includes/foot.pug
+script(src='https://cdn.jsdelivr.net/npm/vue/dist/vue.js')
+script(src='https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js')
+script(src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous")
+script(src='../javascripts/install.js')

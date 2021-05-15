@@ -1,0 +1,22 @@
+body {
+    padding: 5px;
+    font: 12px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+  
+.custom-dark {
+  background-color: #343A40;
+  color: #FFFFFF;
+}
+
+.table {
+  width: 100%;
+  margin-bottom: 0.25rem;
+}
+
+.table-sm td, .table-sm th {
+  padding: .15rem;
+}
+
+a {
+  color: #00B7FF;
+}
