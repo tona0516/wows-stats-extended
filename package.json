@@ -5,8 +5,8 @@
   "main": "dist/app.js",
   "scripts": {
     "tsc:build": "tsc --build",
-    "generate-exe": "node generate_exe.js",
-    "build": "npm-run-all tsc:build generate-exe",
+    "generate-binary": "node generate_binary.js",
+    "build": "npm-run-all tsc:build generate-binary",
     "check-types": "tsc --noEmit",
     "format": "prettier --write 'src/**/*.{js,ts,json}'",
     "eslint": "eslint src/**/*.ts",
