@@ -37,8 +37,8 @@ body.custom-dark
         tr(v-for='player of team.users')
           // プレイヤー情報
           td
-            font(v-if='player.playerInfo.clan' color='#B6FF01') [***]
-            font(color='#FFFFFF') ***
+            font(v-if='player.playerInfo.clan' color='#B6FF01') [{{ player.playerInfo.clan }}]
+            font(color='#FFFFFF') {{ player.playerInfo.name }}
           td
             font(v-if="player.shipStats.combatPower < 10000" color="#FE0E00")
               | {{ player.shipStats.combatPower }}
