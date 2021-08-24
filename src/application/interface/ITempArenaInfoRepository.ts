@@ -1,3 +1,3 @@
 export interface ITempArenaInfoRepository {
-  get(): string;
+  get(): string | undefined;
 }

@@ -34,8 +34,11 @@ export class BattleUsecase {
     @inject("StatsCalculator") private statsCalculator: StatsCalculator
   ) {}
 
-  getStatus(): BattleStatus {
+  getStatus(): BattleStatus | undefined {
     const localStatus = this.tempArenaInfoRepository.get();
+    if (!localStatus) {
+      return undefined;
+    }
     return new BattleStatus(localStatus);
   }
 

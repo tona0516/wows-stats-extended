@@ -19,6 +19,10 @@ export class BattleController {
       "/status",
       (req: Express.Request, res: Express.Response) => {
         const status = this.battleUsecase.getStatus();
+        if (!status) {
+          res.status(204).send();
+          return;
+        }
         res.status(200).send(status);
       }
     );

@@ -81,21 +81,29 @@ const looper = async () => {
   const stateResponse = await axios
     .get(DOMAIN + "/battle/status")
     .catch((error) => {
-      const errorName = error.response.data.error.name;
-      if (errorName == "NOT_FOUND_TEMP_ARENA_INFO") {
-        updateStatus(Status.NEED_NOT_FETCH);
-      } else {
-        handleError(error);
-      }
+      handleError(error);
     });
 
-  if (stateResponse.data.hash !== latestHash) {
-    updateStatus(Status.FETCHING);
-    const detailResponse = await axios
-      .post(DOMAIN + "/battle/detail", stateResponse.data)
-      .catch((error) => handleError(error));
-    updateStatus(Status.FETCH_SUCCESS, detailResponse.data.teams);
-    latestHash = stateResponse.data.hash;
+  switch (stateResponse.status) {
+    case 200:
+      if (stateResponse.data.hash !== latestHash) {
+        updateStatus(Status.FETCHING);
+        const detailResponse = await axios
+          .post(DOMAIN + "/battle/detail", stateResponse.data)
+          .catch((error) => handleError(error));
+        updateStatus(Status.FETCH_SUCCESS, detailResponse.data.teams);
+        latestHash = stateResponse.data.hash;
+      }
+      break;
+    case 204:
+      updateStatus(Status.NEED_NOT_FETCH);
+      break;
+    default:
+      const error = JSON.parse({
+        "error": "system error",
+      });
+      handleError(error)
+      break;
   }
 };
 

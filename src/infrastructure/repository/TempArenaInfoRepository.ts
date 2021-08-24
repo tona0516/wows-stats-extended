@@ -22,7 +22,7 @@ export class TempArenaInfoRepository implements ITempArenaInfoRepository {
     return "tempArenaInfo.json";
   }
 
-  get(): string {
+  get(): string | undefined {
     const userSetting = this.userSettingRepository.read();
     const installPath = userSetting?.installPath;
     if (!installPath) {
@@ -36,7 +36,7 @@ export class TempArenaInfoRepository implements ITempArenaInfoRepository {
     );
 
     if (!fs.existsSync(filePath)) {
-      throw ErrorResponseType.notFoundTempArenaInfo;
+      return undefined;
     }
 
     const tempArenaInfo = fs.readFileSync(filePath, "utf8");

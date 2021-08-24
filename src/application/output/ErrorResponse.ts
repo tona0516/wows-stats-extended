@@ -20,11 +20,6 @@ export class ErrorResponse implements Error {
 }
 
 export const ErrorResponseType = {
-  notFoundTempArenaInfo: new ErrorResponse(
-    "NOT_FOUND_TEMP_ARENA_INFO",
-    "TempArenaInfo.json is not found.",
-    400
-  ),
   invalidTempArenaInfo: new ErrorResponse(
     "INVALID_TEMP_ARENA_INFO",
     "TempArenaInfo.json is invalid.",
