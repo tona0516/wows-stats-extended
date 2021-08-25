@@ -2,22 +2,22 @@ import {
   container,
   DependencyContainer as TsyringeDependencyContainer,
 } from "tsyringe";
-import { BattleUsecase } from "./application/usecase/BattleUsecase";
 import { BattleController } from "./application/controller/BattleController";
 import { IndexController } from "./application/controller/IndexController";
 import { InstallController } from "./application/controller/InstallController";
+import { BattleUsecase } from "./application/usecase/BattleUsecase";
+import { IndexUsecase } from "./application/usecase/IndexUsecase";
+import { InstallUsecase } from "./application/usecase/InstallUsecase";
 import { StatsCalculator } from "./domain/StatsCalculator";
 import { BasicShipInfoRepository } from "./infrastructure/repository/BasicShipInfoRepository";
 import { CacheRepository } from "./infrastructure/repository/CacheRepository";
+import { GameClientRepository } from "./infrastructure/repository/GameClientRepository";
 import { Logger } from "./infrastructure/repository/Logger";
 import { NumbersRepository } from "./infrastructure/repository/NumbersRepository";
 import { RadarRepository } from "./infrastructure/repository/RadarRepository";
 import { TempArenaInfoRepository } from "./infrastructure/repository/TempArenaInfoRepository";
 import { UserSettingRepository } from "./infrastructure/repository/UserSettingRepository";
 import { WargamingRepositpory } from "./infrastructure/repository/WargamingRepository";
-import { IndexUsecase } from "./application/usecase/IndexUsecase";
-import { InstallUsecase } from "./application/usecase/InstallUsecase";
-import { GameClientRepository } from "./infrastructure/repository/GameClientRepository";
 
 export class DependencyInjection {
   private static instance: DependencyInjection;

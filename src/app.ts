@@ -3,10 +3,10 @@ import "pug";
 import Express, { NextFunction, Request, Response } from "express";
 import { BattleController } from "./application/controller/BattleController";
 import { IndexController } from "./application/controller/IndexController";
+import { InstallController } from "./application/controller/InstallController";
 import { ErrorResponse } from "./application/output/ErrorResponse";
 import { DependencyInjection } from "./dependency_injection";
 import { Logger } from "./infrastructure/repository/Logger";
-import { InstallController } from "./application/controller/InstallController";
 
 const container = DependencyInjection.getInstance().container;
 const logger = container.resolve<Logger>("Logger");

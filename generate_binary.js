@@ -1,34 +1,37 @@
-const nexe = require('nexe')
+const nexe = require("nexe");
 
-const baseSetting = {
-  input: './dist/app.js',
-  resources: [
-    './resource/**/*',
-  ]
-}
+const nodeVersion = "14.15.3";
+const platforms = ["linux-x64", "mac-x64", "windows-x64"];
 
-const build = (setting) => {
-  nexe.compile(setting).catch(err => {
-    console.log(`Failed to build: ${err}`)
-  })
-}
+const baseOptions = {
+  input: "dist/app.js",
+  resources: ["resource/**/*"],
+};
+
+const compile = async (options) => {
+  await nexe.compile(options).catch((error) => {
+    console.log(
+      `Failed to build: options=${JSON.stringify(options)} error=${error}`
+    );
+    process.exit(1);
+  });
+};
 
 const main = () => {
-  const packageJson = require('./package.json')
+  const packageJson = require("./package.json");
+  const appName = packageJson.name;
+  const appVersion = packageJson.version;
 
-  const targets = [
-    'mac-x64-12.9.1',
-    'windows-x64-12.9.1',
-  ];
+  const targets = platforms.map((it) => `${it}-${nodeVersion}`);
 
-  targets.forEach((it) => {
-    build(
-      Object.assign(baseSetting, {
-        target: it,
-        output: `wows-stats-extended-${it}-${packageJson.version}`
-      })
-    )
+  targets.forEach(async (it) => {
+    const options = {
+      ...baseOptions,
+      target: it,
+      output: `${appName}-${appVersion}-${it}`,
+    };
+    await compile(options);
   });
-}
+};
 
-main()
+main();

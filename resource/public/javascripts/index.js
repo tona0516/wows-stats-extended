@@ -100,9 +100,9 @@ const looper = async () => {
       break;
     default:
       const error = JSON.parse({
-        "error": "system error",
+        error: "system error",
       });
-      handleError(error)
+      handleError(error);
       break;
   }
 };
