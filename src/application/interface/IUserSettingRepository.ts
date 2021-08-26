@@ -2,7 +2,7 @@ import { UserSetting } from "../../infrastructure/output/UserSetting";
 
 export interface IUserSettingRepository {
   isExist(): boolean;
-  read(): UserSetting | null;
+  read(): UserSetting | undefined;
   write(setting: UserSetting): void;
   delete(): void;
 }

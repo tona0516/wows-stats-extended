@@ -10,6 +10,7 @@ export interface ShipInfo {
   nation?: string;
   tier?: number;
   type?: string;
+  statsURL?: string;
 }
 
 export interface PlayerStats {
@@ -25,6 +26,7 @@ export interface PlayerInfo {
   name?: string;
   clan?: string;
   isHidden?: boolean;
+  statsURL?: string;
 }
 
 export interface ShipStats {

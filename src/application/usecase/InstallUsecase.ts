@@ -21,7 +21,7 @@ export class InstallUsecase {
     private gameClientRepository: IGameClientRepository
   ) {}
 
-  get(): UserSetting | null {
+  get(): UserSetting | undefined {
     return this.userSettingRepository.read();
   }
 

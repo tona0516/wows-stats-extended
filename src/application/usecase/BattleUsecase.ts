@@ -21,6 +21,9 @@ import { ClansAccountInfo } from "../../infrastructure/output/ClansAccountInfo";
 import { ClansInfo } from "../../infrastructure/output/ClansInfo";
 import { AccountInfo } from "../../infrastructure/output/AccountInfo";
 import { ExpectedStats } from "../../infrastructure/output/ExpectedStats";
+import { NumbersURLGenerator } from "../../domain/NumbersURLGenerator";
+import { IUserSettingRepository } from "../interface/IUserSettingRepository";
+import { UserSetting } from "../../infrastructure/output/UserSetting";
 
 @injectable()
 export class BattleUsecase {
@@ -36,7 +39,9 @@ export class BattleUsecase {
     private radarRepository: IRadarRepository,
     @inject("NumbersRepository")
     private numbersRepository: INumbersRepository,
-    @inject("StatsCalculator") private statsCalculator: StatsCalculator
+    @inject("StatsCalculator") private statsCalculator: StatsCalculator,
+    @inject("UserSettingRepository")
+    private userSettingRepository: IUserSettingRepository
   ) {}
 
   getStatus(): BattleStatus | undefined {
@@ -65,7 +70,8 @@ export class BattleUsecase {
       fetched.clansInfo,
       fetched.basicShipInfo,
       fetched.shipsStatsMap,
-      fetched.expectedStats
+      fetched.expectedStats,
+      fetched.userSetting
     );
 
     return this.arrange(shaped.friends, shaped.enemies);
@@ -81,6 +87,7 @@ export class BattleUsecase {
     basicShipInfo: { [shipID: number]: BasicShipInfo };
     shipsStatsMap: { [accountID: string]: ShipsStats };
     expectedStats: ExpectedStats;
+    userSetting: UserSetting | undefined;
   }> {
     const accountNames = tempArenaInfo.vehicles
       .filter((it) => {
@@ -144,6 +151,8 @@ export class BattleUsecase {
     this.logger.debug("clansInfo", JSON.stringify(clansInfo));
     this.logger.debug("shipsStatsMap", JSON.stringify(shipsStatsMap));
 
+    const userSetting = this.userSettingRepository.read();
+
     return {
       accountInfo: accountInfo,
       accountList: accountList,
@@ -152,6 +161,7 @@ export class BattleUsecase {
       basicShipInfo: basicShipInfo,
       shipsStatsMap: shipsStatsMap,
       expectedStats: expectedStats,
+      userSetting: userSetting,
     };
   }
 
@@ -163,7 +173,8 @@ export class BattleUsecase {
     clansInfo: ClansInfo,
     basicShipInfo: { [shipID: number]: BasicShipInfo },
     shipsStatsMap: { [accountID: string]: ShipsStats },
-    expectedStats: ExpectedStats
+    expectedStats: ExpectedStats,
+    userSetting: UserSetting | undefined
   ): { friends: Player[]; enemies: Player[] } {
     const friends: Player[] = [];
     const enemies: Player[] = [];
@@ -183,6 +194,11 @@ export class BattleUsecase {
         nation: shipInfo.nation,
         tier: shipInfo.tier,
         type: shipInfo.type,
+        statsURL: NumbersURLGenerator.genetateShipPageURL(
+          userSetting?.region,
+          shipID.toString(),
+          shipInfo.name
+        ),
       };
 
       this.logger.debug("modifiedShipInfo", JSON.stringify(modifiedShipInfo));
@@ -209,6 +225,11 @@ export class BattleUsecase {
           name: nickname,
           clan: clanTag,
           isHidden: accountInfo.data[accountID]?.hidden_profile,
+          statsURL: NumbersURLGenerator.genetatePlayerPageURL(
+            userSetting?.region,
+            accountID.toString(),
+            nickname
+          ),
         };
 
         const shipsStatsForPlayer = shipsStatsMap[accountID].data[accountID];
@@ -370,6 +391,7 @@ export class BattleUsecase {
         nation: shipInfo.nation,
         tier: shipInfo.tier?.toFixed(),
         type: shipInfo.type,
+        statsURL: shipInfo.statsURL,
       },
       shipStats: {
         battles: shipStats.battles?.halfup(0),
@@ -384,6 +406,7 @@ export class BattleUsecase {
         name: playerInfo.name,
         clan: playerInfo.clan,
         isHidden: playerInfo.isHidden,
+        statsURL: playerInfo.statsURL,
       },
       playerStats: {
         battles: playerStats.battles?.halfup(0),

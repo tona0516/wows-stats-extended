@@ -24,6 +24,7 @@ export interface FormattedShipInfo {
   nation?: string;
   tier?: string;
   type?: string;
+  statsURL?: string;
   // detectDistance?: string,
   // radarDistance?: string,
 }
@@ -42,6 +43,7 @@ export interface FormattedPlayerInfo {
   name?: string;
   clan?: string;
   isHidden?: boolean;
+  statsURL?: string;
 }
 
 export interface FormattedPlayerStat {

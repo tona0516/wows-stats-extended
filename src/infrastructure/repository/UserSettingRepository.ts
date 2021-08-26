@@ -14,9 +14,9 @@ export class UserSettingRepository implements IUserSettingRepository {
     return fs.existsSync(UserSettingRepository.getSettingFileName());
   }
 
-  read(): UserSetting | null {
+  read(): UserSetting | undefined {
     if (!this.isExist()) {
-      return null;
+      return undefined;
     }
 
     const file = fs.readFileSync(
