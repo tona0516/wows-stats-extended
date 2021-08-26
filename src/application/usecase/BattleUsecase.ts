@@ -16,6 +16,11 @@ import { IRadarRepository } from "../interface/IRadarRepository";
 import { ITempArenaInfoRepository } from "../interface/ITempArenaInfoRepository";
 import { IWargamingRepository } from "../interface/IWargamingRepository";
 import { BattleDetail, FormattedUser, Team } from "../output/BattleDetail";
+import { AccountList } from "../../infrastructure/output/AccountList";
+import { ClansAccountInfo } from "../../infrastructure/output/ClansAccountInfo";
+import { ClansInfo } from "../../infrastructure/output/ClansInfo";
+import { AccountInfo } from "../../infrastructure/output/AccountInfo";
+import { ExpectedStats } from "../../infrastructure/output/ExpectedStats";
 
 @injectable()
 export class BattleUsecase {
@@ -50,6 +55,33 @@ export class BattleUsecase {
     this.logger.debug("tempArenaInfo", JSON.stringify(tempArenaInfo));
 
     // fetch
+    const fetched = await this.fetch(tempArenaInfo);
+
+    const shaped = this.shape(
+      tempArenaInfo,
+      fetched.accountInfo,
+      fetched.accountList,
+      fetched.clansAccountInfo,
+      fetched.clansInfo,
+      fetched.basicShipInfo,
+      fetched.shipsStatsMap,
+      fetched.expectedStats
+    );
+
+    return this.arrange(shaped.friends, shaped.enemies);
+  }
+
+  private async fetch(
+    tempArenaInfo: TempArenaInfo
+  ): Promise<{
+    accountInfo: AccountInfo;
+    accountList: AccountList;
+    clansAccountInfo: ClansAccountInfo;
+    clansInfo: ClansInfo;
+    basicShipInfo: { [shipID: number]: BasicShipInfo };
+    shipsStatsMap: { [accountID: string]: ShipsStats };
+    expectedStats: ExpectedStats;
+  }> {
     const accountNames = tempArenaInfo.vehicles
       .filter((it) => {
         return !it.name.startsWith(":") && !it.name.endsWith(":") && it.id > 0;
@@ -57,8 +89,8 @@ export class BattleUsecase {
       .map((it) => {
         return it.name;
       });
-
     this.logger.debug("accountNames", JSON.stringify(accountNames));
+
     const accountList = await this.wargamingRepository.getAccountList(
       accountNames
     );
@@ -70,26 +102,22 @@ export class BattleUsecase {
     const accountInfoPromise = this.wargamingRepository.getAccountInfo(
       accountIDs
     );
-
     const shipsStatsPromise = this.getShipsStats(accountIDs);
 
     const clansAccountInfo = await this.wargamingRepository.getClansAccountInfo(
       accountIDs
     );
-
     this.logger.debug("clansAccountInfo", JSON.stringify(clansAccountInfo));
 
-    // TODO refactor
     const clanIDs = Object.values(clansAccountInfo.data)
       .filter((it): it is NonNullable<typeof it> => it != null)
       .map((it) => it.clan_id)
       .filter((it): it is NonNullable<typeof it> => it != null);
-
     this.logger.debug("clanIDs", JSON.stringify(clanIDs));
 
     const clansInfoPromise = this.wargamingRepository.getClansInfo(clanIDs);
-    const encyclopediaInfo = await this.wargamingRepository.getEncyclopediaInfo();
 
+    const encyclopediaInfo = await this.wargamingRepository.getEncyclopediaInfo();
     this.logger.debug("encyclopediaInfo", JSON.stringify(encyclopediaInfo));
 
     const gameVersion = encyclopediaInfo.data.game_version;
@@ -98,16 +126,14 @@ export class BattleUsecase {
     const basicShipInfo =
       (await this.basicShipInfoRepository.get(gameVersion)) ||
       (await this.fetchBasicShipInfo());
-    this.logger.debug("basicShipInfo", JSON.stringify(basicShipInfo));
-
     await this.basicShipInfoRepository.set(basicShipInfo, gameVersion);
     await this.basicShipInfoRepository.deleteOld();
+    this.logger.debug("basicShipInfo", JSON.stringify(basicShipInfo));
 
     const expectedStats = await this.numbersRepository.get(gameVersion);
-    this.logger.debug("expectedStats", JSON.stringify(expectedStats));
-
     await this.numbersRepository.set(expectedStats, gameVersion);
     await this.numbersRepository.deleteOld();
+    this.logger.debug("expectedStats", JSON.stringify(expectedStats));
 
     const [accountInfo, clansInfo, shipsStatsMap] = await Promise.all([
       accountInfoPromise,
@@ -118,7 +144,27 @@ export class BattleUsecase {
     this.logger.debug("clansInfo", JSON.stringify(clansInfo));
     this.logger.debug("shipsStatsMap", JSON.stringify(shipsStatsMap));
 
-    // shape
+    return {
+      accountInfo: accountInfo,
+      accountList: accountList,
+      clansAccountInfo: clansAccountInfo,
+      clansInfo: clansInfo,
+      basicShipInfo: basicShipInfo,
+      shipsStatsMap: shipsStatsMap,
+      expectedStats: expectedStats,
+    };
+  }
+
+  private shape(
+    tempArenaInfo: TempArenaInfo,
+    accountInfo: AccountInfo,
+    accountList: AccountList,
+    clansAccountInfo: ClansAccountInfo,
+    clansInfo: ClansInfo,
+    basicShipInfo: { [shipID: number]: BasicShipInfo },
+    shipsStatsMap: { [accountID: string]: ShipsStats },
+    expectedStats: ExpectedStats
+  ): { friends: Player[]; enemies: Player[] } {
     const friends: Player[] = [];
     const enemies: Player[] = [];
     tempArenaInfo.vehicles.forEach((it) => {
@@ -201,7 +247,15 @@ export class BattleUsecase {
     this.logger.debug("friends", JSON.stringify(friends));
     this.logger.debug("enemies", JSON.stringify(enemies));
 
+    return {
+      friends: friends,
+      enemies: enemies,
+    };
+  }
+
+  private arrange(friends: Player[], enemies: Player[]): BattleDetail {
     const teams: Team[] = [];
+
     teams.push({
       users: this.sorted(friends).map((it) => this.format(it)),
       average: this.format(this.statsCalculator.calculateTeamAverage(friends)),
@@ -211,14 +265,12 @@ export class BattleUsecase {
       average: this.format(this.statsCalculator.calculateTeamAverage(enemies)),
     });
 
-    const battleDetail: BattleDetail = {
+    return {
       teams: teams,
     };
-
-    return battleDetail;
   }
 
-  async getShipsStats(
+  private async getShipsStats(
     accountIDs: number[]
   ): Promise<{
     [accountID: string]: ShipsStats;
@@ -234,7 +286,9 @@ export class BattleUsecase {
     return shipsStatsMap;
   }
 
-  async fetchBasicShipInfo(): Promise<{ [shipID: number]: BasicShipInfo }> {
+  private async fetchBasicShipInfo(): Promise<{
+    [shipID: number]: BasicShipInfo;
+  }> {
     // fetch common info
     const pageTotal = (await this.wargamingRepository.getEncyclopediaShips(1))
       .meta.page_total;
@@ -269,7 +323,7 @@ export class BattleUsecase {
     return basicShipInfo;
   }
 
-  sorted(team: Player[]): Player[] {
+  private sorted(team: Player[]): Player[] {
     const sorted = team.slice().sort((first, second) => {
       const firstShip = first.shipInfo;
       const secondShip = second.shipInfo;
@@ -304,7 +358,7 @@ export class BattleUsecase {
     return sorted;
   }
 
-  format(user: Player): FormattedUser {
+  private format(user: Player): FormattedUser {
     const shipInfo = user.shipInfo;
     const shipStats = user.shipStats;
     const playerInfo = user.playerInfo;
