@@ -2,8 +2,8 @@ import "reflect-metadata";
 import "pug";
 import Express, { NextFunction, Request, Response } from "express";
 import { BattleController } from "./application/controller/BattleController";
+import { ConfigureController } from "./application/controller/ConfigureController";
 import { IndexController } from "./application/controller/IndexController";
-import { InstallController } from "./application/controller/InstallController";
 import { ErrorResponse } from "./application/output/ErrorResponse";
 import { DependencyInjection } from "./dependency_injection";
 import { Logger } from "./infrastructure/repository/Logger";
@@ -11,8 +11,8 @@ import { Logger } from "./infrastructure/repository/Logger";
 const container = DependencyInjection.getInstance().container;
 const logger = container.resolve<Logger>("Logger");
 const indexController = container.resolve<IndexController>("IndexController");
-const installController = container.resolve<InstallController>(
-  "InstallController"
+const configureController = container.resolve<ConfigureController>(
+  "ConfigureController"
 );
 const battleController = container.resolve<BattleController>(
   "BattleController"
@@ -25,7 +25,7 @@ app.use(Express.json());
 app.use(Express.urlencoded({ extended: true }));
 app.use(Express.static(`${__dirname}/../resource/public`));
 app.use("/", indexController.router);
-app.use("/install", installController.router);
+app.use("/configure", configureController.router);
 app.use("/battle", battleController.router);
 // eslint-disable-next-line
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {

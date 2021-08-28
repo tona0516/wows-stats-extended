@@ -1,30 +1,30 @@
 import Express from "express";
 import { inject, injectable } from "tsyringe";
 import { Region } from "../../domain/Region";
-import { InstallInput } from "../input/InstallInput";
+import { ConfigureInput } from "../input/ConfigureInput";
 import { ILogger } from "../interface/ILogger";
-import { InstallResult } from "../output/InstallResult";
-import { InstallUsecase } from "../usecase/InstallUsecase";
+import { ConfigureResult } from "../output/ConfigureResult";
+import { ConfigureUsecase } from "../usecase/ConfigureUsecase";
 
 @injectable()
-export class InstallController {
+export class ConfigureController {
   readonly router: Express.Router;
 
   constructor(
     @inject("Logger") private logger: ILogger,
-    @inject("InstallUsecase") private installUsecase: InstallUsecase
+    @inject("ConfigureUsecase") private configureUsecase: ConfigureUsecase
   ) {
     this.router = Express.Router();
 
     this.router.get("/", (req: Express.Request, res: Express.Response) => {
-      const userSetting = installUsecase.get();
-      const installResult: InstallResult = {
+      const userSetting = configureUsecase.get();
+      const configureResult: ConfigureResult = {
         appid: userSetting?.appid,
         region: userSetting?.region,
         installPath: userSetting?.installPath,
         servers: Region.getAll(),
       };
-      res.render("install", installResult);
+      res.render("configure", configureResult);
     });
 
     this.router.post(
@@ -34,24 +34,26 @@ export class InstallController {
         res: Express.Response,
         next: Express.NextFunction
       ) => {
-        const installInput: InstallInput = {
+        const configureInput: ConfigureInput = {
           appid: req.body.appid,
           region: req.body.region,
           installPath: req.body.installPath,
         };
 
         (async () => {
-          const installResult = await installUsecase.validate(installInput);
+          const configureResult = await configureUsecase.validate(
+            configureInput
+          );
           if (
-            installResult.appidError ||
-            installResult.regionError ||
-            installResult.installPathError
+            configureResult.appidError ||
+            configureResult.regionError ||
+            configureResult.installPathError
           ) {
-            res.render("install", installResult);
+            res.render("configure", configureResult);
             return;
           }
 
-          installUsecase.save(installInput);
+          configureUsecase.save(configureInput);
           res.redirect("/");
         })().catch(next);
       }

@@ -2,15 +2,15 @@ import { inject, injectable } from "tsyringe";
 import { Region } from "../../domain/Region";
 import { UserSettingVersion } from "../../domain/UserSettingVersion";
 import { UserSetting } from "../../infrastructure/output/UserSetting";
-import { InstallInput } from "../input/InstallInput";
+import { ConfigureInput } from "../input/ConfigureInput";
 import { IGameClientRepository } from "../interface/IGameClientRepository";
 import { ILogger } from "../interface/ILogger";
 import { IUserSettingRepository } from "../interface/IUserSettingRepository";
 import { IWargamingRepository } from "../interface/IWargamingRepository";
-import { InstallResult } from "../output/InstallResult";
+import { ConfigureResult } from "../output/ConfigureResult";
 
 @injectable()
-export class InstallUsecase {
+export class ConfigureUsecase {
   constructor(
     @inject("Logger") private logger: ILogger,
     @inject("UserSettingRepository")
@@ -25,49 +25,49 @@ export class InstallUsecase {
     return this.userSettingRepository.read();
   }
 
-  save(installInput: InstallInput): void {
+  save(configureInput: ConfigureInput): void {
     const userSetting: UserSetting = {
       version: UserSettingVersion.latest(),
-      appid: installInput.appid,
-      installPath: installInput.installPath,
-      region: installInput.region,
+      appid: configureInput.appid,
+      installPath: configureInput.installPath,
+      region: configureInput.region,
     };
     this.userSettingRepository.write(userSetting);
   }
 
-  async validate(installInput: InstallInput): Promise<InstallResult> {
+  async validate(configureInput: ConfigureInput): Promise<ConfigureResult> {
     let reigonError: string | undefined;
-    if (!Region.getAll().includes(installInput.region)) {
+    if (!Region.getAll().includes(configureInput.region)) {
       reigonError = "Invalid region.";
     }
 
     let appidError: string | undefined;
     if (
       !(await this.wargamingRepository.test(
-        installInput.region,
-        installInput.appid
+        configureInput.region,
+        configureInput.appid
       ))
     ) {
       appidError = "Invalid Appliction ID.";
     }
 
     let installPathError: string | undefined;
-    if (!this.gameClientRepository.isInstallPath(installInput.installPath)) {
+    if (!this.gameClientRepository.isInstallPath(configureInput.installPath)) {
       installPathError = "Invalid install path";
     }
 
-    const installResult: InstallResult = {
-      appid: installInput.appid,
+    const configureResult: ConfigureResult = {
+      appid: configureInput.appid,
       appidError: appidError,
-      region: installInput.region,
+      region: configureInput.region,
       regionError: reigonError,
-      installPath: installInput.installPath,
+      installPath: configureInput.installPath,
       installPathError: installPathError,
       servers: Region.getAll(),
     };
 
-    this.logger.debug("installResult", installResult);
+    this.logger.debug("configureResult", configureResult);
 
-    return installResult;
+    return configureResult;
   }
 }

@@ -14,8 +14,8 @@ export class IndexController {
     this.router = Express.Router();
 
     this.router.get("/", (req: Express.Request, res: Express.Response) => {
-      if (!indexUsecase.isInstalled()) {
-        res.redirect("/install");
+      if (!indexUsecase.isConfigured()) {
+        res.redirect("/configure");
         return;
       }
 

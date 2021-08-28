@@ -1,6 +1,4 @@
-import { Region } from "../../domain/Region";
-
-export interface InstallResult {
+export interface ConfigureResult {
   appid?: string;
   appidError?: string;
   region?: string;

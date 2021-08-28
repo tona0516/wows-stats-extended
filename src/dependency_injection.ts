@@ -3,11 +3,11 @@ import {
   DependencyContainer as TsyringeDependencyContainer,
 } from "tsyringe";
 import { BattleController } from "./application/controller/BattleController";
+import { ConfigureController } from "./application/controller/ConfigureController";
 import { IndexController } from "./application/controller/IndexController";
-import { InstallController } from "./application/controller/InstallController";
 import { BattleUsecase } from "./application/usecase/BattleUsecase";
+import { ConfigureUsecase } from "./application/usecase/ConfigureUsecase";
 import { IndexUsecase } from "./application/usecase/IndexUsecase";
-import { InstallUsecase } from "./application/usecase/InstallUsecase";
 import { StatsCalculator } from "./domain/StatsCalculator";
 import { BasicShipInfoRepository } from "./infrastructure/repository/BasicShipInfoRepository";
 import { CacheRepository } from "./infrastructure/repository/CacheRepository";
@@ -67,12 +67,14 @@ export class DependencyInjection {
     // usecase
     container.register("BattleUsecase", { useClass: BattleUsecase });
     container.register("IndexUsecase", { useClass: IndexUsecase });
-    container.register("InstallUsecase", { useClass: InstallUsecase });
+    container.register("ConfigureUsecase", { useClass: ConfigureUsecase });
 
     // controller
     container.register("BattleController", { useClass: BattleController });
     container.register("IndexController", { useClass: IndexController });
-    container.register("InstallController", { useClass: InstallController });
+    container.register("ConfigureController", {
+      useClass: ConfigureController,
+    });
 
     return container;
   }
