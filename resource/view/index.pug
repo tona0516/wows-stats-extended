@@ -1,90 +1,100 @@
-doctype html
-head
-  title
-  link(crossorigin='anonymous' href='https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css' integrity='sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO' rel='stylesheet')
-  link(rel='stylesheet' href='../stylesheets/style.css')
-body.custom-dark
-#app
-  div(v-if='message !== undefined')
-    .alert.alert-primary {{ message }}
-  div(v-if='error !== undefined')
-    .alert.alert-danger {{ error }}
-  div.table-responsive(v-if='teams !== undefined')
-    div(v-for='team of teams')
-      table.table.table-sm.table-dark.table-bordered.table-striped.table-hover
-        thead
-          th(colspan='3') Player
-          th(colspan='2') Ship info
-          th(colspan='5') Ship stats
-          th(colspan='6') Player stats
-        tr
-          td(style="width: 15%") Player name
-          td CP
-          td PR
-          td(style="width: 10%") Ship name
-          td Tier
-          td Damage
-          td Win rate
-          td K/D rate
-          td Exp.
-          td Battles
-          td Damage
-          td Win rate
-          td K/D rate
-          td Exp.
-          td Battles
-          td Tier ave.
-        tr(v-for='player of team.users')
-          // プレイヤー情報
-          td
-            div(v-if='player.playerInfo.statsURL !== undefined')
-              a(:href='player.playerInfo.statsURL' target="_blank")
+extends ./layout
+
+block content
+  #app
+    div(v-if='message !== undefined')
+      .alert.alert-primary {{ message }}
+    div(v-if='error !== undefined')
+      .alert.alert-danger {{ error }}
+    div.table-responsive(v-if='teams !== undefined')
+      div(v-for='team of teams')
+        table.table.table-sm.table-dark.table-bordered.table-striped.table-hover
+          thead
+            th(colspan='3') Player
+            th(colspan='2') Ship info
+            th(colspan='5') Ship stats
+            th(colspan='6') Player stats
+          tr
+            td(style="width: 15%") Player name
+            td CP
+            td PR
+            td(style="width: 10%") Ship name
+            td Tier
+            td Damage
+            td Win rate
+            td K/D rate
+            td Exp.
+            td Battles
+            td Damage
+            td Win rate
+            td K/D rate
+            td Exp.
+            td Battles
+            td Tier ave.
+          tr(v-for='player of team.users')
+            // プレイヤー情報
+            td
+              div(v-if='player.playerInfo.statsURL !== undefined')
+                a(:href='player.playerInfo.statsURL' target="_blank")
+                  font(v-if='player.playerInfo.clan' color='#B6FF01') [{{ player.playerInfo.clan }}]
+                  font(color='#FFFFFF') {{ player.playerInfo.name }}
+              div(v-else)
                 font(v-if='player.playerInfo.clan' color='#B6FF01') [{{ player.playerInfo.clan }}]
                 font(color='#FFFFFF') {{ player.playerInfo.name }}
-            div(v-else)
-              font(v-if='player.playerInfo.clan' color='#B6FF01') [{{ player.playerInfo.clan }}]
-              font(color='#FFFFFF') {{ player.playerInfo.name }}
-          td
-            font(v-if="player.shipStats.combatPower < 10000" color="#FE0E00")
-              | {{ player.shipStats.combatPower }}
-            font(v-else-if="player.shipStats.combatPower < 20000" color="#FE7903")
-              | {{ player.shipStats.combatPower }}
-            font(v-else-if="player.shipStats.combatPower < 30000" color="#FFC71F")
-              | {{ player.shipStats.combatPower }}
-            font(v-else-if="player.shipStats.combatPower < 80000" color="#44B300")
-              | {{ player.shipStats.combatPower }}
-            font(v-else-if="player.shipStats.combatPower < 150000" color="#02C9B3")
-              | {{ player.shipStats.combatPower }}
-            font(v-else-if="player.shipStats.combatPower < 1000000" color="#D042F3")
-              | {{ player.shipStats.combatPower }}
-            font(v-else-if="player.shipStats.combatPower >= 1000000" color="#920783")
-              | {{ player.shipStats.combatPower }}
-            font(v-else color="#FFFFFF")
-              | {{ player.shipStats.combatPower }}
-          td
-            font(v-if="player.shipStats.personalRating < 750" color="#FE0E00")
-              | {{ player.shipStats.personalRating }}
-            font(v-else-if="player.shipStats.personalRating < 1100" color="#FE7903")
-              | {{ player.shipStats.personalRating }}
-            font(v-else-if="player.shipStats.personalRating < 1350" color="#FFC71F")
-              | {{ player.shipStats.personalRating }}
-            font(v-else-if="player.shipStats.personalRating < 1550" color="#44B300")
-              | {{ player.shipStats.personalRating }}
-            font(v-else-if="player.shipStats.personalRating < 1750" color="#318000")
-              | {{ player.shipStats.personalRating }}
-            font(v-else-if="player.shipStats.personalRating < 2100" color="#02C9B3")
-              | {{ player.shipStats.personalRating }}
-            font(v-else-if="player.shipStats.personalRating < 2450" color="#D042F3")
-              | {{ player.shipStats.personalRating }}
-            font(v-else-if="player.shipStats.personalRating >= 2450" color="#A00DC5")
-              | {{ player.shipStats.personalRating }}
-            font(v-else color="#FFFFFF")
-              | {{ player.shipStats.personalRating }}
+            td
+              font(v-if="player.shipStats.combatPower < 10000" color="#FE0E00")
+                | {{ player.shipStats.combatPower }}
+              font(v-else-if="player.shipStats.combatPower < 20000" color="#FE7903")
+                | {{ player.shipStats.combatPower }}
+              font(v-else-if="player.shipStats.combatPower < 30000" color="#FFC71F")
+                | {{ player.shipStats.combatPower }}
+              font(v-else-if="player.shipStats.combatPower < 80000" color="#44B300")
+                | {{ player.shipStats.combatPower }}
+              font(v-else-if="player.shipStats.combatPower < 150000" color="#02C9B3")
+                | {{ player.shipStats.combatPower }}
+              font(v-else-if="player.shipStats.combatPower < 1000000" color="#D042F3")
+                | {{ player.shipStats.combatPower }}
+              font(v-else-if="player.shipStats.combatPower >= 1000000" color="#920783")
+                | {{ player.shipStats.combatPower }}
+              font(v-else color="#FFFFFF")
+                | {{ player.shipStats.combatPower }}
+            td
+              font(v-if="player.shipStats.personalRating < 750" color="#FE0E00")
+                | {{ player.shipStats.personalRating }}
+              font(v-else-if="player.shipStats.personalRating < 1100" color="#FE7903")
+                | {{ player.shipStats.personalRating }}
+              font(v-else-if="player.shipStats.personalRating < 1350" color="#FFC71F")
+                | {{ player.shipStats.personalRating }}
+              font(v-else-if="player.shipStats.personalRating < 1550" color="#44B300")
+                | {{ player.shipStats.personalRating }}
+              font(v-else-if="player.shipStats.personalRating < 1750" color="#318000")
+                | {{ player.shipStats.personalRating }}
+              font(v-else-if="player.shipStats.personalRating < 2100" color="#02C9B3")
+                | {{ player.shipStats.personalRating }}
+              font(v-else-if="player.shipStats.personalRating < 2450" color="#D042F3")
+                | {{ player.shipStats.personalRating }}
+              font(v-else-if="player.shipStats.personalRating >= 2450" color="#A00DC5")
+                | {{ player.shipStats.personalRating }}
+              font(v-else color="#FFFFFF")
+                | {{ player.shipStats.personalRating }}
 
-          // 艦艇情報
-          td
-            div(v-if='player.shipInfo.statsURL !== undefined')
-              a(:href='player.shipInfo.statsURL' target="_blank")
+            // 艦艇情報
+            td
+              div(v-if='player.shipInfo.statsURL !== undefined')
+                a(:href='player.shipInfo.statsURL' target="_blank")
+                  font(v-if="player.shipInfo.type === 'AirCarrier'" color="#CFA7CD")
+                    | {{ player.shipInfo.name }}
+                  font(v-else-if="player.shipInfo.type === 'Battleship'" color="#A3BCE2")
+                    | {{ player.shipInfo.name }}
+                  font(v-else-if="player.shipInfo.type === 'Cruiser'" color="#D7E7AF")
+                    | {{ player.shipInfo.name }}
+                  font(v-else-if="player.shipInfo.type === 'Destroyer'" color="#FCD7A1")
+                    | {{ player.shipInfo.name }}
+                  font(v-else-if="player.shipInfo.type === 'Submarine'" color="#A2D7D4")
+                    | {{ player.shipInfo.name }}
+                  font(v-else color="#FFFFFF")
+                    | {{ player.shipInfo.name }}
+              div(v-else)
                 font(v-if="player.shipInfo.type === 'AirCarrier'" color="#CFA7CD")
                   | {{ player.shipInfo.name }}
                 font(v-else-if="player.shipInfo.type === 'Battleship'" color="#A3BCE2")
@@ -97,91 +107,76 @@ body.custom-dark
                   | {{ player.shipInfo.name }}
                 font(v-else color="#FFFFFF")
                   | {{ player.shipInfo.name }}
-            div(v-else)
-              font(v-if="player.shipInfo.type === 'AirCarrier'" color="#CFA7CD")
-                | {{ player.shipInfo.name }}
-              font(v-else-if="player.shipInfo.type === 'Battleship'" color="#A3BCE2")
-                | {{ player.shipInfo.name }}
-              font(v-else-if="player.shipInfo.type === 'Cruiser'" color="#D7E7AF")
-                | {{ player.shipInfo.name }}
-              font(v-else-if="player.shipInfo.type === 'Destroyer'" color="#FCD7A1")
-                | {{ player.shipInfo.name }}
-              font(v-else-if="player.shipInfo.type === 'Submarine'" color="#A2D7D4")
-                | {{ player.shipInfo.name }}
+            td {{ player.shipInfo.tier }}
+            // 艦艇統計
+            td {{ player.shipStats.averageDamage }}
+            td
+              font(v-if="player.shipStats.winRate < 40" color="#FE0E00")
+                | {{ player.shipStats.winRate }}
+              font(v-else-if="player.shipStats.winRate < 45" color="#FE7903")
+                | {{ player.shipStats.winRate }}
+              font(v-else-if="player.shipStats.winRate < 50" color="#FFC71F")
+                | {{ player.shipStats.winRate }}
+              font(v-else-if="player.shipStats.winRate < 55" color="#44B300")
+                | {{ player.shipStats.winRate }}
+              font(v-else-if="player.shipStats.winRate < 60" color="#02C9B3")
+                | {{ player.shipStats.winRate }}
+              font(v-else-if="player.shipStats.winRate < 65" color="#D042F3")
+                | {{ player.shipStats.winRate }}
+              font(v-else-if="player.shipStats.winRate >= 65" color="#A00DC5")
+                | {{ player.shipStats.winRate }}
               font(v-else color="#FFFFFF")
-                | {{ player.shipInfo.name }}
-          td {{ player.shipInfo.tier }}
-          // 艦艇統計
-          td {{ player.shipStats.averageDamage }}
-          td
-            font(v-if="player.shipStats.winRate < 40" color="#FE0E00")
-              | {{ player.shipStats.winRate }}
-            font(v-else-if="player.shipStats.winRate < 45" color="#FE7903")
-              | {{ player.shipStats.winRate }}
-            font(v-else-if="player.shipStats.winRate < 50" color="#FFC71F")
-              | {{ player.shipStats.winRate }}
-            font(v-else-if="player.shipStats.winRate < 55" color="#44B300")
-              | {{ player.shipStats.winRate }}
-            font(v-else-if="player.shipStats.winRate < 60" color="#02C9B3")
-              | {{ player.shipStats.winRate }}
-            font(v-else-if="player.shipStats.winRate < 65" color="#D042F3")
-              | {{ player.shipStats.winRate }}
-            font(v-else-if="player.shipStats.winRate >= 65" color="#A00DC5")
-              | {{ player.shipStats.winRate }}
-            font(v-else color="#FFFFFF")
-              | {{ player.shipStats.winRate }}
-          td {{ player.shipStats.killDeathRate }}
-          td {{ player.shipStats.averageExperience }}
-          td {{ player.shipStats.battles }}
-          // プレイヤー統計
-          td {{ player.playerStats.averageDamage }}
-          td
-            font(v-if="player.playerStats.winRate < 40" color="#FE0E00")
-              | {{ player.playerStats.winRate }}
-            font(v-else-if="player.playerStats.winRate < 45" color="#FE7903")
-              | {{ player.playerStats.winRate }}
-            font(v-else-if="player.playerStats.winRate < 50" color="#FFC71F")
-              | {{ player.playerStats.winRate }}
-            font(v-else-if="player.playerStats.winRate < 55" color="#44B300")
-              | {{ player.playerStats.winRate }}
-            font(v-else-if="player.playerStats.winRate < 60" color="#02C9B3")
-              | {{ player.playerStats.winRate }}
-            font(v-else-if="player.playerStats.winRate < 65" color="#D042F3")
-              | {{ player.playerStats.winRate }}
-            font(v-else-if="player.playerStats.winRate >= 65" color="#A00DC5")
-              | {{ player.playerStats.winRate }}
-            font(v-else color="#FFFFFF")
-              | {{ player.playerStats.winRate }}
-          td {{ player.playerStats.killDeathRate }}
-          td {{ player.playerStats.averageExperience }}
-          td {{ player.playerStats.battles }}
-          td {{ player.playerStats.averageTier }}
-        tr.bg-secondary
-          // プレイヤー情報
-          td Team ave.
-          td {{ team.average.shipStats.combatPower }}
-          td {{ team.average.shipStats.personalRating }}
-          // 艦艇情報
-          td {{ team.average.shipInfo.name }}
-          td {{ team.average.shipInfo.tier }}
-          // 艦艇統計
-          td {{ team.average.shipStats.averageDamage }}
-          td {{ team.average.shipStats.winRate }}
-          td {{ team.average.shipStats.killDeathRate }}
-          td {{ team.average.shipStats.averageExperience }}
-          td {{ team.average.shipStats.battles }}
-          // プレイヤー統計
-          td {{ team.average.playerStats.averageDamage }}
-          td {{ team.average.playerStats.winRate }}
-          td {{ team.average.playerStats.killDeathRate }}
-          td {{ team.average.playerStats.averageExperience }}
-          td {{ team.average.playerStats.battles }}
-          td {{ team.average.playerStats.averageTier }}
-  div(class='submit', style='margin-top: 12px')
-    center
-     button(type='submit', class='btn btn-success mb-2', onclick="location.href='/configure'") Configure
-include includes/foot.pug
-script(src='https://cdn.jsdelivr.net/npm/vue/dist/vue.js')
-script(src='https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js')
-script(src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous")
-script(src='../javascripts/index.js')
+                | {{ player.shipStats.winRate }}
+            td {{ player.shipStats.killDeathRate }}
+            td {{ player.shipStats.averageExperience }}
+            td {{ player.shipStats.battles }}
+            // プレイヤー統計
+            td {{ player.playerStats.averageDamage }}
+            td
+              font(v-if="player.playerStats.winRate < 40" color="#FE0E00")
+                | {{ player.playerStats.winRate }}
+              font(v-else-if="player.playerStats.winRate < 45" color="#FE7903")
+                | {{ player.playerStats.winRate }}
+              font(v-else-if="player.playerStats.winRate < 50" color="#FFC71F")
+                | {{ player.playerStats.winRate }}
+              font(v-else-if="player.playerStats.winRate < 55" color="#44B300")
+                | {{ player.playerStats.winRate }}
+              font(v-else-if="player.playerStats.winRate < 60" color="#02C9B3")
+                | {{ player.playerStats.winRate }}
+              font(v-else-if="player.playerStats.winRate < 65" color="#D042F3")
+                | {{ player.playerStats.winRate }}
+              font(v-else-if="player.playerStats.winRate >= 65" color="#A00DC5")
+                | {{ player.playerStats.winRate }}
+              font(v-else color="#FFFFFF")
+                | {{ player.playerStats.winRate }}
+            td {{ player.playerStats.killDeathRate }}
+            td {{ player.playerStats.averageExperience }}
+            td {{ player.playerStats.battles }}
+            td {{ player.playerStats.averageTier }}
+          tr.bg-secondary
+            // プレイヤー情報
+            td Team ave.
+            td {{ team.average.shipStats.combatPower }}
+            td {{ team.average.shipStats.personalRating }}
+            // 艦艇情報
+            td {{ team.average.shipInfo.name }}
+            td {{ team.average.shipInfo.tier }}
+            // 艦艇統計
+            td {{ team.average.shipStats.averageDamage }}
+            td {{ team.average.shipStats.winRate }}
+            td {{ team.average.shipStats.killDeathRate }}
+            td {{ team.average.shipStats.averageExperience }}
+            td {{ team.average.shipStats.battles }}
+            // プレイヤー統計
+            td {{ team.average.playerStats.averageDamage }}
+            td {{ team.average.playerStats.winRate }}
+            td {{ team.average.playerStats.killDeathRate }}
+            td {{ team.average.playerStats.averageExperience }}
+            td {{ team.average.playerStats.battles }}
+            td {{ team.average.playerStats.averageTier }}
+    div(class='submit', style='margin-top: 12px')
+      center
+        button(type='submit', class='btn btn-success mb-2', onclick="location.href='/configure'") Configure
+
+block script
+  script(src='../javascripts/index.js')
