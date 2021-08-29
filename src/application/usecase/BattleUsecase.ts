@@ -15,7 +15,7 @@ import { INumbersRepository } from "../interface/INumbersRepository";
 import { IRadarRepository } from "../interface/IRadarRepository";
 import { ITempArenaInfoRepository } from "../interface/ITempArenaInfoRepository";
 import { IWargamingRepository } from "../interface/IWargamingRepository";
-import { BattleDetail, FormattedUser, Team } from "../output/BattleDetail";
+import { BattleDetail, FormattedPlayer, Team } from "../output/BattleDetail";
 import { AccountList } from "../../infrastructure/output/AccountList";
 import { ClansAccountInfo } from "../../infrastructure/output/ClansAccountInfo";
 import { ClansInfo } from "../../infrastructure/output/ClansInfo";
@@ -379,7 +379,7 @@ export class BattleUsecase {
     return sorted;
   }
 
-  private format(user: Player): FormattedUser {
+  private format(user: Player): FormattedPlayer {
     const shipInfo = user.shipInfo;
     const shipStats = user.shipStats;
     const playerInfo = user.playerInfo;

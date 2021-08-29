@@ -3,16 +3,16 @@ export interface BattleDetail {
 }
 
 export interface Team {
-  users: FormattedUser[];
-  average: FormattedUser;
+  users: FormattedPlayer[];
+  average: FormattedPlayer;
 }
 
 export interface TeamAverages {
-  friend: FormattedUser;
-  enemy: FormattedUser;
+  friend: FormattedPlayer;
+  enemy: FormattedPlayer;
 }
 
-export interface FormattedUser {
+export interface FormattedPlayer {
   shipInfo: FormattedShipInfo;
   shipStats: FormattedShipStats;
   playerInfo: FormattedPlayerInfo;
