@@ -4,19 +4,20 @@
   "description": "",
   "main": "dist/app.js",
   "scripts": {
-    "clean": "rm -rf dist/*",
-    "tsc:build": "tsc --build",
-    "generate-binary": "ts-node-dev generate_binary.js",
-    "build": "npm-run-all clean tsc:build generate-binary",
-    "check-types": "tsc --noEmit",
-    "format": "prettier --write '**/*.{js,ts,json}'",
-    "eslint": "eslint **/*.ts",
-    "eslint:fix": "eslint **/*.ts --fix",
-    "pug-lint": "pug-lint resource/**/*.pug",
-    "lint": "npm-run-all eslint check-types pug-lint",
-    "lint:fix": "npm-run-all eslint:fix check-types format",
-    "development": "cross-env NODE_ENV=development ts-node-dev src/app.ts",
-    "production": "cross-env NODE_ENV=production ts-node src/app.ts",
+    "build": "run-s build:clean build:tsc build:generate-binary",
+    "build:clean": "rm -rf dist/*",
+    "build:tsc": "tsc --build",
+    "build:generate-binary": "ts-node-dev generate_binary.js",
+    "lint": "run-p lint:*",
+    "lint:tsc": "tsc --noEmit",
+    "lint:eslint": "eslint src/**/*.ts",
+    "lint:prettier": "prettier --check 'src/**/*.ts'",
+    "lint:pug-lint": "pug-lint resource/**/*.pug",
+    "fix": "run-s fix:*",
+    "fix:eslint": "eslint src/**/*.ts --fix",
+    "fix:prettier": "prettier --write 'src/**/*.ts'",
+    "run:development": "cross-env NODE_ENV=development ts-node-dev src/app.ts",
+    "run:production": "cross-env NODE_ENV=production ts-node src/app.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -39,7 +40,6 @@
     "async": "^3.2.0",
     "axios": "^0.21.1",
     "cheerio": "*",
-    "cross-env": "^7.0.3",
     "express": "^4.17.1",
     "json5": "^2.2.0",
     "log4js": "^6.3.0",
@@ -51,8 +51,8 @@
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.22.1",
     "@typescript-eslint/parser": "^4.22.1",
+    "cross-env": "^7.0.3",
     "eslint": "^7.26.0",
-    "eslint-config-prettier": "8.3.0",
     "eslint-plugin-import": "^2.23.4",
     "nexe": "^4.0.0-beta.18",
     "npm-run-all": "^4.1.5",
@@ -60,6 +60,6 @@
     "pug-lint": "^2.6.0",
     "ts-node": "^9.1.1",
     "ts-node-dev": "^1.1.8",
-    "typescript": "^4.2.4"
+    "typescript": "~4.3.0"
   }
 }
