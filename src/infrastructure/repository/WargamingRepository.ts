@@ -1,8 +1,8 @@
 import axios, { AxiosInstance } from "axios";
 import { inject, injectable } from "tsyringe";
 import { ILogger } from "../../application/interface/ILogger";
-import { IWargamingRepository } from "../../application/interface/IWargamingRepository";
 import { IUserSettingRepository } from "../../application/interface/IUserSettingRepository";
+import { IWargamingRepository } from "../../application/interface/IWargamingRepository";
 import { ErrorResponseType } from "../../application/output/ErrorResponse";
 import { AccountInfo } from "../output/AccountInfo";
 import { AccountList } from "../output/AccountList";
@@ -22,36 +22,11 @@ export class WargamingRepositpory implements IWargamingRepository {
     private userSettingRepository: IUserSettingRepository
   ) {
     this.httpClient = axios.create({
-      timeout: 3000,
+      timeout: 2000,
       headers: {
         Connection: "Keep-Alive",
       },
     });
-  }
-
-  toBaseUrl(region: string) {
-    let domain: string = region === "na" ? "com" : region;
-    return `https://api.worldofwarships.${domain}`;
-  }
-
-  setBaseURL() {
-    const userSetting = this.userSettingRepository.read();
-    const region = userSetting?.region;
-    if (!region) {
-      throw ErrorResponseType.notFoundRegion;
-    }
-
-    this.httpClient.defaults.baseURL = this.toBaseUrl(region);
-  }
-
-  getAppid(): string {
-    const userSetting = this.userSettingRepository.read();
-    const appid = userSetting?.appid;
-    if (!appid) {
-      throw ErrorResponseType.notFoundAppid;
-    }
-
-    return appid;
   }
 
   async test(region: string, appid: string): Promise<boolean> {
@@ -102,6 +77,7 @@ export class WargamingRepositpory implements IWargamingRepository {
       {
         params: {
           application_id: this.getAppid(),
+          field: "account_id",
           search: accountNames.join(","),
           type: "exact",
         },
@@ -194,6 +170,32 @@ export class WargamingRepositpory implements IWargamingRepository {
         },
       }
     );
+
     return response.data;
+  }
+
+  private toBaseUrl(region: string): string {
+    const domain: string = region === "na" ? "com" : region;
+    return `https://api.worldofwarships.${domain}`;
+  }
+
+  private setBaseURL() {
+    const userSetting = this.userSettingRepository.read();
+    const region = userSetting?.region;
+    if (!region) {
+      throw ErrorResponseType.notFoundRegion;
+    }
+
+    this.httpClient.defaults.baseURL = this.toBaseUrl(region);
+  }
+
+  private getAppid(): string {
+    const userSetting = this.userSettingRepository.read();
+    const appid = userSetting?.appid;
+    if (!appid) {
+      throw ErrorResponseType.notFoundAppid;
+    }
+
+    return appid;
   }
 }

@@ -4,5 +4,4 @@ export interface BasicShipInfo {
   type?: string;
   nation?: string;
   detectDistanceByShip?: number;
-  radar?: number;
 }

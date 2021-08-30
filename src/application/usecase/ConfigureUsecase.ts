@@ -8,6 +8,8 @@ import { ILogger } from "../interface/ILogger";
 import { IUserSettingRepository } from "../interface/IUserSettingRepository";
 import { IWargamingRepository } from "../interface/IWargamingRepository";
 import { ConfigureResult } from "../output/ConfigureResult";
+import { ConfigureResultData } from "../output/ConfigureResultData";
+import { ConfigureResultError } from "../output/ConfigureResultError";
 
 @injectable()
 export class ConfigureUsecase {
@@ -56,14 +58,25 @@ export class ConfigureUsecase {
       installPathError = "Invalid install path";
     }
 
-    const configureResult: ConfigureResult = {
+    const data: ConfigureResultData = {
       appid: configureInput.appid,
-      appidError: appidError,
       region: configureInput.region,
-      regionError: reigonError,
       installPath: configureInput.installPath,
-      installPathError: installPathError,
       servers: Region.getAll(),
+    };
+
+    let errors: ConfigureResultError | undefined;
+    if (appidError || reigonError || installPathError) {
+      errors = {
+        appid: appidError,
+        region: reigonError,
+        installPath: installPathError,
+      };
+    }
+
+    const configureResult: ConfigureResult = {
+      data: data,
+      errors: errors,
     };
 
     this.logger.debug("configureResult", configureResult);

@@ -25,8 +25,6 @@ export interface FormattedShipInfo {
   tier?: string;
   type?: string;
   statsURL?: string;
-  // detectDistance?: string,
-  // radarDistance?: string,
 }
 
 export interface FormattedShipStats {

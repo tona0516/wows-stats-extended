@@ -1,9 +1,10 @@
 import Express from "express";
 import { inject, injectable } from "tsyringe";
 import { Region } from "../../domain/Region";
-import { ConfigureInput } from "../input/ConfigureInput";
+import { ConfigureInputValidator } from "../input/ConfigureInputValidator";
 import { ILogger } from "../interface/ILogger";
 import { ConfigureResult } from "../output/ConfigureResult";
+import { ErrorResponseType } from "../output/ErrorResponse";
 import { ConfigureUsecase } from "../usecase/ConfigureUsecase";
 
 @injectable()
@@ -19,10 +20,12 @@ export class ConfigureController {
     this.router.get("/", (req: Express.Request, res: Express.Response) => {
       const userSetting = configureUsecase.get();
       const configureResult: ConfigureResult = {
-        appid: userSetting?.appid,
-        region: userSetting?.region,
-        installPath: userSetting?.installPath,
-        servers: Region.getAll(),
+        data: {
+          appid: userSetting?.appid,
+          region: userSetting?.region,
+          installPath: userSetting?.installPath,
+          servers: Region.getAll(),
+        },
       };
       res.render("configure", configureResult);
     });
@@ -34,26 +37,24 @@ export class ConfigureController {
         res: Express.Response,
         next: Express.NextFunction
       ) => {
-        const configureInput: ConfigureInput = {
-          appid: req.body.appid,
-          region: req.body.region,
-          installPath: req.body.installPath,
-        };
+        // eslint-disable-next-line
+        const configureInputValidator = new ConfigureInputValidator(req.body);
+        if (!configureInputValidator.isValid()) {
+          throw ErrorResponseType.invalidConfigureInput;
+        }
 
         (async () => {
           const configureResult = await configureUsecase.validate(
-            configureInput
+            // eslint-disable-next-line
+            configureInputValidator.get()!
           );
-          if (
-            configureResult.appidError ||
-            configureResult.regionError ||
-            configureResult.installPathError
-          ) {
+          if (configureResult.errors) {
             res.render("configure", configureResult);
             return;
           }
 
-          configureUsecase.save(configureInput);
+          // eslint-disable-next-line
+          configureUsecase.save(configureInputValidator.get()!);
           res.redirect("/");
         })().catch(next);
       }

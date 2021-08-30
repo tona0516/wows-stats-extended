@@ -1,9 +1,9 @@
 import Express from "express";
 import { inject, injectable } from "tsyringe";
 import { Logger } from "../../infrastructure/repository/Logger";
-import { BattleUsecase } from "../usecase/BattleUsecase";
 import { BattleStatusValidator } from "../input/BattleStatusValidator";
 import { ErrorResponseType } from "../output/ErrorResponse";
+import { BattleUsecase } from "../usecase/BattleUsecase";
 
 @injectable()
 export class BattleController {
@@ -44,7 +44,8 @@ export class BattleController {
 
         (async () => {
           const detail = await this.battleUsecase.getDetail(
-            battleStatusValidator.get().localStatus
+            // eslint-disable-next-line
+            battleStatusValidator.get()!.localStatus
           );
 
           this.logger.debug("battleDetail", JSON.stringify(detail));

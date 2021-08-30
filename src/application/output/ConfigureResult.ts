@@ -1,9 +1,7 @@
+import { ConfigureResultData } from "./ConfigureResultData";
+import { ConfigureResultError } from "./ConfigureResultError";
+
 export interface ConfigureResult {
-  appid?: string;
-  appidError?: string;
-  region?: string;
-  regionError?: string;
-  installPath?: string;
-  installPathError?: string;
-  servers: string[];
+  data: ConfigureResultData;
+  errors?: ConfigureResultError;
 }

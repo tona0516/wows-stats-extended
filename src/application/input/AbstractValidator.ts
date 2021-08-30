@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-unsafe-assignment */
 export abstract class AbstractValidator<T> {
   protected input: any;
   protected output?: T;
@@ -6,8 +7,8 @@ export abstract class AbstractValidator<T> {
     this.input = input;
   }
 
-  get(): T {
-    return this.output!;
+  get(): T | undefined {
+    return this.output;
   }
 
   abstract isValid(): boolean;

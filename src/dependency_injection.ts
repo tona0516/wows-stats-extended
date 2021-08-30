@@ -8,13 +8,11 @@ import { IndexController } from "./application/controller/IndexController";
 import { BattleUsecase } from "./application/usecase/BattleUsecase";
 import { ConfigureUsecase } from "./application/usecase/ConfigureUsecase";
 import { IndexUsecase } from "./application/usecase/IndexUsecase";
-import { StatsCalculator } from "./domain/StatsCalculator";
 import { BasicShipInfoRepository } from "./infrastructure/repository/BasicShipInfoRepository";
 import { CacheRepository } from "./infrastructure/repository/CacheRepository";
 import { GameClientRepository } from "./infrastructure/repository/GameClientRepository";
 import { Logger } from "./infrastructure/repository/Logger";
 import { NumbersRepository } from "./infrastructure/repository/NumbersRepository";
-import { RadarRepository } from "./infrastructure/repository/RadarRepository";
 import { TempArenaInfoRepository } from "./infrastructure/repository/TempArenaInfoRepository";
 import { UserSettingRepository } from "./infrastructure/repository/UserSettingRepository";
 import { WargamingRepositpory } from "./infrastructure/repository/WargamingRepository";
@@ -41,9 +39,6 @@ export class DependencyInjection {
     container.register("LogLevel", { useValue: logLevel });
     container.register("Logger", { useClass: Logger });
 
-    // domain
-    container.register("StatsCalculator", { useClass: StatsCalculator });
-
     // repository
     container.register("UserSettingRepository", {
       useClass: UserSettingRepository,
@@ -52,7 +47,6 @@ export class DependencyInjection {
     container.register("BasicShipInfoRepository", {
       useClass: BasicShipInfoRepository,
     });
-    container.register("RadarRepository", { useClass: RadarRepository });
     container.register("NumbersRepository", { useClass: NumbersRepository });
     container.register("TempArenaInfoRepository", {
       useClass: TempArenaInfoRepository,

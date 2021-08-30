@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types */
 import { BattleStatus } from "../output/BattleStatus";
 import { AbstractValidator } from "./AbstractValidator";
 

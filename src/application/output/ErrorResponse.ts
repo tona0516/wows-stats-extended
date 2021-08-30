@@ -40,4 +40,9 @@ export const ErrorResponseType = {
     "install path is not found in user setting.",
     500
   ),
+  invalidConfigureInput: new ErrorResponse(
+    "INVALID_CONFIGURE_INPUT",
+    "configure input can not convert model.",
+    500
+  ),
 };
