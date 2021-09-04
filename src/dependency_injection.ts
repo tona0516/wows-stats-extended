@@ -9,10 +9,10 @@ import { BattleUsecase } from "./application/usecase/BattleUsecase";
 import { ConfigureUsecase } from "./application/usecase/ConfigureUsecase";
 import { IndexUsecase } from "./application/usecase/IndexUsecase";
 import { BasicShipInfoRepository } from "./infrastructure/repository/BasicShipInfoRepository";
-import { CacheRepository } from "./infrastructure/repository/CacheRepository";
 import { GameClientRepository } from "./infrastructure/repository/GameClientRepository";
 import { Logger } from "./infrastructure/repository/Logger";
 import { NumbersRepository } from "./infrastructure/repository/NumbersRepository";
+import { PersistRepository } from "./infrastructure/repository/PersistRepository";
 import { TempArenaInfoRepository } from "./infrastructure/repository/TempArenaInfoRepository";
 import { UserSettingRepository } from "./infrastructure/repository/UserSettingRepository";
 import { WargamingRepositpory } from "./infrastructure/repository/WargamingRepository";
@@ -43,7 +43,7 @@ export class DependencyInjection {
     container.register("UserSettingRepository", {
       useClass: UserSettingRepository,
     });
-    container.register("CacheRepository", { useClass: CacheRepository });
+    container.register("PersistRepository", { useClass: PersistRepository });
     container.register("BasicShipInfoRepository", {
       useClass: BasicShipInfoRepository,
     });

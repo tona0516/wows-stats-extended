@@ -1,56 +1,35 @@
-import storage from "node-persist";
 import { inject, injectable } from "tsyringe";
 import { IBasicShipInfoRepository } from "../../application/interface/IBasicShipInfoRepository";
 import { ILogger } from "../../application/interface/ILogger";
 import { IWargamingRepository } from "../../application/interface/IWargamingRepository";
 import { BasicShipInfo } from "../output/BasicShipInfo";
 import { EncyclopediaShips } from "../output/EncyclopediaShips";
-import { CacheRepository } from "./CacheRepository";
+import { AbstractCacheRepository } from "./AbstractCacheRepository";
 
 @injectable()
-export class BasicShipInfoRepository implements IBasicShipInfoRepository {
+export class BasicShipInfoRepository
+  extends AbstractCacheRepository<{
+    [shipID: number]: BasicShipInfo;
+  }>
+  implements IBasicShipInfoRepository {
+  protected prefix = "basic_ship_info";
+
   constructor(
     @inject("Logger") private logger: ILogger,
-    @inject("CacheRepository")
-    private cacheRepository: CacheRepository<{
-      [shipID: number]: BasicShipInfo;
-    }>,
     @inject("WargamingRepository")
     private wargamingRepository: IWargamingRepository
   ) {
-    void storage.init();
-  }
-
-  static getPrefix(): string {
-    return "basic_ship_info";
+    super();
   }
 
   async get(gameVersion: string): Promise<{ [shipID: number]: BasicShipInfo }> {
-    const cache = (await storage.getItem(
-      `${BasicShipInfoRepository.getPrefix()}_${gameVersion}`
-    )) as {
-      [shipID: number]: BasicShipInfo;
-    } | null;
+    const cache = await super.get(gameVersion);
 
     if (cache) {
       return cache;
     }
 
     return await this.fetchBasicShipInfo();
-  }
-
-  async set(
-    basicShipInfo: { [shipID: number]: BasicShipInfo },
-    gameVersion: string
-  ): Promise<void> {
-    await storage.setItem(
-      `${BasicShipInfoRepository.getPrefix()}_${gameVersion}`,
-      basicShipInfo
-    );
-  }
-
-  async deleteOld(): Promise<void> {
-    await this.cacheRepository.deleteOld(BasicShipInfoRepository.getPrefix());
   }
 
   private async fetchBasicShipInfo(): Promise<{
