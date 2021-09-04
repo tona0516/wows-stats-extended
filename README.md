@@ -7,6 +7,6 @@
 - 戦闘中のプレイヤーや使用艦の情報、成績をブラウザ上に表示します。
 
 ## 起動方法
-1. [Releases · tona0516/wows-stats-extended](https://github.com/tona0516/wows-stats-extended/releases) から使用するOSのバイナリ(`wows-stats-extended-<os>-<node version>-<app version>`)をダウンロードする。
+1. [Releases · tona0516/wows-stats-extended](https://github.com/tona0516/wows-stats-extended/releases) から使用するOSのバイナリ(`wows-stats-extended-<app version>-<os>-<node version>`)をダウンロードする。
 1. ダウンロードしたバイナリを実行する。
 1. ブラウザーで`localhost:3000`にアクセスする。
