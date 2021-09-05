@@ -1,21 +1,22 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types */
+import { injectable } from "tsyringe";
+import { Failure, Result, Success } from "../../common/Result";
 import { BattleStatus } from "../output/BattleStatus";
-import { AbstractValidator } from "./AbstractValidator";
+import { ErrorResponse, ErrorResponseType } from "../output/ErrorResponse";
+import { ValidatorInterface } from "./ValidatorInterface";
 
-export class BattleStatusValidator extends AbstractValidator<BattleStatus> {
-  protected input: any;
-  protected output?: BattleStatus;
-
-  constructor(input: any) {
-    super(input);
-  }
-
-  isValid(): boolean {
+@injectable()
+export class BattleStatusValidator
+  implements ValidatorInterface<BattleStatus, ErrorResponse> {
+  // eslint-disable-next-line
+  async validate(
+    input: any // eslint-disable-line
+  ): Promise<Result<BattleStatus, ErrorResponse>> {
     try {
-      this.output = this.input as BattleStatus;
-      return true;
+      // eslint-disable-next-line
+      const battleStatus = input as BattleStatus;
+      return new Success(battleStatus);
     } catch {
-      return false;
+      return new Failure(ErrorResponseType.invalidTempArenaInfo);
     }
   }
 }

@@ -23,8 +23,6 @@ import { BattleStatus } from "../output/BattleStatus";
 
 @injectable()
 export class BattleUsecase {
-  private statsCalculator: StatsCalculator;
-
   constructor(
     @inject("Logger") private logger: ILogger,
     @inject("TempArenaInfoRepository")
@@ -37,9 +35,7 @@ export class BattleUsecase {
     private numbersRepository: INumbersRepository,
     @inject("UserSettingRepository")
     private userSettingRepository: IUserSettingRepository
-  ) {
-    this.statsCalculator = new StatsCalculator();
-  }
+  ) {}
 
   private static getMaxParallels(): number {
     return 5;
@@ -59,32 +55,12 @@ export class BattleUsecase {
     ) as TempArenaInfo;
     this.logger.debug("tempArenaInfo", JSON.stringify(tempArenaInfo));
 
-    // fetch
-    const fetched = await this.fetch(tempArenaInfo);
+    const fetchedData = await this.fetch(tempArenaInfo);
 
-    return this.makeBattleDetail(
-      tempArenaInfo,
-      fetched.accountInfo,
-      fetched.accountList,
-      fetched.clansTagMap,
-      fetched.basicShipInfoMap,
-      fetched.shipsStatsMap,
-      fetched.expectedStats,
-      fetched.userSetting
-    );
+    return this.makeBattleDetail(tempArenaInfo, fetchedData);
   }
 
-  private async fetch(
-    tempArenaInfo: TempArenaInfo
-  ): Promise<{
-    accountInfo: AccountInfo;
-    accountList: AccountList;
-    clansTagMap: { [accountID: number]: string };
-    basicShipInfoMap: { [shipID: number]: BasicShipInfo };
-    shipsStatsMap: { [accountID: string]: ShipsStats };
-    expectedStats: ExpectedStats;
-    userSetting: UserSetting | undefined;
-  }> {
+  private async fetch(tempArenaInfo: TempArenaInfo): Promise<FetchedData> {
     const accounts = await this.fetchAccount(tempArenaInfo);
     const accountIDs = accounts.accountIDs;
     const accountList = accounts.accountList;
@@ -113,7 +89,7 @@ export class BattleUsecase {
     return {
       accountInfo: accountInfo,
       accountList: accountList,
-      clansTagMap: clanTagMap,
+      clanTagMap: clanTagMap,
       basicShipInfoMap: nonStatsData.basicShipInfo,
       shipsStatsMap: shipsStatsMap,
       expectedStats: nonStatsData.expectedStats,
@@ -224,21 +200,17 @@ export class BattleUsecase {
 
   private makeBattleDetail(
     tempArenaInfo: TempArenaInfo,
-    accountInfo: AccountInfo,
-    accountList: AccountList,
-    clanTagMap: { [accountID: number]: string },
-    basicShipInfoMap: { [shipID: number]: BasicShipInfo },
-    shipsStatsMap: { [accountID: string]: ShipsStats },
-    expectedStats: ExpectedStats,
-    userSetting: UserSetting | undefined
+    fetchedData: FetchedData
   ): BattleDetail {
     const friends: Player[] = [];
     const enemies: Player[] = [];
+    const statsCalculator = new StatsCalculator();
+
     tempArenaInfo.vehicles.forEach((it) => {
       this.logger.debug("vehicles", JSON.stringify(it));
 
       const [nickname, shipID, relation] = [it.name, it.shipId, it.relation];
-      const shipInfo = basicShipInfoMap[shipID];
+      const shipInfo = fetchedData.basicShipInfoMap[shipID];
       if (!shipInfo) {
         return;
       }
@@ -251,7 +223,7 @@ export class BattleUsecase {
         tier: shipInfo.tier,
         type: shipInfo.type,
         statsURL: NumbersURLGenerator.genetateShipPageURL(
-          userSetting?.region,
+          fetchedData.userSetting?.region,
           shipID.toString(),
           shipInfo.name
         ),
@@ -259,8 +231,9 @@ export class BattleUsecase {
 
       this.logger.debug("modifiedShipInfo", JSON.stringify(modifiedShipInfo));
 
-      const accountID = accountList.data.find((it) => it.nickname === nickname)
-        ?.account_id;
+      const accountID = fetchedData.accountList.data.find(
+        (it) => it.nickname === nickname
+      )?.account_id;
 
       const user: Player = ((): Player => {
         if (!accountID) {
@@ -276,31 +249,33 @@ export class BattleUsecase {
 
         const modifiedPlayerInfo: PlayerInfo = {
           name: nickname,
-          clan: clanTagMap[accountID],
-          isHidden: accountInfo.data[accountID]?.hidden_profile,
+          clan: fetchedData.clanTagMap[accountID],
+          isHidden: fetchedData.accountInfo.data[accountID]?.hidden_profile,
           statsURL: NumbersURLGenerator.genetatePlayerPageURL(
-            userSetting?.region,
+            fetchedData.userSetting?.region,
             accountID.toString(),
             nickname
           ),
         };
 
-        const shipsStatsForPlayer = shipsStatsMap[accountID].data[accountID];
+        const shipsStatsForPlayer =
+          fetchedData.shipsStatsMap[accountID].data[accountID];
 
         const shipsStatsForPlayerUsed = shipsStatsForPlayer?.find(
           (it) => it.ship_id === shipID
         );
-        const modifiedShipStats = this.statsCalculator.calculateShipStats(
+        const modifiedShipStats = statsCalculator.calculateShipStats(
           shipInfo,
-          expectedStats.data[shipID],
+          fetchedData.expectedStats.data[shipID],
           shipsStatsForPlayerUsed?.pvp
         );
-        const averageTier = this.statsCalculator.calculateAverageTier(
-          basicShipInfoMap,
+        const averageTier = statsCalculator.calculateAverageTier(
+          fetchedData.basicShipInfoMap,
           shipsStatsForPlayer
         );
-        const pvpByPlayer = accountInfo.data[accountID]?.statistics?.pvp;
-        const modifiedPlayerStats = this.statsCalculator.calculatePlayerStats(
+        const pvpByPlayer =
+          fetchedData.accountInfo.data[accountID]?.statistics?.pvp;
+        const modifiedPlayerStats = statsCalculator.calculatePlayerStats(
           averageTier,
           pvpByPlayer
         );
@@ -321,11 +296,11 @@ export class BattleUsecase {
     const teams: Team[] = [];
     teams.push({
       users: this.sorted(friends).map((it) => this.format(it)),
-      average: this.format(this.statsCalculator.calculateTeamAverage(friends)),
+      average: this.format(statsCalculator.calculateTeamAverage(friends)),
     });
     teams.push({
       users: this.sorted(enemies).map((it) => this.format(it)),
-      average: this.format(this.statsCalculator.calculateTeamAverage(enemies)),
+      average: this.format(statsCalculator.calculateTeamAverage(enemies)),
     });
 
     return {
@@ -427,4 +402,14 @@ export class BattleUsecase {
       },
     };
   }
+}
+
+interface FetchedData {
+  accountInfo: AccountInfo;
+  accountList: AccountList;
+  clanTagMap: { [accountID: number]: string };
+  basicShipInfoMap: { [shipID: number]: BasicShipInfo };
+  shipsStatsMap: { [accountID: string]: ShipsStats };
+  expectedStats: ExpectedStats;
+  userSetting: UserSetting | undefined;
 }

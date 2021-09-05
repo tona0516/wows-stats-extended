@@ -5,6 +5,8 @@ import {
 import { BattleController } from "./application/controller/BattleController";
 import { ConfigureController } from "./application/controller/ConfigureController";
 import { IndexController } from "./application/controller/IndexController";
+import { BattleStatusValidator } from "./application/input/BattleStatusValidator";
+import { ConfigureInputValidator } from "./application/input/ConfigureInputValidator";
 import { BattleUsecase } from "./application/usecase/BattleUsecase";
 import { ConfigureUsecase } from "./application/usecase/ConfigureUsecase";
 import { IndexUsecase } from "./application/usecase/IndexUsecase";
@@ -56,6 +58,14 @@ export class DependencyInjection {
     });
     container.register("GameClientRepository", {
       useClass: GameClientRepository,
+    });
+
+    // validator
+    container.register("BattleStatusValidator", {
+      useClass: BattleStatusValidator,
+    });
+    container.register("ConfigureInputValidator", {
+      useClass: ConfigureInputValidator,
     });
 
     // usecase

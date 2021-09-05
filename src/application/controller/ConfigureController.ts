@@ -4,16 +4,18 @@ import { Region } from "../../domain/Region";
 import { ConfigureInputValidator } from "../input/ConfigureInputValidator";
 import { ILogger } from "../interface/ILogger";
 import { ConfigureResult } from "../output/ConfigureResult";
-import { ErrorResponseType } from "../output/ErrorResponse";
 import { ConfigureUsecase } from "../usecase/ConfigureUsecase";
+import { ControllerInterface } from "./ControllerInterface";
 
 @injectable()
-export class ConfigureController {
+export class ConfigureController implements ControllerInterface {
   readonly router: Express.Router;
 
   constructor(
     @inject("Logger") private logger: ILogger,
-    @inject("ConfigureUsecase") private configureUsecase: ConfigureUsecase
+    @inject("ConfigureUsecase") private configureUsecase: ConfigureUsecase,
+    @inject("ConfigureInputValidator")
+    private configureInputValidator: ConfigureInputValidator
   ) {
     this.router = Express.Router();
 
@@ -37,27 +39,26 @@ export class ConfigureController {
         res: Express.Response,
         next: Express.NextFunction
       ) => {
-        // eslint-disable-next-line
-        const configureInputValidator = new ConfigureInputValidator(req.body);
-        if (!configureInputValidator.isValid()) {
-          throw ErrorResponseType.invalidConfigureInput;
-        }
-
         (async () => {
-          const configureResult = await configureUsecase.validate(
-            // eslint-disable-next-line
-            configureInputValidator.get()!
-          );
-          if (configureResult.errors) {
-            res.render("configure", configureResult);
+          // eslint-disable-next-line
+          const result = await configureInputValidator.validate(req.body);
+          if (result.isFailure()) {
+            res.render("configure", result.value);
             return;
           }
 
-          // eslint-disable-next-line
-          configureUsecase.save(configureInputValidator.get()!);
+          configureUsecase.save(result.value);
           res.redirect("/");
         })().catch(next);
       }
     );
+  }
+
+  getPath(): string {
+    return "/configure";
+  }
+
+  getRouter(): Express.Router {
+    return this.router;
   }
 }

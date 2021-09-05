@@ -2,9 +2,10 @@ import Express from "express";
 import { inject, injectable } from "tsyringe";
 import { ILogger } from "../interface/ILogger";
 import { IndexUsecase } from "../usecase/IndexUsecase";
+import { ControllerInterface } from "./ControllerInterface";
 
 @injectable()
-export class IndexController {
+export class IndexController implements ControllerInterface {
   readonly router: Express.Router;
 
   constructor(
@@ -21,5 +22,13 @@ export class IndexController {
 
       res.render("index");
     });
+  }
+
+  getPath(): string {
+    return "/";
+  }
+
+  getRouter(): Express.Router {
+    return this.router;
   }
 }

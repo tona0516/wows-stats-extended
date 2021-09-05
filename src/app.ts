@@ -3,6 +3,7 @@ import "pug";
 import Express, { NextFunction, Request, Response } from "express";
 import { BattleController } from "./application/controller/BattleController";
 import { ConfigureController } from "./application/controller/ConfigureController";
+import { ControllerInterface } from "./application/controller/ControllerInterface";
 import { IndexController } from "./application/controller/IndexController";
 import { ErrorResponse } from "./application/output/ErrorResponse";
 import { DependencyInjection } from "./dependency_injection";
@@ -10,13 +11,6 @@ import { Logger } from "./infrastructure/repository/Logger";
 
 const container = DependencyInjection.getInstance().container;
 const logger = container.resolve<Logger>("Logger");
-const indexController = container.resolve<IndexController>("IndexController");
-const configureController = container.resolve<ConfigureController>(
-  "ConfigureController"
-);
-const battleController = container.resolve<BattleController>(
-  "BattleController"
-);
 
 const app: Express.Express = Express();
 app.set("view engine", "pug");
@@ -24,9 +18,16 @@ app.set("views", `${__dirname}/../resource/view`);
 app.use(Express.json());
 app.use(Express.urlencoded({ extended: true }));
 app.use(Express.static(`${__dirname}/../resource/public`));
-app.use("/", indexController.router);
-app.use("/configure", configureController.router);
-app.use("/battle", battleController.router);
+
+const controllers: ControllerInterface[] = [
+  container.resolve<IndexController>("IndexController"),
+  container.resolve<ConfigureController>("ConfigureController"),
+  container.resolve<BattleController>("BattleController"),
+];
+controllers.forEach((it) => {
+  app.use(it.getPath(), it.getRouter());
+});
+
 // eslint-disable-next-line
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   logger.error(JSON.stringify(err));
