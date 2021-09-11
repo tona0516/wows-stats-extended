@@ -10,7 +10,7 @@ export class IndexUsecase {
     private userSettingRepository: IUserSettingRepository
   ) {}
 
-  isConfigured(): boolean {
+  invoke(): boolean {
     return this.userSettingRepository.isExist();
   }
 }

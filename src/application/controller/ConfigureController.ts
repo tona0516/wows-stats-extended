@@ -1,10 +1,8 @@
 import Express from "express";
 import { inject, injectable } from "tsyringe";
-import { Region } from "../../domain/Region";
-import { ConfigureInputValidator } from "../input/ConfigureInputValidator";
 import { ILogger } from "../interface/ILogger";
-import { ConfigureResult } from "../output/ConfigureResult";
-import { ConfigureUsecase } from "../usecase/ConfigureUsecase";
+import { GetConfigureUsecase } from "../usecase/GetConfigureUsecase";
+import { PostConfigureUsecase } from "../usecase/PostConfigureUsecase";
 import { ControllerInterface } from "./ControllerInterface";
 
 @injectable()
@@ -13,22 +11,15 @@ export class ConfigureController implements ControllerInterface {
 
   constructor(
     @inject("Logger") private logger: ILogger,
-    @inject("ConfigureUsecase") private configureUsecase: ConfigureUsecase,
-    @inject("ConfigureInputValidator")
-    private configureInputValidator: ConfigureInputValidator
+    @inject("GetConfigureUsecase")
+    private getConfigureUsecase: GetConfigureUsecase,
+    @inject("PostConfigureUsecase")
+    private postConfigureUsecase: PostConfigureUsecase
   ) {
     this.router = Express.Router();
 
     this.router.get("/", (req: Express.Request, res: Express.Response) => {
-      const userSetting = configureUsecase.get();
-      const configureResult: ConfigureResult = {
-        data: {
-          appid: userSetting?.appid,
-          region: userSetting?.region,
-          installPath: userSetting?.installPath,
-          servers: Region.getAll(),
-        },
-      };
+      const configureResult = this.getConfigureUsecase.invoke();
       res.render("configure", configureResult);
     });
 
@@ -40,14 +31,13 @@ export class ConfigureController implements ControllerInterface {
         next: Express.NextFunction
       ) => {
         (async () => {
-          // eslint-disable-next-line
-          const result = await configureInputValidator.validate(req.body);
-          if (result.isFailure()) {
-            res.render("configure", result.value);
+          const configureResult = await this.postConfigureUsecase.invoke(
+            req.body
+          );
+          if (configureResult) {
+            res.render("configure", configureResult);
             return;
           }
-
-          configureUsecase.save(result.value);
           res.redirect("/");
         })().catch(next);
       }

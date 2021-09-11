@@ -11,7 +11,7 @@ export class PersistRepository<T> {
     await storage.setItem(key, value);
   }
 
-  async get(key: string): Promise<T | null> {
-    return (await storage.getItem(key)) as T | null;
+  async get(key: string): Promise<T | undefined> {
+    return (await storage.getItem(key)) as T | undefined;
   }
 }

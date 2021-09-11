@@ -12,21 +12,18 @@ import { ExpectedStats } from "../../infrastructure/output/ExpectedStats";
 import { ShipsStats } from "../../infrastructure/output/ShipsStats";
 import { TempArenaInfo } from "../../infrastructure/output/TempArenaInfo";
 import { UserSetting } from "../../infrastructure/output/UserSetting";
+import { BattleStatusValidator } from "../input/BattleStatusValidator";
 import { IBasicShipInfoRepository } from "../interface/IBasicShipInfoRepository";
 import { ILogger } from "../interface/ILogger";
 import { INumbersRepository } from "../interface/INumbersRepository";
-import { ITempArenaInfoRepository } from "../interface/ITempArenaInfoRepository";
 import { IUserSettingRepository } from "../interface/IUserSettingRepository";
 import { IWargamingRepository } from "../interface/IWargamingRepository";
 import { BattleDetail, FormattedPlayer, Team } from "../output/BattleDetail";
-import { BattleStatus } from "../output/BattleStatus";
 
 @injectable()
-export class BattleUsecase {
+export class GetBattleDetailUsecase {
   constructor(
     @inject("Logger") private logger: ILogger,
-    @inject("TempArenaInfoRepository")
-    private tempArenaInfoRepository: ITempArenaInfoRepository,
     @inject("WargamingRepository")
     private wargamingRepository: IWargamingRepository,
     @inject("BasicShipInfoRepository")
@@ -34,24 +31,24 @@ export class BattleUsecase {
     @inject("NumbersRepository")
     private numbersRepository: INumbersRepository,
     @inject("UserSettingRepository")
-    private userSettingRepository: IUserSettingRepository
+    private userSettingRepository: IUserSettingRepository,
+    @inject("BattleStatusValidator")
+    private battleStatusValidator: BattleStatusValidator
   ) {}
 
   private static getMaxParallels(): number {
     return 5;
   }
 
-  getStatus(): BattleStatus | undefined {
-    const localStatus = this.tempArenaInfoRepository.get();
-    if (!localStatus) {
-      return undefined;
+  // eslint-disable-next-line
+  async invoke(body: any): Promise<BattleDetail> {
+    const result = await this.battleStatusValidator.validate(body);
+    if (result.isFailure()) {
+      throw result.value;
     }
-    return new BattleStatus(localStatus);
-  }
 
-  async getDetail(localStatus: string): Promise<BattleDetail> {
     const tempArenaInfo = JSON.parse(
-      Buffer.from(localStatus, "base64").toString()
+      Buffer.from(result.value.localStatus, "base64").toString()
     ) as TempArenaInfo;
     this.logger.debug("tempArenaInfo", JSON.stringify(tempArenaInfo));
 
@@ -316,7 +313,7 @@ export class BattleUsecase {
     const shipsStatsMap: { [accountID: string]: ShipsStats } = {};
     await async.eachLimit(
       accountIDs,
-      BattleUsecase.getMaxParallels(),
+      GetBattleDetailUsecase.getMaxParallels(),
       (it, next) => {
         void (async () => {
           shipsStatsMap[it] = await this.wargamingRepository.getShipsStats(it);

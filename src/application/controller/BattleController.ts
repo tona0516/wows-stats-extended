@@ -1,8 +1,8 @@
 import Express from "express";
 import { inject, injectable } from "tsyringe";
 import { Logger } from "../../infrastructure/repository/Logger";
-import { BattleStatusValidator } from "../input/BattleStatusValidator";
-import { BattleUsecase } from "../usecase/BattleUsecase";
+import { GetBattleDetailUsecase } from "../usecase/GetBattleDetailUsecase";
+import { GetBattleStatusUsecase } from "../usecase/GetBattleStatusUsecase";
 import { ControllerInterface } from "./ControllerInterface";
 
 @injectable()
@@ -11,21 +11,23 @@ export class BattleController implements ControllerInterface {
 
   constructor(
     @inject("Logger") private logger: Logger,
-    @inject("BattleUsecase") private battleUsecase: BattleUsecase,
-    @inject("BattleStatusValidator")
-    private battleStatusValidator: BattleStatusValidator
+    @inject("GetBattleDetailUsecase")
+    private getBattleDetailUsecase: GetBattleDetailUsecase,
+    @inject("GetBattleStatusUsecase")
+    private getBattleStatusUsecase: GetBattleStatusUsecase
   ) {
     this.router = Express.Router();
 
     this.router.get(
       "/status",
       (req: Express.Request, res: Express.Response) => {
-        const status = this.battleUsecase.getStatus();
-        if (!status) {
-          res.status(204).send();
+        const status = this.getBattleStatusUsecase.invoke();
+        if (status) {
+          res.status(200).send(status);
           return;
         }
-        res.status(200).send(status);
+
+        res.status(204).send();
       }
     );
 
@@ -39,15 +41,7 @@ export class BattleController implements ControllerInterface {
         (async () => {
           const start = new Date().getTime();
 
-          // eslint-disable-next-line
-          const result = await battleStatusValidator.validate(req.body);
-          if (result.isFailure()) {
-            throw result.value;
-          }
-
-          const detail = await this.battleUsecase.getDetail(
-            result.value.localStatus
-          );
+          const detail = await this.getBattleDetailUsecase.invoke(req.body);
 
           this.logger.debug("battleDetail", JSON.stringify(detail));
 

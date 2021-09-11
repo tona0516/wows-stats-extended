@@ -15,12 +15,13 @@ export class IndexController implements ControllerInterface {
     this.router = Express.Router();
 
     this.router.get("/", (req: Express.Request, res: Express.Response) => {
-      if (!indexUsecase.isConfigured()) {
-        res.redirect("/configure");
+      const isConfigured = this.indexUsecase.invoke();
+      if (isConfigured) {
+        res.render("index");
         return;
       }
 
-      res.render("index");
+      res.redirect("/configure");
     });
   }
 

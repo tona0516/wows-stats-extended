@@ -7,9 +7,11 @@ import { ConfigureController } from "./application/controller/ConfigureControlle
 import { IndexController } from "./application/controller/IndexController";
 import { BattleStatusValidator } from "./application/input/BattleStatusValidator";
 import { ConfigureInputValidator } from "./application/input/ConfigureInputValidator";
-import { BattleUsecase } from "./application/usecase/BattleUsecase";
-import { ConfigureUsecase } from "./application/usecase/ConfigureUsecase";
+import { GetBattleDetailUsecase } from "./application/usecase/GetBattleDetailUsecase";
+import { GetBattleStatusUsecase } from "./application/usecase/GetBattleStatusUsecase";
+import { GetConfigureUsecase } from "./application/usecase/GetConfigureUsecase";
 import { IndexUsecase } from "./application/usecase/IndexUsecase";
+import { PostConfigureUsecase } from "./application/usecase/PostConfigureUsecase";
 import { BasicShipInfoRepository } from "./infrastructure/repository/BasicShipInfoRepository";
 import { GameClientRepository } from "./infrastructure/repository/GameClientRepository";
 import { Logger } from "./infrastructure/repository/Logger";
@@ -69,9 +71,19 @@ export class DependencyInjection {
     });
 
     // usecase
-    container.register("BattleUsecase", { useClass: BattleUsecase });
+    container.register("GetBattleDetailUsecase", {
+      useClass: GetBattleDetailUsecase,
+    });
+    container.register("GetBattleStatusUsecase", {
+      useClass: GetBattleStatusUsecase,
+    });
     container.register("IndexUsecase", { useClass: IndexUsecase });
-    container.register("ConfigureUsecase", { useClass: ConfigureUsecase });
+    container.register("GetConfigureUsecase", {
+      useClass: GetConfigureUsecase,
+    });
+    container.register("PostConfigureUsecase", {
+      useClass: PostConfigureUsecase,
+    });
 
     // controller
     container.register("BattleController", { useClass: BattleController });

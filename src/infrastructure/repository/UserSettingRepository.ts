@@ -6,12 +6,12 @@ import { UserSetting } from "../output/UserSetting";
 
 @injectable()
 export class UserSettingRepository implements IUserSettingRepository {
-  static getSettingFileName(): string {
+  static getFileName(): string {
     return "user_setting.json5";
   }
 
   isExist(): boolean {
-    return fs.existsSync(UserSettingRepository.getSettingFileName());
+    return fs.existsSync(UserSettingRepository.getFileName());
   }
 
   read(): UserSetting | undefined {
@@ -19,22 +19,15 @@ export class UserSettingRepository implements IUserSettingRepository {
       return undefined;
     }
 
-    const file = fs.readFileSync(
-      UserSettingRepository.getSettingFileName(),
-      "utf-8"
+    return JSON5.parse(
+      fs.readFileSync(UserSettingRepository.getFileName(), "utf-8")
     );
-
-    return JSON5.parse(file);
   }
 
   write(settings: UserSetting): void {
     fs.writeFileSync(
-      UserSettingRepository.getSettingFileName(),
+      UserSettingRepository.getFileName(),
       JSON5.stringify(settings, null, 2)
     );
-  }
-
-  delete(): void {
-    throw new Error("Method not implemented.");
   }
 }
