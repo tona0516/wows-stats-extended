@@ -38,7 +38,7 @@ export class DependencyInjection {
   }
 
   private init(): TsyringeDependencyContainer {
-    const logLevel = process.env.NODE_ENV === "production" ? "info" : "debug";
+    const logLevel = process.env.NODE_ENV === "development" ? "debug" : "info";
 
     container.register("LogLevel", { useValue: logLevel });
     container.register("Logger", { useClass: Logger });
