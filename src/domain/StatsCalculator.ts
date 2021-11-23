@@ -63,7 +63,8 @@ export class StatsCalculator {
       averageDamage?.isNotNullOrUndefined() &&
       averageFrags?.isNotNullOrUndefined() &&
       winRate?.isNotNullOrUndefined() &&
-      expectedValues !== null && expectedValues !== undefined
+      expectedValues !== null &&
+      expectedValues !== undefined
         ? this.calculatePersonalRating(
             {
               damage: averageDamage,
