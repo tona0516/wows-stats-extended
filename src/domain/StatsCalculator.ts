@@ -13,7 +13,7 @@ import { Player, PlayerStats, ShipStats } from "./Player";
 export class StatsCalculator {
   calculateShipStats(
     basicShipInfo: BasicShipInfo,
-    expectedValues: ExpectedValues,
+    expectedValues?: ExpectedValues,
     pvp?: ShipsStatsPvp
   ): ShipStats {
     if (!pvp) {
@@ -58,10 +58,12 @@ export class StatsCalculator {
       pvp.frags?.isNotNullOrUndefined() && pvp.battles?.isNotNullOrUndefined()
         ? pvp.frags / pvp.battles
         : undefined;
+
     const personalRating =
       averageDamage?.isNotNullOrUndefined() &&
       averageFrags?.isNotNullOrUndefined() &&
-      winRate?.isNotNullOrUndefined()
+      winRate?.isNotNullOrUndefined() &&
+      expectedValues !== null && expectedValues !== undefined
         ? this.calculatePersonalRating(
             {
               damage: averageDamage,
