@@ -45,5 +45,5 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 });
 
 app.listen(3000, () => {
-  logger.info(`Start wows-stats-extected on port 3000.`);
+  logger.info(`wows-stats-extended started. Access to http://localhost:3000.`);
 });
