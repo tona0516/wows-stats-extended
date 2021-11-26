@@ -16,6 +16,7 @@ export class RadarRepository implements IRadarRepository {
     const radarMap: { [shipName: string]: number } = {};
 
     const response = await axios.get(RadarRepository.getBaseUrl());
+    // eslint-disable-next-line
     const $ = cheerio.load(response.data);
     const lines = $("#mw-content-text > div > table > tbody > tr");
     lines.each((_index, element) => {
