@@ -1,5 +1,3 @@
-/* eslint-disable no-undef */
-
 // ##### Change port if you want #####
 const PORT = 3000;
 const FETCH_INTERVAL_MS = 1000;
@@ -19,10 +17,10 @@ let isFetching = false;
 let latestHash = undefined;
 
 const Status = {
-  NEED_NOT_FETCH: 1,
-  FETCHING: 2,
-  FETCH_FAIL: 3,
-  FETCH_SUCCESS: 4,
+  FETCHING: 1,
+  FETCH_FAIL: 2,
+  FETCH_SUCCESS: 3,
+  NEED_NOT_FETCH: 4,
 };
 
 /**
@@ -30,14 +28,10 @@ const Status = {
  *
  * @param {Status} status
  * @param {Object} teams
- * @param {Array} error
+ * @param {Object} error
  */
 const updateStatus = (status, teams = undefined, error = undefined) => {
   switch (status) {
-    case Status.NEED_NOT_FETCH:
-      app.message = "In non-combat";
-      break;
-
     case Status.FETCHING:
       isFetching = true;
       app.message = "Loading...";
@@ -45,20 +39,18 @@ const updateStatus = (status, teams = undefined, error = undefined) => {
 
     case Status.FETCH_FAIL:
       isFetching = false;
-      isFirstFetch = false;
       app.message = undefined;
-      app.error =
-        "Failed to display data. Please reload page." + JSON.stringify(error);
+      app.error = JSON.stringify(error);
       break;
 
     case Status.FETCH_SUCCESS:
       isFetching = false;
-      isFirstFetch = false;
       app.message = undefined;
       app.teams = teams;
       break;
 
-    default:
+    case Status.NEED_NOT_FETCH:
+      app.message = "In non-combat";
       break;
   }
 };
@@ -66,11 +58,31 @@ const updateStatus = (status, teams = undefined, error = undefined) => {
 /**
  * エラーハンドリング
  *
- * @param {Array} error
+ * @param {Object} axiosError
  */
-const handleError = (error) => {
+const handleError = (axiosError) => {
   clearInterval(timer);
-  updateStatus(Status.FETCH_FAIL, undefined, error);
+  if (axiosError.response) {
+    updateStatus(Status.FETCH_FAIL, undefined, {
+      type: "response_error",
+      status: `${axiosError.response.status} ${axiosError.response.statusText}`,
+      body: axiosError.response.data,
+    });
+    return;
+  }
+
+  if (axiosError.request) {
+    updateStatus(Status.FETCH_FAIL, undefined, {
+      type: "request_error",
+      error: axiosError.request,
+    });
+    return;
+  }
+
+  updateStatus(Status.FETCH_FAIL, undefined, {
+    type: "other",
+    error: axiosError,
+  });
 };
 
 const looper = async () => {
@@ -80,9 +92,7 @@ const looper = async () => {
 
   const stateResponse = await axios
     .get(DOMAIN + "/battle/status")
-    .catch((error) => {
-      handleError(error);
-    });
+    .catch((error) => handleError(error));
 
   switch (stateResponse.status) {
     case 200:
