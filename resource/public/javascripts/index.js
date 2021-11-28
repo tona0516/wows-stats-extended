@@ -1,8 +1,17 @@
-// ##### Change port if you want #####
-const PORT = 3000;
-const FETCH_INTERVAL_MS = 1000;
-// ###################################
-const DOMAIN = "http://localhost:" + PORT;
+const DOMAIN = "http://localhost:3000";
+
+const State = {
+  FETCHING: 1,
+  FETCH_FAIL: 2,
+  FETCH_SUCCESS: 3,
+  NEED_NOT_FETCH: 4,
+};
+
+const ErrorType = {
+  REQUEST_ERROR: "request_error",
+  RESPONSE_ERROR: "reponse_error",
+  SYSTEM_ERROR: "system_error",
+}
 
 const app = new Vue({
   el: "#app",
@@ -13,43 +22,35 @@ const app = new Vue({
   },
 });
 
-let isFetching = false;
 let latestHash = undefined;
-
-const Status = {
-  FETCHING: 1,
-  FETCH_FAIL: 2,
-  FETCH_SUCCESS: 3,
-  NEED_NOT_FETCH: 4,
-};
+let state = undefined;
 
 /**
- * 状態に応じてViewと変数を更新する
+ * Stateに応じてビューを更新する
  *
- * @param {Status} status
+ * @param {State} _state
  * @param {Object} teams
  * @param {Object} error
  */
-const updateStatus = (status, teams = undefined, error = undefined) => {
-  switch (status) {
-    case Status.FETCHING:
-      isFetching = true;
+const updateStatus = (_state, teams = undefined, error = undefined) => {
+  state = _state
+  switch (_state) {
+    case State.FETCHING:
       app.message = "Loading...";
       break;
 
-    case Status.FETCH_FAIL:
-      isFetching = false;
+    case State.FETCH_FAIL:
+      clearInterval(timer);
       app.message = undefined;
       app.error = JSON.stringify(error);
       break;
 
-    case Status.FETCH_SUCCESS:
-      isFetching = false;
+    case State.FETCH_SUCCESS:
       app.message = undefined;
       app.teams = teams;
       break;
 
-    case Status.NEED_NOT_FETCH:
+    case State.NEED_NOT_FETCH:
       app.message = "In non-combat";
       break;
   }
@@ -60,11 +61,10 @@ const updateStatus = (status, teams = undefined, error = undefined) => {
  *
  * @param {Object} axiosError
  */
-const handleError = (axiosError) => {
-  clearInterval(timer);
+const handleAxiosError = (axiosError) => {
   if (axiosError.response) {
-    updateStatus(Status.FETCH_FAIL, undefined, {
-      type: "response_error",
+    updateStatus(State.FETCH_FAIL, undefined, {
+      type: ErrorType.RESPONSE_ERROR,
       status: `${axiosError.response.status} ${axiosError.response.statusText}`,
       body: axiosError.response.data,
     });
@@ -72,49 +72,50 @@ const handleError = (axiosError) => {
   }
 
   if (axiosError.request) {
-    updateStatus(Status.FETCH_FAIL, undefined, {
-      type: "request_error",
+    updateStatus(State.FETCH_FAIL, undefined, {
+      type: ErrorType.REQUEST_ERROR,
       error: axiosError.request,
     });
     return;
   }
 
-  updateStatus(Status.FETCH_FAIL, undefined, {
-    type: "other",
+  updateStatus(State.FETCH_FAIL, undefined, {
+    type: ErrorType.SYSTEM_ERROR,
     error: axiosError,
   });
 };
 
 const looper = async () => {
-  if (isFetching) {
+  if (state === State.FETCHING) {
     return;
   }
 
   const stateResponse = await axios
     .get(DOMAIN + "/battle/status")
-    .catch((error) => handleError(error));
+    .catch((error) => handleAxiosError(error));
 
-  switch (stateResponse.status) {
-    case 200:
-      if (stateResponse.data.hash !== latestHash) {
-        updateStatus(Status.FETCHING);
-        const detailResponse = await axios
-          .post(DOMAIN + "/battle/detail", stateResponse.data)
-          .catch((error) => handleError(error));
-        updateStatus(Status.FETCH_SUCCESS, detailResponse.data.teams);
-        latestHash = stateResponse.data.hash;
-      }
-      break;
-    case 204:
-      updateStatus(Status.NEED_NOT_FETCH);
-      break;
-    default:
-      const error = JSON.parse({
-        error: "system error",
-      });
-      handleError(error);
-      break;
+  if (stateResponse.status === 200) {
+    if (stateResponse.data.hash !== latestHash) {
+      updateStatus(State.FETCHING);
+      const detailResponse = await axios
+        .post(DOMAIN + "/battle/detail", stateResponse.data)
+        .catch((error) => handleAxiosError(error));
+      updateStatus(State.FETCH_SUCCESS, detailResponse.data.teams);
+      latestHash = stateResponse.data.hash;
+    }
+    return;
   }
+
+  if (stateResponse.status === 204) {
+    updateStatus(State.NEED_NOT_FETCH);
+    return;
+  }
+
+  updateStatus(State.FETCH_FAIL, undefined, {
+    type: ErrorType.SYSTEM_ERROR,
+    status: `${stateResponse.status} ${stateResponse.statusText}`,
+    body: stateResponse.data,
+  });
 };
 
-timer = setInterval(looper, FETCH_INTERVAL_MS);
+timer = setInterval(looper, 1000);
