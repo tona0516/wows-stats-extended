@@ -22,7 +22,7 @@ export class WargamingRepositpory implements IWargamingRepository {
     private userSettingRepository: IUserSettingRepository
   ) {
     this.httpClient = axios.create({
-      timeout: 5000,
+      timeout: 10000,
       headers: {
         Connection: "Keep-Alive",
       },

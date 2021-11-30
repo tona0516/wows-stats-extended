@@ -16,7 +16,7 @@ export class NumbersRepository
     super();
     this.httpClient = axios.create({
       baseURL: `https://api.wows-numbers.com`,
-      timeout: 3000,
+      timeout: 10000,
     });
   }
 
