@@ -22,14 +22,6 @@ export class ConfigureInputValidator
     private gameClientRepository: IGameClientRepository
   ) {}
 
-  private isConfigureInput(input: any): input is ConfigureInput {
-    return (
-      input.appid !== undefined &&
-      input.installPath !== undefined &&
-      input.region !== undefined
-    );
-  }
-
   private async validateAppid(
     appid: string,
     region: string
@@ -52,21 +44,6 @@ export class ConfigureInputValidator
   async validate(
     input: any
   ): Promise<Result<ConfigureInput, ConfigureValidateResult>> {
-    if (!this.isConfigureInput(input)) {
-      const unexpectedError = "Unexptected error.";
-      const errors: ConfigureResponseError = {
-        appid: unexpectedError,
-        region: unexpectedError,
-        installPath: unexpectedError,
-      };
-
-      const validateResult: ConfigureValidateResult = {
-        data: input.toResponseData(),
-        errors: errors,
-      };
-      return new Failure(validateResult);
-    }
-
     const regionError = this.validateRegion(input.region);
     const appidError = await this.validateAppid(input.appid, input.region);
     const installPathError = this.validateInstallPath(input.installPath);
@@ -79,7 +56,7 @@ export class ConfigureInputValidator
       };
 
       const validateResult: ConfigureValidateResult = {
-        data: input.toResponseData(),
+        data: { ...input, ...{ servers: Region.getAll() } },
         errors: errors,
       };
       return new Failure(validateResult);
