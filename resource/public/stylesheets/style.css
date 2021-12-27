@@ -1,5 +1,6 @@
 body {
     padding: 4px;
+    font: 12px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
   
 .custom-dark {
@@ -14,8 +15,13 @@ body {
 
 .table-sm td, .table-sm th {
   padding: .15rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 0;
 }
 
 a {
   color: #00B7FF;
+  display: inline;
 }
