@@ -43,7 +43,7 @@
     "cheerio": "*",
     "express": "^4.17.1",
     "json5": "^2.2.0",
-    "log4js": "^6.3.0",
+    "log4js": "^6.4.0",
     "node-persist": "^3.1.0",
     "pug": "^3.0.2",
     "reflect-metadata": "^0.1.13",
