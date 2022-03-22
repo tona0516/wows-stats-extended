@@ -11,7 +11,8 @@ export class BasicShipInfoRepository
   extends AbstractCacheRepository<{
     [shipID: number]: BasicShipInfo;
   }>
-  implements IBasicShipInfoRepository {
+  implements IBasicShipInfoRepository
+{
   protected prefix = "basic_ship_info";
 
   constructor(

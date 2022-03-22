@@ -14,7 +14,8 @@ import { ValidatorInterface } from "./ValidatorInterface";
 
 @injectable()
 export class ConfigureInputValidator
-  implements ValidatorInterface<ConfigureInput, ConfigureValidateResult> {
+  implements ValidatorInterface<ConfigureInput, ConfigureValidateResult>
+{
   constructor(
     @inject("WargamingRepository")
     private wargamingRepository: IWargamingRepository,

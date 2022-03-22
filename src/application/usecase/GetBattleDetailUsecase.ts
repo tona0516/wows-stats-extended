@@ -62,24 +62,19 @@ export class GetBattleDetailUsecase {
     const accountIDs = accounts.accountIDs;
     const accountList = accounts.accountList;
 
-    const accountInfoPromise = this.wargamingRepository.getAccountInfo(
-      accountIDs
-    );
+    const accountInfoPromise =
+      this.wargamingRepository.getAccountInfo(accountIDs);
     const shipsStatsPromise = this.fetchShipsStats(accountIDs);
     const clansTagMapPromise = this.fetchClanTagMap(accountIDs);
     const nonStatsDataPromise = this.fetchNonStatsData();
 
-    const [
-      accountInfo,
-      clanTagMap,
-      shipsStatsMap,
-      nonStatsData,
-    ] = await Promise.all([
-      accountInfoPromise,
-      clansTagMapPromise,
-      shipsStatsPromise,
-      nonStatsDataPromise,
-    ]);
+    const [accountInfo, clanTagMap, shipsStatsMap, nonStatsData] =
+      await Promise.all([
+        accountInfoPromise,
+        clansTagMapPromise,
+        shipsStatsPromise,
+        nonStatsDataPromise,
+      ]);
 
     const userSetting = this.userSettingRepository.read();
 
@@ -94,9 +89,7 @@ export class GetBattleDetailUsecase {
     };
   }
 
-  private async fetchAccount(
-    tempArenaInfo: TempArenaInfo
-  ): Promise<{
+  private async fetchAccount(tempArenaInfo: TempArenaInfo): Promise<{
     accountIDs: number[];
     accountList: AccountList;
   }> {
@@ -155,7 +148,8 @@ export class GetBattleDetailUsecase {
     basicShipInfo: { [shipID: number]: BasicShipInfo };
     expectedStats: ExpectedStats;
   }> {
-    const encyclopediaInfo = await this.wargamingRepository.getEncyclopediaInfo();
+    const encyclopediaInfo =
+      await this.wargamingRepository.getEncyclopediaInfo();
     this.logger.debug("encyclopediaInfo", JSON.stringify(encyclopediaInfo));
 
     const gameVersion = encyclopediaInfo.data.game_version;
@@ -305,9 +299,7 @@ export class GetBattleDetailUsecase {
     };
   }
 
-  private async fetchShipsStats(
-    accountIDs: number[]
-  ): Promise<{
+  private async fetchShipsStats(accountIDs: number[]): Promise<{
     [accountID: string]: ShipsStats;
   }> {
     const shipsStatsMap: { [accountID: string]: ShipsStats } = {};

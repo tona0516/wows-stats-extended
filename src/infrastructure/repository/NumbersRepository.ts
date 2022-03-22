@@ -8,7 +8,8 @@ import { AbstractCacheRepository } from "./AbstractCacheRepository";
 @injectable()
 export class NumbersRepository
   extends AbstractCacheRepository<ExpectedStats>
-  implements INumbersRepository {
+  implements INumbersRepository
+{
   protected prefix = "numbers";
   private httpClient: AxiosInstance;
 

@@ -8,7 +8,8 @@ import { ValidatorInterface } from "./ValidatorInterface";
 
 @injectable()
 export class BattleStatusValidator
-  implements ValidatorInterface<BattleStatus, ErrorResponse> {
+  implements ValidatorInterface<BattleStatus, ErrorResponse>
+{
   private isBattleStatus(input: any): input is BattleStatus {
     return input.localStatus !== undefined && input.hash !== undefined;
   }
