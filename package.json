@@ -18,7 +18,6 @@
     "fix:prettier": "prettier --write 'src/**/*.ts'",
     "run:development": "cross-env NODE_ENV=development ts-node-dev src/app.ts",
     "run:production": "cross-env NODE_ENV=production ts-node src/app.ts",
-    "npm:update": "npm update && npm audit fix && npm dedupe",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
