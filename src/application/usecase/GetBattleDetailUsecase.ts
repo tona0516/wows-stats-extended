@@ -202,23 +202,26 @@ export class GetBattleDetailUsecase {
 
       const [nickname, shipID, relation] = [it.name, it.shipId, it.relation];
       const shipInfo = fetchedData.basicShipInfoMap[shipID];
-      if (!shipInfo) {
-        return;
-      }
 
       this.logger.debug("shipInfo", JSON.stringify(shipInfo));
 
-      const modifiedShipInfo: ShipInfo = {
-        name: shipInfo.name,
-        nation: shipInfo.nation,
-        tier: shipInfo.tier,
-        type: shipInfo.type,
-        statsURL: NumbersURLGenerator.genetateShipPageURL(
-          fetchedData.userSetting?.region,
-          shipID.toString(),
-          shipInfo.name
-        ),
-      };
+      const modifiedShipInfo: ShipInfo = ((): ShipInfo => {
+        if (!shipInfo) {
+          return {};
+        }
+
+        return {
+          name: shipInfo.name,
+          nation: shipInfo.nation,
+          tier: shipInfo.tier,
+          type: shipInfo.type,
+          statsURL: NumbersURLGenerator.genetateShipPageURL(
+            fetchedData.userSetting?.region,
+            shipID.toString(),
+            shipInfo.name
+          ),
+        };
+      })();
 
       this.logger.debug("modifiedShipInfo", JSON.stringify(modifiedShipInfo));
 
