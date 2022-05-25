@@ -5,6 +5,7 @@ import "../../common/util.extensions";
 import { NumbersURLGenerator } from "../../domain/NumbersURLGenerator";
 import { PlayerInfo, ShipInfo, Player } from "../../domain/Player";
 import { StatsCalculator } from "../../domain/StatsCalculator";
+import { Submarines } from "../../domain/Submarines";
 import { AccountInfo } from "../../infrastructure/output/AccountInfo";
 import { AccountList } from "../../infrastructure/output/AccountList";
 import { BasicShipInfo } from "../../infrastructure/output/BasicShipInfo";
@@ -162,6 +163,12 @@ export class GetBattleDetailUsecase {
       getBasicShipInfoPromise,
       getExpectedStatsPromise,
     ]);
+
+    // workaround: No submarines information in API. No submarines details, no games played with submarines
+    const submarineBasicShipInfo = Submarines.getShipInfo();
+    for (const key in submarineBasicShipInfo) {
+      basicShipInfo[key] = submarineBasicShipInfo[key];
+    }
 
     return {
       basicShipInfo,
@@ -347,6 +354,14 @@ export class GetBattleDetailUsecase {
       if (firstShip.name && secondShip.name) {
         const nameCompare = firstShip.name.localeCompare(secondShip.name);
         if (nameCompare !== 0) return nameCompare;
+      }
+
+      if (firstShip) {
+        return 1;
+      }
+
+      if (secondShip) {
+        return -1;
       }
 
       return 0;
