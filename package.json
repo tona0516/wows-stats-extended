@@ -54,7 +54,7 @@
     "cross-env": "^7.0.3",
     "eslint": "^8.11.0",
     "eslint-plugin-import": "^2.25.4",
-    "nexe": "^3.3.3",
+    "nexe": "^4.0.0-rc.1",
     "npm-run-all": "^4.1.5",
     "prettier": "2.5.1",
     "pug-lint": "^2.6.0",
@@ -62,5 +62,13 @@
     "ts-node-dev": "^1.1.8",
     "typescript": "~4.6.2"
   },
-  "packageManager": "yarn@3.2.0"
+  "packageManager": "yarn@3.2.0",
+  "pkg": {
+    "scripts": "dist/**/*.js",
+    "assets": "resource/**/*",
+    "targets": [
+      "node18-macos-arm64"
+    ],
+    "outputPath": "."
+  }
 }
