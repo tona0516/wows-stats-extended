@@ -1,10 +1,9 @@
 body {
     padding: 4px;
-    font: 12px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
-  
+
 .custom-dark {
-  background-color: #343A40;
+  background-color: #212529;
   color: #FFFFFF;
 }
 
@@ -14,7 +13,7 @@ body {
 }
 
 .table-sm td, .table-sm th {
-  padding: .15rem;
+  padding: .10rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -24,4 +23,50 @@ body {
 a {
   color: #00B7FF;
   display: inline;
+}
+
+.clan-tag {
+  color: #B6FF01;
+}
+
+.ship-name-dark {
+  color: #212529;
+  text-overflow: ellipsis;
+
+}
+
+.ship-name-light {
+  color: #FFFFFF
+}
+
+.bad {
+  color: #FE0E00;
+}
+
+.below-average {
+  color: #FE7903;
+}
+
+.average {
+  color: #FFC71F;
+}
+
+.good {
+  color: #44B300;
+}
+
+.very-good {
+  color: #318000;
+}
+
+.great {
+  color: #02C9B3;
+}
+
+.unicum {
+  color: #DA45FF;
+}
+
+.super-unicum {
+  color: #C9CACA;
 }

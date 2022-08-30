@@ -6,154 +6,162 @@ block content
       .alert.alert-primary {{ message }}
     div(v-if='error !== undefined')
       .alert.alert-danger {{ error }}
-    div.table-responsive(v-if='teams !== undefined')
-      div(v-for='team of teams')
-        table.table.table-sm.table-dark.table-bordered.table-striped.table-hover
-          thead
-            th(colspan='3') Player
-            th(colspan='2') Ship info
-            th(colspan='5') Ship stats
-            th(colspan='6') Player stats
-          tr
-            td(style="width: 15%") Player name
-            td CP
-            td PR
-            td(style="width: 10%") Ship name
-            td Tier
-            td Dmg.
-            td Win(%)
-            td K/D
-            td Exp.
-            td Battles
-            td Dmg.
-            td Win(%)
-            td K/D
-            td Exp.
-            td Battles
-            td Tier avg.
-          tr(v-for='player of team.users')
-            // プレイヤー情報
-            td
-              font(v-if='player.playerInfo.clan' color='#B6FF01') [{{ player.playerInfo.clan }}]
-              font(color='#FFFFFF') {{ player.playerInfo.name }}
-            td
-              font(v-if="player.shipStats.combatPower < 10000" color="#FE0E00")
-                | {{ player.shipStats.combatPower }}
-              font(v-else-if="player.shipStats.combatPower < 20000" color="#FE7903")
-                | {{ player.shipStats.combatPower }}
-              font(v-else-if="player.shipStats.combatPower < 30000" color="#FFC71F")
-                | {{ player.shipStats.combatPower }}
-              font(v-else-if="player.shipStats.combatPower < 80000" color="#44B300")
-                | {{ player.shipStats.combatPower }}
-              font(v-else-if="player.shipStats.combatPower < 150000" color="#02C9B3")
-                | {{ player.shipStats.combatPower }}
-              font(v-else-if="player.shipStats.combatPower < 1000000" color="#D042F3")
-                | {{ player.shipStats.combatPower }}
-              font(v-else-if="player.shipStats.combatPower >= 1000000" color="#920783")
-                | {{ player.shipStats.combatPower }}
-              font(v-else color="#FFFFFF")
-                | {{ player.shipStats.combatPower }}
-            td
-              font(v-if="player.shipStats.personalRating < 750" color="#FE0E00")
-                | {{ player.shipStats.personalRating }}
-              font(v-else-if="player.shipStats.personalRating < 1100" color="#FE7903")
-                | {{ player.shipStats.personalRating }}
-              font(v-else-if="player.shipStats.personalRating < 1350" color="#FFC71F")
-                | {{ player.shipStats.personalRating }}
-              font(v-else-if="player.shipStats.personalRating < 1550" color="#44B300")
-                | {{ player.shipStats.personalRating }}
-              font(v-else-if="player.shipStats.personalRating < 1750" color="#318000")
-                | {{ player.shipStats.personalRating }}
-              font(v-else-if="player.shipStats.personalRating < 2100" color="#02C9B3")
-                | {{ player.shipStats.personalRating }}
-              font(v-else-if="player.shipStats.personalRating < 2450" color="#D042F3")
-                | {{ player.shipStats.personalRating }}
-              font(v-else-if="player.shipStats.personalRating >= 2450" color="#A00DC5")
-                | {{ player.shipStats.personalRating }}
-              font(v-else color="#FFFFFF")
-                | {{ player.shipStats.personalRating }}
+    div.table-responsive(v-if='teams !== undefined' v-for='team of teams')
+      table.table.table-sm.table-dark.table-bordered
+        thead
+          th(colspan='3') Player
+          th(colspan='2') Ship info
+          th(colspan='5') Ship stats
+          th(colspan='6') Player stats
+        tr
+          td(style="width: 15%") Player name
+          td CP
+          td PR
+          td(style="width: 10%") Ship name
+          td Tier
+          td Dmg.
+          td Win(%)
+          td K/D
+          td Exp.
+          td Battles
+          td Dmg.
+          td Win(%)
+          td K/D
+          td Exp.
+          td Battles
+          td Tier avg.
+        tr(v-for='player of team.users')
+          // プレイヤー情報
+          td
+            font.clan-tag(v-if='player.playerInfo.clan') [{{ player.playerInfo.clan }}]
+            font {{ player.playerInfo.name }}
+          // 戦闘力
 
-            // 艦艇情報
-            td
-              font(v-if="player.shipInfo.type === 'AirCarrier'" color="#CFA7CD")
-                | {{ player.shipInfo.name }}
-              font(v-else-if="player.shipInfo.type === 'Battleship'" color="#A3BCE2")
-                | {{ player.shipInfo.name }}
-              font(v-else-if="player.shipInfo.type === 'Cruiser'" color="#D7E7AF")
-                | {{ player.shipInfo.name }}
-              font(v-else-if="player.shipInfo.type === 'Destroyer'" color="#FCD7A1")
-                | {{ player.shipInfo.name }}
-              font(v-else-if="player.shipInfo.type === 'Submarine'" color="#A2D7D4")
-                | {{ player.shipInfo.name }}
-              font(v-else color="#FFFFFF")
-                | {{ player.shipInfo.name }}
-            td {{ player.shipInfo.tier }}
-            // 艦艇統計
-            td {{ player.shipStats.averageDamage }}
-            td
-              font(v-if="player.shipStats.winRate < 40" color="#FE0E00")
-                | {{ player.shipStats.winRate }}
-              font(v-else-if="player.shipStats.winRate < 45" color="#FE7903")
-                | {{ player.shipStats.winRate }}
-              font(v-else-if="player.shipStats.winRate < 50" color="#FFC71F")
-                | {{ player.shipStats.winRate }}
-              font(v-else-if="player.shipStats.winRate < 55" color="#44B300")
-                | {{ player.shipStats.winRate }}
-              font(v-else-if="player.shipStats.winRate < 60" color="#02C9B3")
-                | {{ player.shipStats.winRate }}
-              font(v-else-if="player.shipStats.winRate < 65" color="#D042F3")
-                | {{ player.shipStats.winRate }}
-              font(v-else-if="player.shipStats.winRate >= 65" color="#A00DC5")
-                | {{ player.shipStats.winRate }}
-              font(v-else color="#FFFFFF")
-                | {{ player.shipStats.winRate }}
-            td {{ player.shipStats.killDeathRate }}
-            td {{ player.shipStats.averageExperience }}
-            td {{ player.shipStats.battles }}
-            // プレイヤー統計
-            td {{ player.playerStats.averageDamage }}
-            td
-              font(v-if="player.playerStats.winRate < 40" color="#FE0E00")
-                | {{ player.playerStats.winRate }}
-              font(v-else-if="player.playerStats.winRate < 45" color="#FE7903")
-                | {{ player.playerStats.winRate }}
-              font(v-else-if="player.playerStats.winRate < 50" color="#FFC71F")
-                | {{ player.playerStats.winRate }}
-              font(v-else-if="player.playerStats.winRate < 55" color="#44B300")
-                | {{ player.playerStats.winRate }}
-              font(v-else-if="player.playerStats.winRate < 60" color="#02C9B3")
-                | {{ player.playerStats.winRate }}
-              font(v-else-if="player.playerStats.winRate < 65" color="#D042F3")
-                | {{ player.playerStats.winRate }}
-              font(v-else-if="player.playerStats.winRate >= 65" color="#A00DC5")
-                | {{ player.playerStats.winRate }}
-              font(v-else color="#FFFFFF")
-                | {{ player.playerStats.winRate }}
-            td {{ player.playerStats.killDeathRate }}
-            td {{ player.playerStats.averageExperience }}
-            td {{ player.playerStats.battles }}
-            td {{ player.playerStats.averageTier }}
-          tr.bg-secondary
-            // プレイヤー情報
-            td Team ave.
-            td {{ team.average.shipStats.combatPower }}
-            td {{ team.average.shipStats.personalRating }}
-            // 艦艇情報
-            td {{ team.average.shipInfo.name }}
-            td {{ team.average.shipInfo.tier }}
-            // 艦艇統計
-            td {{ team.average.shipStats.averageDamage }}
-            td {{ team.average.shipStats.winRate }}
-            td {{ team.average.shipStats.killDeathRate }}
-            td {{ team.average.shipStats.averageExperience }}
-            td {{ team.average.shipStats.battles }}
-            // プレイヤー統計
-            td {{ team.average.playerStats.averageDamage }}
-            td {{ team.average.playerStats.winRate }}
-            td {{ team.average.playerStats.killDeathRate }}
-            td {{ team.average.playerStats.averageExperience }}
-            td {{ team.average.playerStats.battles }}
-            td {{ team.average.playerStats.averageTier }}
+          td.bad(v-if="player.shipStats.combatPower < 10000")
+            | {{ player.shipStats.combatPower }}
+          td.below-average(v-else-if="player.shipStats.combatPower < 20000")
+            | {{ player.shipStats.combatPower }}
+          td.average(v-else-if="player.shipStats.combatPower < 30000")
+            | {{ player.shipStats.combatPower }}
+          td.good(v-else-if="player.shipStats.combatPower < 80000")
+            | {{ player.shipStats.combatPower }}
+          td.great(v-else-if="player.shipStats.combatPower < 150000")
+            | {{ player.shipStats.combatPower }}
+          td.unicum(v-else-if="player.shipStats.combatPower < 1000000")
+            | {{ player.shipStats.combatPower }}
+          td.super-unicum(v-else-if="player.shipStats.combatPower >= 1000000")
+            | {{ player.shipStats.combatPower }}
+          td(v-else)
+            | {{ player.shipStats.combatPower }}
+          // PR
+          td.bad(v-if="player.shipStats.personalRating < 750")
+            | {{ player.shipStats.personalRating }}
+          td.below-average(v-else-if="player.shipStats.personalRating < 1100")
+            | {{ player.shipStats.personalRating }}
+          td.average(v-else-if="player.shipStats.personalRating < 1350")
+            | {{ player.shipStats.personalRating }}
+          td.good(v-else-if="player.shipStats.personalRating < 1550")
+            | {{ player.shipStats.personalRating }}
+          td.very-good(v-else-if="player.shipStats.personalRating < 1750")
+            | {{ player.shipStats.personalRating }}
+          td.great(v-else-if="player.shipStats.personalRating < 2100")
+            | {{ player.shipStats.personalRating }}
+          td.unicum(v-else-if="player.shipStats.personalRating < 2450")
+            | {{ player.shipStats.personalRating }}
+          td.super-unicum(v-else-if="player.shipStats.personalRating >= 2450")
+            | {{ player.shipStats.personalRating }}
+          td(v-else)
+            | {{ player.shipStats.personalRating }}
+          // 艦名
+          td.bg-success.ship-name-light(v-if="player.shipInfo.type === 'AirCarrier'")
+            | {{ player.shipInfo.name }}
+          td.bg-danger.ship-name-light(v-else-if="player.shipInfo.type === 'Battleship'")
+            | {{ player.shipInfo.name }}
+          td.bg-warning.ship-name-dark(v-else-if="player.shipInfo.type === 'Cruiser'")
+            | {{ player.shipInfo.name }}
+          td.bg-info.ship-name-dark(v-else-if="player.shipInfo.type === 'Destroyer'")
+            | {{ player.shipInfo.name }}
+          td.bg-light.ship-name-dark(v-else-if="player.shipInfo.type === 'Submarine'")
+            | {{ player.shipInfo.name }}
+          td(v-else)
+            | {{ player.shipInfo.name }}
+          // Tier
+          td {{ player.shipInfo.tier }}
+          // 艦別統計
+          // 与ダメ
+          td {{ player.shipStats.averageDamage }}
+          // 勝率
+          td.bad(v-if="player.shipStats.winRate < 40")
+            | {{ player.shipStats.winRate }}
+          td.below-average(v-else-if="player.shipStats.winRate < 45")
+            | {{ player.shipStats.winRate }}
+          td.average(v-else-if="player.shipStats.winRate < 50")
+            | {{ player.shipStats.winRate }}
+          td.good(v-else-if="player.shipStats.winRate < 55")
+            | {{ player.shipStats.winRate }}
+          td.great(v-else-if="player.shipStats.winRate < 60")
+            | {{ player.shipStats.winRate }}
+          td.unicum(v-else-if="player.shipStats.winRate < 65")
+            | {{ player.shipStats.winRate }}
+          td.super-unicum(v-else-if="player.shipStats.winRate >= 65")
+            | {{ player.shipStats.winRate }}
+          td(v-else)
+            | {{ player.shipStats.winRate }}
+          // K/D
+          td {{ player.shipStats.killDeathRate }}
+          // 経験値
+          td {{ player.shipStats.averageExperience }}
+          // 戦闘数
+          td {{ player.shipStats.battles }}
+          // プレイヤー統計
+          // 与ダメ
+          td {{ player.playerStats.averageDamage }}
+          // 勝率
+          td.bad(v-if="player.playerStats.winRate < 40")
+            | {{ player.playerStats.winRate }}
+          td.below-average(v-else-if="player.playerStats.winRate < 45")
+            | {{ player.playerStats.winRate }}
+          td.average(v-else-if="player.playerStats.winRate < 50")
+            | {{ player.playerStats.winRate }}
+          td.good(v-else-if="player.playerStats.winRate < 55")
+            | {{ player.playerStats.winRate }}
+          td.great(v-else-if="player.playerStats.winRate < 60")
+            | {{ player.playerStats.winRate }}
+          td.unicum(v-else-if="player.playerStats.winRate < 65")
+            | {{ player.playerStats.winRate }}
+          td.super-unicum(v-else-if="player.playerStats.winRate >= 65")
+            | {{ player.playerStats.winRate }}
+          td(v-else)
+            | {{ player.playerStats.winRate }}
+          // K/D
+          td {{ player.playerStats.killDeathRate }}
+          // 経験値
+          td {{ player.playerStats.averageExperience }}
+          // 戦闘数
+          td {{ player.playerStats.battles }}
+          // 平均Tier
+          td {{ player.playerStats.averageTier }}
+        tr.table-active
+          // プレイヤー情報
+          td Team ave.
+          td {{ team.average.shipStats.combatPower }}
+          td {{ team.average.shipStats.personalRating }}
+          // 艦艇情報
+          td {{ team.average.shipInfo.name }}
+          td {{ team.average.shipInfo.tier }}
+          // 艦艇統計
+          td {{ team.average.shipStats.averageDamage }}
+          td {{ team.average.shipStats.winRate }}
+          td {{ team.average.shipStats.killDeathRate }}
+          td {{ team.average.shipStats.averageExperience }}
+          td {{ team.average.shipStats.battles }}
+          // プレイヤー統計
+          td {{ team.average.playerStats.averageDamage }}
+          td {{ team.average.playerStats.winRate }}
+          td {{ team.average.playerStats.killDeathRate }}
+          td {{ team.average.playerStats.averageExperience }}
+          td {{ team.average.playerStats.battles }}
+          td {{ team.average.playerStats.averageTier }}
     div(class='submit', style='margin-top: 12px')
       center
         button(type='submit', class='btn btn-success mb-2', onclick="location.href='/configure'") Configure
