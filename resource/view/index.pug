@@ -2,11 +2,11 @@ extends ./layout
 
 block content
   #app
-    div(v-if='message !== undefined')
+    div(v-if='message')
       .alert.alert-primary {{ message }}
-    div(v-if='error !== undefined')
+    div(v-if='error')
       .alert.alert-danger {{ error }}
-    div.table-responsive(v-if='teams !== undefined' v-for='team of teams')
+    div.table-responsive(v-if='teams' v-for='team of teams')
       table.table.table-sm.table-dark.table-bordered
         thead
           th(colspan='3') Player
