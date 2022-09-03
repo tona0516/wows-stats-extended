@@ -119,3 +119,8 @@ a {
 .tier-avg {
   width: 3cf;
 }
+
+.info-icon {
+    height: 16px;
+    width: 16px;
+}
