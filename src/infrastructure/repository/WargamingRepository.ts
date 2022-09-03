@@ -23,9 +23,6 @@ export class WargamingRepositpory implements IWargamingRepository {
   ) {
     this.httpClient = axios.create({
       timeout: 10000,
-      headers: {
-        Connection: "Keep-Alive",
-      },
     });
   }
 

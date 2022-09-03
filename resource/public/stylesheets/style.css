@@ -13,10 +13,22 @@ body {
 }
 
 .table-sm td, .table-sm th {
-  padding: .10rem;
+  padding-top: .10rem;
+  padding-bottom: .10rem;
+  white-space: nowrap;
+}
+
+.align-center {
+  text-align: center;
+}
+
+.align-right {
+  text-align: right;
+}
+
+.ellipsis {
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
   max-width: 0;
 }
 
@@ -69,4 +81,41 @@ a {
 
 .super-unicum {
   color: #C9CACA;
+  background-color: #DA45FF;
+}
+
+.cp {
+  width: 7ch;
+}
+
+.pr {
+  width: 4ch;
+}
+
+.tier {
+  width: 2ch;
+}
+
+.damage {
+  width: 6ch;
+}
+
+.win {
+  width: 4ch;
+}
+
+.kd {
+  width: 4ch;
+}
+
+.exp {
+  width: 4ch;
+}
+
+.battles {
+  width: 5ch;
+}
+
+.tier-avg {
+  width: 3cf;
 }

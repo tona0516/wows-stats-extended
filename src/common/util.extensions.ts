@@ -6,11 +6,12 @@ declare global {
     average(): number;
   }
   interface Number {
-    halfup(scale: number): string;
+    format(scale: number): string;
     isNotNullOrUndefined(): boolean;
   }
   interface String {
     isNotNullOrUndefined(): boolean;
+    formatNonFinite(): string;
   }
 }
 
@@ -27,16 +28,26 @@ Array.prototype.average = function () {
   return sum / size;
 };
 
-Number.prototype.halfup = function (scale: number) {
+Number.prototype.format = function (scale: number) {
+  const value = this as number;
+
+  if (isNaN(value)) {
+    return "NaN";
+  }
+
+  if (!isFinite(value)) {
+    return "Inf";
+  }
+
   return (
-    Math.round((this as number) * Math.pow(10, scale)) / Math.pow(10, scale)
+    Math.round(value * Math.pow(10, scale)) / Math.pow(10, scale)
   ).toFixed(scale);
 };
 
-Number.prototype.isNotNullOrUndefined = function (): boolean {
+Number.prototype.isNotNullOrUndefined = function () {
   return !(this === null || this === undefined);
 };
 
-String.prototype.isNotNullOrUndefined = function (): boolean {
+String.prototype.isNotNullOrUndefined = function () {
   return !(this === null || this === undefined);
 };
