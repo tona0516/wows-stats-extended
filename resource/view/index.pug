@@ -75,27 +75,27 @@ block content
             | {{ player.shipStats.personalRating }}
           // 艦名
           td.bg-success.ship-name-light.ellipsis(v-if="player.shipInfo.type === 'AirCarrier'")
-            a(:href="player.shipInfo.statsURL" target="_blank")
+            a(v-if='player.shipInfo.statsURL', :href="player.shipInfo.statsURL" target="_blank")
               image.info-icon(src='../images/information.png')
             | {{ player.shipInfo.name }}
           td.bg-danger.ship-name-light.ellipsis(v-else-if="player.shipInfo.type === 'Battleship'")
-            a(:href="player.shipInfo.statsURL" target="_blank")
+            a(v-if='player.shipInfo.statsURL', :href="player.shipInfo.statsURL" target="_blank")
               image.info-icon(src='../images/information.png')
             | {{ player.shipInfo.name }}
           td.bg-warning.ship-name-dark.ellipsis(v-else-if="player.shipInfo.type === 'Cruiser'")
-            a(:href="player.shipInfo.statsURL" target="_blank")
+            a(v-if='player.shipInfo.statsURL', :href="player.shipInfo.statsURL" target="_blank")
               image.info-icon(src='../images/information.png')
             | {{ player.shipInfo.name }}
           td.bg-info.ship-name-dark.ellipsis(v-else-if="player.shipInfo.type === 'Destroyer'")
-            a(:href="player.shipInfo.statsURL" target="_blank")
+            a(v-if='player.shipInfo.statsURL', :href="player.shipInfo.statsURL" target="_blank")
               image.info-icon(src='../images/information.png')
             | {{ player.shipInfo.name }}
           td.bg-light.ship-name-dark.ellipsis(v-else-if="player.shipInfo.type === 'Submarine'")
-            a(:href="player.shipInfo.statsURL" target="_blank")
+            a(v-if='player.shipInfo.statsURL', :href="player.shipInfo.statsURL" target="_blank")
               image.info-icon(src='../images/information.png')
             | {{ player.shipInfo.name }}
           td(v-else)
-            a(:href="player.shipInfo.statsURL" target="_blank")
+            a(v-if='player.shipInfo.statsURL', :href="player.shipInfo.statsURL" target="_blank")
               image.info-icon(src='../images/information.png')
             | {{ player.shipInfo.name }}
           // Tier

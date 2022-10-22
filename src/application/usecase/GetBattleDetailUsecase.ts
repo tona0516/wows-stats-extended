@@ -212,21 +212,24 @@ export class GetBattleDetailUsecase {
 
       this.logger.debug("shipInfo", JSON.stringify(shipInfo));
 
-      if (!shipInfo) {
-        return {};
+      let modifiedShipInfo: ShipInfo;
+      if (shipInfo) {
+        modifiedShipInfo = {
+          name: shipInfo.name,
+          nation: shipInfo.nation,
+          tier: shipInfo.tier,
+          type: shipInfo.type,
+          statsURL: NumbersURLGenerator.genetateShipPageURL(
+            fetchedData.userSetting?.region,
+            shipID.toString(),
+            shipInfo.name
+          ),
+        };
+      } else {
+        modifiedShipInfo = {
+          name: "UNKNOWN",
+        };
       }
-
-      const modifiedShipInfo: ShipInfo = {
-        name: shipInfo.name,
-        nation: shipInfo.nation,
-        tier: shipInfo.tier,
-        type: shipInfo.type,
-        statsURL: NumbersURLGenerator.genetateShipPageURL(
-          fetchedData.userSetting?.region,
-          shipID.toString(),
-          shipInfo.name
-        ),
-      };
 
       this.logger.debug("modifiedShipInfo", JSON.stringify(modifiedShipInfo));
 
