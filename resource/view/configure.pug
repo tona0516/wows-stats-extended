@@ -3,39 +3,39 @@ extends ./layout
 block content
   #app
     form(action='/configure', method='post')
-      div(class='form-group')
+      div.form-group
         label(for='appid') Application ID
         if data.appid !== undefined
-          input(type='text', class='form-control', id='appid', name='appid', value=data.appid)
+          input.form-control(type='text', id='appid', name='appid', value=data.appid)
         else
-          input(type='text', class='form-control', id='appid', name='appid')
+          input.form-control(type='text', id='appid', name='appid')
 
         if errors !== undefined && errors.appid !== undefined
           .alert.alert-danger #{errors.appid}
-      
-      div(class='form-group')
+
+      div.form-group
         label(for='region') Region
-        select(class='form-control', id='region', name='region')
+        select.form-control(id='region', name='region')
           each server, index in data.servers
             if data.region !== undefined && data.region === server
               option(selected)= server
             else
               option= server
-      
+
         if errors !== undefined && errors.region !== undefined
           .alert.alert-danger #{errors.region}
-      
-      div(class='form-group')
+
+      div.form-group
         label(for='installPath') Install path
         if data.installPath !== undefined
-          input(type='text', class='form-control', id='installPath', name='installPath', value=data.installPath)
+          input.form-control(type='text', id='installPath', name='installPath', value=data.installPath)
         else
-          input(type='text', class='form-control', id='installPath', name='installPath', value='C:\\Games\\World_of_Warships')
+          input.form-control(type='text', id='installPath', name='installPath', value='C:\\Games\\World_of_Warships')
 
         if errors !== undefined && errors.installPath !== undefined
           .alert.alert-danger #{errors.installPath}
-      
-      div(class='submit', style='margin-top: 12px')
+
+      div.submit
         center
           button(type='submit', class='btn btn-primary mb-2') Save
           button(type='button', class='btn btn-secondary mb-2', style='margin-left: 12px', onclick="location.href='/'") Cancel

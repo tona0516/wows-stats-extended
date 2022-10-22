@@ -18,6 +18,16 @@ body {
   white-space: nowrap;
 }
 
+.form-group {
+  padding-right: 15%;
+  padding-left: 15%;
+  padding-bottom: 1rem;
+}
+
+.submit {
+  margin-top: 1rem;
+}
+
 .align-center {
   text-align: center;
 }
