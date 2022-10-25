@@ -8,23 +8,22 @@ export abstract class AbstractCacheRepository<T> {
   }
 
   async get(gameVersion: string): Promise<T | undefined> {
-    const cache = (await storage.getItem(`${this.prefix}_${gameVersion}`)) as
+    return (await storage.getItem(`${this.prefix}_${gameVersion}`)) as
       | T
       | undefined;
-
-    return cache;
   }
 
   async set(data: T, gameVersion: string): Promise<void> {
     await storage.setItem(`${this.prefix}_${gameVersion}`, data);
   }
 
-  async deleteOld(): Promise<void> {
-    const keys = (await storage.keys())
+  async deleteWithoutLatest(): Promise<void> {
+    const caches = (await storage.keys())
       .filter((it) => it.startsWith(this.prefix))
       .sort();
-    keys.splice(-1, 1);
-    keys.forEach((it) => {
+
+    caches.splice(-1, 1);
+    caches.forEach((it) => {
       void (async () => {
         await storage.removeItem(it);
       })();

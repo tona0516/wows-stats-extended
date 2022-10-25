@@ -181,7 +181,7 @@ export class GetBattleDetailUsecase {
   ): Promise<{ [shipID: number]: BasicShipInfo }> {
     const basicShipInfo = await this.basicShipInfoRepository.get(gameVersion);
     await this.basicShipInfoRepository.set(basicShipInfo, gameVersion);
-    await this.basicShipInfoRepository.deleteOld();
+    await this.basicShipInfoRepository.deleteWithoutLatest();
     this.logger.debug("basicShipInfo", JSON.stringify(basicShipInfo));
 
     return basicShipInfo;
@@ -190,7 +190,7 @@ export class GetBattleDetailUsecase {
   private async getExpectedStats(gameVersion: string): Promise<ExpectedStats> {
     const expectedStats = await this.numbersRepository.get(gameVersion);
     await this.numbersRepository.set(expectedStats, gameVersion);
-    await this.numbersRepository.deleteOld();
+    await this.numbersRepository.deleteWithoutLatest();
     this.logger.debug("expectedStats", JSON.stringify(expectedStats));
 
     return expectedStats;

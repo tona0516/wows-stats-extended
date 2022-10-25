@@ -6,5 +6,5 @@ export interface IBasicShipInfoRepository {
     basicShipInfo: { [shipID: number]: BasicShipInfo },
     gameVersion: string
   ): Promise<void>;
-  deleteOld(): Promise<void>;
+  deleteWithoutLatest(): Promise<void>;
 }
