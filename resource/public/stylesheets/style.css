@@ -131,6 +131,12 @@ a {
 }
 
 .info-icon {
-    height: 16px;
-    width: 16px;
+  height: 16px;
+  width: 16px;
+}
+
+.loading-icon {
+  height: 24px;
+  width: 24px;
+  margin: 0.25rem;
 }

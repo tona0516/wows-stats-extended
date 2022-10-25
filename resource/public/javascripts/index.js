@@ -13,10 +13,16 @@ const ErrorType = {
   SYSTEM_ERROR: "system_error",
 }
 
+const Message = {
+  LOADING: "Loading",
+  NOT_IN_CONBAT: "Not in combat"
+}
+
 const app = new Vue({
   el: "#app",
   data: {
     message: undefined,
+    is_loading: false,
     error: undefined,
     teams: undefined,
   },
@@ -36,22 +42,26 @@ const updateStatus = (_state, teams = undefined, error = undefined) => {
   state = _state
   switch (_state) {
     case State.FETCHING:
-      app.message = "Loading...";
+      app.message = Message.LOADING;
+      app.is_loading = true;
       break;
 
     case State.FETCH_FAIL:
       clearInterval(timer);
       app.message = undefined;
+      app.is_loading = false;
       app.error = JSON.stringify(error);
       break;
 
     case State.FETCH_SUCCESS:
       app.message = undefined;
+      app.is_loading = false;
       app.teams = teams;
       break;
 
     case State.NEED_NOT_FETCH:
-      app.message = "In non-combat";
+      app.message = Message.NOT_IN_CONBAT;
+      app.is_loading = false;
       break;
   }
 };

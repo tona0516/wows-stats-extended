@@ -3,7 +3,11 @@ extends ./layout
 block content
   #app
     div(v-if='message')
-      .alert.alert-primary {{ message }}
+      .alert.alert-primary
+        div(v-if='is_loading')
+          image.loading-icon(src='../images/icon_loader_f_ww_01_s1.gif') {{ message }}
+        div(v-else)
+          | {{ message }}
     div(v-if='error')
       .alert.alert-danger {{ error }}
     div.table-responsive(v-if='teams' v-for='team of teams')
