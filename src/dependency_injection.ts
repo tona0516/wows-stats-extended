@@ -40,7 +40,7 @@ export class DependencyInjection {
     const logLevel = process.env.NODE_ENV === "development" ? "debug" : "info";
 
     container.register("LogLevel", { useValue: logLevel });
-    container.register("Logger", { useClass: Logger });
+    container.registerSingleton("Logger", Logger);
 
     // repository
     container.register("UserSettingRepository", {

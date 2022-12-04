@@ -1,10 +1,10 @@
 /* eslint-disable */
 
-import { inject, injectable } from "tsyringe";
+import { inject, singleton } from "tsyringe";
 import Log4js from "log4js";
 import { ILogger } from "../../application/interface/ILogger";
 
-@injectable()
+@singleton()
 export class Logger implements ILogger {
   logger: Log4js.Logger;
 
