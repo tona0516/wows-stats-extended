@@ -330,8 +330,8 @@ export class GetBattleDetailUsecase {
 
   private sorted(team: Player[]): Player[] {
     const sorted = team.slice().sort((first, second) => {
-      const firstShip = first.shipInfo;
-      const secondShip = second.shipInfo;
+      const firstShip: ShipInfo = first.shipInfo;
+      const secondShip: ShipInfo = second.shipInfo;
 
       // compare ship type
       if (firstShip.type && secondShip.type) {
@@ -353,16 +353,10 @@ export class GetBattleDetailUsecase {
 
       // compare ship name
       if (firstShip.name && secondShip.name) {
+        if (firstShip.name === "UNKNOWN") return 1;
+        if (secondShip.name === "UNKNOWN") return -1;
         const nameCompare = firstShip.name.localeCompare(secondShip.name);
         if (nameCompare !== 0) return nameCompare;
-      }
-
-      if (firstShip) {
-        return 1;
-      }
-
-      if (secondShip) {
-        return -1;
       }
 
       return 0;
