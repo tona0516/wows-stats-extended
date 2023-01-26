@@ -3,14 +3,14 @@
 import { inject, injectable } from "tsyringe";
 import { Failure, Result, Success } from "../../common/Result";
 import { Region } from "../../domain/Region";
-import { IGameClientRepository } from "../interface/IGameClientRepository";
-import { IWargamingRepository } from "../interface/IWargamingRepository";
 import {
   ConfigureResponse as ConfigureValidateResult,
   ConfigureResponseError,
 } from "../output/ConfigureResponse";
 import { ConfigureInput } from "./ConfigureInput";
 import { ValidatorInterface } from "./ValidatorInterface";
+import { GameClientRepository } from "../../infrastructure/repository/GameClientRepository";
+import { WargamingRepositpory } from "../../infrastructure/repository/WargamingRepository";
 
 @injectable()
 export class ConfigureInputValidator
@@ -18,9 +18,9 @@ export class ConfigureInputValidator
 {
   constructor(
     @inject("WargamingRepository")
-    private wargamingRepository: IWargamingRepository,
+    private wargamingRepository: WargamingRepositpory,
     @inject("GameClientRepository")
-    private gameClientRepository: IGameClientRepository
+    private gameClientRepository: GameClientRepository
   ) {}
 
   private async validateAppid(

@@ -1,11 +1,10 @@
 import fs from "fs";
 import JSON5 from "json5";
 import { injectable } from "tsyringe";
-import { IUserSettingRepository } from "../../application/interface/IUserSettingRepository";
 import { UserSetting } from "../output/UserSetting";
 
 @injectable()
-export class UserSettingRepository implements IUserSettingRepository {
+export class UserSettingRepository {
   static getFileName(): string {
     return "user_setting.json5";
   }

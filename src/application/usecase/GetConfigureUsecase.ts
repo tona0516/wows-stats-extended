@@ -1,15 +1,15 @@
 import { inject, injectable } from "tsyringe";
 import { Region } from "../../domain/Region";
-import { ILogger } from "../interface/ILogger";
-import { IUserSettingRepository } from "../interface/IUserSettingRepository";
+import { Logger } from "../../infrastructure/repository/Logger";
+import { UserSettingRepository } from "../../infrastructure/repository/UserSettingRepository";
 import { ConfigureResponse } from "../output/ConfigureResponse";
 
 @injectable()
 export class GetConfigureUsecase {
   constructor(
-    @inject("Logger") private logger: ILogger,
+    @inject("Logger") private logger: Logger,
     @inject("UserSettingRepository")
-    private userSettingRepository: IUserSettingRepository
+    private userSettingRepository: UserSettingRepository
   ) {}
 
   invoke(): ConfigureResponse {

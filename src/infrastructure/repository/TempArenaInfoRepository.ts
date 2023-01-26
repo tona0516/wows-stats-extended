@@ -1,17 +1,16 @@
 import fs from "fs";
 import path from "path";
 import { inject, injectable } from "tsyringe";
-import { ILogger } from "../../application/interface/ILogger";
-import { ITempArenaInfoRepository } from "../../application/interface/ITempArenaInfoRepository";
-import { IUserSettingRepository } from "../../application/interface/IUserSettingRepository";
 import { ErrorResponseType } from "../../application/output/ErrorResponse";
+import { Logger } from "./Logger";
+import { UserSettingRepository } from "./UserSettingRepository";
 
 @injectable()
-export class TempArenaInfoRepository implements ITempArenaInfoRepository {
+export class TempArenaInfoRepository {
   constructor(
-    @inject("Logger") private logger: ILogger,
+    @inject("Logger") private logger: Logger,
     @inject("UserSettingRepository")
-    private userSettingRepository: IUserSettingRepository
+    private userSettingRepository: UserSettingRepository
   ) {}
 
   static getPath(): string {

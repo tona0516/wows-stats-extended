@@ -13,26 +13,26 @@ import { ExpectedStats } from "../../infrastructure/output/ExpectedStats";
 import { ShipsStats } from "../../infrastructure/output/ShipsStats";
 import { TempArenaInfo } from "../../infrastructure/output/TempArenaInfo";
 import { UserSetting } from "../../infrastructure/output/UserSetting";
+import { BasicShipInfoRepository } from "../../infrastructure/repository/BasicShipInfoRepository";
+import { Logger } from "../../infrastructure/repository/Logger";
+import { NumbersRepository } from "../../infrastructure/repository/NumbersRepository";
+import { UserSettingRepository } from "../../infrastructure/repository/UserSettingRepository";
+import { WargamingRepositpory } from "../../infrastructure/repository/WargamingRepository";
 import { BattleStatusValidator } from "../input/BattleStatusValidator";
-import { IBasicShipInfoRepository } from "../interface/IBasicShipInfoRepository";
-import { ILogger } from "../interface/ILogger";
-import { INumbersRepository } from "../interface/INumbersRepository";
-import { IUserSettingRepository } from "../interface/IUserSettingRepository";
-import { IWargamingRepository } from "../interface/IWargamingRepository";
 import { BattleDetail, FormattedPlayer, Team } from "../output/BattleDetail";
 
 @injectable()
 export class GetBattleDetailUsecase {
   constructor(
-    @inject("Logger") private logger: ILogger,
+    @inject("Logger") private logger: Logger,
     @inject("WargamingRepository")
-    private wargamingRepository: IWargamingRepository,
+    private wargamingRepository: WargamingRepositpory,
     @inject("BasicShipInfoRepository")
-    private basicShipInfoRepository: IBasicShipInfoRepository,
+    private basicShipInfoRepository: BasicShipInfoRepository,
     @inject("NumbersRepository")
-    private numbersRepository: INumbersRepository,
+    private numbersRepository: NumbersRepository,
     @inject("UserSettingRepository")
-    private userSettingRepository: IUserSettingRepository,
+    private userSettingRepository: UserSettingRepository,
     @inject("BattleStatusValidator")
     private battleStatusValidator: BattleStatusValidator
   ) {}

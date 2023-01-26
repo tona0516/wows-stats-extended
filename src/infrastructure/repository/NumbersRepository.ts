@@ -1,19 +1,15 @@
 import axios, { AxiosInstance } from "axios";
 import { inject, injectable } from "tsyringe";
-import { ILogger } from "../../application/interface/ILogger";
-import { INumbersRepository } from "../../application/interface/INumbersRepository";
 import { ExpectedStats } from "../output/ExpectedStats";
 import { AbstractCacheRepository } from "./AbstractCacheRepository";
+import { Logger } from "./Logger";
 
 @injectable()
-export class NumbersRepository
-  extends AbstractCacheRepository<ExpectedStats>
-  implements INumbersRepository
-{
+export class NumbersRepository extends AbstractCacheRepository<ExpectedStats> {
   protected prefix = "numbers";
   private httpClient: AxiosInstance;
 
-  constructor(@inject("Logger") private logger: ILogger) {
+  constructor(@inject("Logger") private logger: Logger) {
     super();
     this.httpClient = axios.create({
       baseURL: `https://api.wows-numbers.com`,

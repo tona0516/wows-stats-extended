@@ -1,8 +1,5 @@
 import axios, { AxiosInstance } from "axios";
 import { inject, injectable } from "tsyringe";
-import { ILogger } from "../../application/interface/ILogger";
-import { IUserSettingRepository } from "../../application/interface/IUserSettingRepository";
-import { IWargamingRepository } from "../../application/interface/IWargamingRepository";
 import { ErrorResponseType } from "../../application/output/ErrorResponse";
 import { AccountInfo } from "../output/AccountInfo";
 import { AccountList } from "../output/AccountList";
@@ -11,15 +8,17 @@ import { ClansInfo } from "../output/ClansInfo";
 import { EncyclopediaInfo } from "../output/EncyclopediaInfo";
 import { EncyclopediaShips } from "../output/EncyclopediaShips";
 import { ShipsStats } from "../output/ShipsStats";
+import { Logger } from "./Logger";
+import { UserSettingRepository } from "./UserSettingRepository";
 
 @injectable()
-export class WargamingRepositpory implements IWargamingRepository {
+export class WargamingRepositpory {
   httpClient: AxiosInstance;
 
   constructor(
-    @inject("Logger") private logger: ILogger,
+    @inject("Logger") private logger: Logger,
     @inject("UserSettingRepository")
-    private userSettingRepository: IUserSettingRepository
+    private userSettingRepository: UserSettingRepository
   ) {
     this.httpClient = axios.create({
       timeout: 10000,

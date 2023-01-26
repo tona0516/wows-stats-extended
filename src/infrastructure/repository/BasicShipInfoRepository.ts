@@ -1,24 +1,20 @@
 import { inject, injectable } from "tsyringe";
-import { IBasicShipInfoRepository } from "../../application/interface/IBasicShipInfoRepository";
-import { ILogger } from "../../application/interface/ILogger";
-import { IWargamingRepository } from "../../application/interface/IWargamingRepository";
 import { BasicShipInfo } from "../output/BasicShipInfo";
 import { EncyclopediaShips } from "../output/EncyclopediaShips";
 import { AbstractCacheRepository } from "./AbstractCacheRepository";
+import { Logger } from "./Logger";
+import { WargamingRepositpory } from "./WargamingRepository";
 
 @injectable()
-export class BasicShipInfoRepository
-  extends AbstractCacheRepository<{
-    [shipID: number]: BasicShipInfo;
-  }>
-  implements IBasicShipInfoRepository
-{
+export class BasicShipInfoRepository extends AbstractCacheRepository<{
+  [shipID: number]: BasicShipInfo;
+}> {
   protected prefix = "basic_ship_info";
 
   constructor(
-    @inject("Logger") private logger: ILogger,
+    @inject("Logger") private logger: Logger,
     @inject("WargamingRepository")
-    private wargamingRepository: IWargamingRepository
+    private wargamingRepository: WargamingRepositpory
   ) {
     super();
   }

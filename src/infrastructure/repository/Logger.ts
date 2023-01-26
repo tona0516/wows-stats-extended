@@ -2,10 +2,9 @@
 
 import { inject, singleton } from "tsyringe";
 import Log4js from "log4js";
-import { ILogger } from "../../application/interface/ILogger";
 
 @singleton()
-export class Logger implements ILogger {
+export class Logger {
   logger: Log4js.Logger;
 
   constructor(@inject("LogLevel") level: string) {

@@ -1,17 +1,17 @@
 import { inject, injectable } from "tsyringe";
 import { UserSettingVersion } from "../../domain/UserSettingVersion";
 import { UserSetting } from "../../infrastructure/output/UserSetting";
+import { Logger } from "../../infrastructure/repository/Logger";
+import { UserSettingRepository } from "../../infrastructure/repository/UserSettingRepository";
 import { ConfigureInputValidator } from "../input/ConfigureInputValidator";
-import { ILogger } from "../interface/ILogger";
-import { IUserSettingRepository } from "../interface/IUserSettingRepository";
 import { ConfigureResponse } from "../output/ConfigureResponse";
 
 @injectable()
 export class PostConfigureUsecase {
   constructor(
-    @inject("Logger") private logger: ILogger,
+    @inject("Logger") private logger: Logger,
     @inject("UserSettingRepository")
-    private userSettingRepository: IUserSettingRepository,
+    private userSettingRepository: UserSettingRepository,
     @inject("ConfigureInputValidator")
     private configureInputValidator: ConfigureInputValidator
   ) {}
