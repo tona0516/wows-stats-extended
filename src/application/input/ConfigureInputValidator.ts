@@ -7,10 +7,15 @@ import {
   ConfigureResponse as ConfigureValidateResult,
   ConfigureResponseError,
 } from "../output/ConfigureResponse";
-import { ConfigureInput } from "./ConfigureInput";
 import { ValidatorInterface } from "./ValidatorInterface";
 import { GameClientRepository } from "../../infrastructure/repository/GameClientRepository";
 import { WargamingRepositpory } from "../../infrastructure/repository/WargamingRepository";
+
+export interface ConfigureInput {
+  readonly appid: string;
+  readonly region: string;
+  readonly installPath: string;
+}
 
 @injectable()
 export class ConfigureInputValidator
