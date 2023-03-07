@@ -51,9 +51,6 @@ export class BasicShipInfoRepository extends AbstractCacheRepository<{
           tier: encyclopediaShip.tier,
           type: encyclopediaShip.type,
           nation: encyclopediaShip.nation,
-          detectDistanceByShip:
-            encyclopediaShip.default_profile?.concealment
-              ?.detect_distance_by_ship,
         };
       }
     });

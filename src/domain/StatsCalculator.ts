@@ -125,27 +125,6 @@ export class StatsCalculator {
     };
   }
 
-  calculateModifiedDetectDistance(basicShipInfo: BasicShipInfo): number {
-    const CAMOFLAGE = 0.97;
-    const COMMANDER = 0.9;
-    const module = (shipName: string, tier: number): number => {
-      if (shipName === "Gearing") return 0.85;
-      if (shipName === "Z-39") return 0.9;
-      if (tier > 7) return 0.9;
-      return 1.0;
-    };
-
-    const detectDistance = basicShipInfo.detectDistanceByShip;
-    const name = basicShipInfo.name;
-    const tier = basicShipInfo.tier;
-
-    if (detectDistance && name && tier) {
-      return detectDistance * CAMOFLAGE * COMMANDER * module(name, tier);
-    }
-
-    return Number.NaN;
-  }
-
   calculateCombatPower(
     averageDamage: number,
     killDeathRate: number,

@@ -13,14 +13,5 @@ interface Data {
   tier?: number;
   type?: string;
   name?: string;
-  default_profile?: DefaultProfile;
   nation?: string;
-}
-
-interface DefaultProfile {
-  concealment?: Concealment;
-}
-
-interface Concealment {
-  detect_distance_by_ship?: number;
 }

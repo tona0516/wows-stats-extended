@@ -3,5 +3,4 @@ export interface BasicShipInfo {
   tier?: number;
   type?: string;
   nation?: string;
-  detectDistanceByShip?: number;
 }

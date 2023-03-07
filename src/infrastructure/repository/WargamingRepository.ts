@@ -131,13 +131,7 @@ export class WargamingRepositpory {
       {
         params: {
           application_id: this.getAppid(),
-          fields: [
-            "name",
-            "tier",
-            "type",
-            "nation",
-            "default_profile.concealment.detect_distance_by_ship",
-          ].join(","),
+          fields: ["name", "tier", "type", "nation"].join(","),
           language: "en",
           page_no: pageNo,
         },
