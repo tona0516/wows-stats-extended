@@ -5,7 +5,7 @@ import "../../common/util.extensions";
 import { NumbersURLGenerator } from "../../domain/NumbersURLGenerator";
 import { PlayerInfo, ShipInfo, Player } from "../../domain/Player";
 import { StatsCalculator } from "../../domain/StatsCalculator";
-import { Submarines } from "../../domain/Submarines";
+import { UnregisteredShips } from "../../domain/UnregisteredShips";
 import { AccountInfo } from "../../infrastructure/output/AccountInfo";
 import { AccountList } from "../../infrastructure/output/AccountList";
 import { BasicShipInfo } from "../../infrastructure/output/BasicShipInfo";
@@ -164,10 +164,12 @@ export class GetBattleDetailUsecase {
       getExpectedStatsPromise,
     ]);
 
-    // workaround: No submarines information in API. No submarines details, no games played with submarines
-    const submarineBasicShipInfo = Submarines.getShipInfo();
-    for (const key in submarineBasicShipInfo) {
-      basicShipInfo[key] = submarineBasicShipInfo[key];
+    // workaround:
+    //   No submarines information in API. No submarines details, no games played with submarines.
+    //   No data for new black warships from black friday.
+    const unregisteredShipInfo = UnregisteredShips.getShipInfo();
+    for (const key in unregisteredShipInfo) {
+      basicShipInfo[key] = unregisteredShipInfo[key];
     }
 
     return {
