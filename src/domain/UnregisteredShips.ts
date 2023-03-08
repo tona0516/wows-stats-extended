@@ -87,6 +87,36 @@ export class UnregisteredShips {
         type: "Submarine",
         nation: "germany",
       },
+      4076812272: {
+        name: "Nebraska",
+        tier: 8,
+        type: "Battleship",
+        nation: "usa",
+      },
+      4075763696: {
+        name: "Delaware",
+        tier: 9,
+        type: "Battleship",
+        nation: "usa",
+      },
+      4178556624: {
+        name: "Sekiryu",
+        tier: 11,
+        type: "AirCarrier",
+        nation: "japan",
+      },
+      4178523600: {
+        name: "Ushakov",
+        tier: 11,
+        type: "Battleship",
+        nation: "ussr",
+      },
+      3655218992: {
+        name: "Z-42",
+        tier: 10,
+        type: "Destroyer",
+        nation: "germanys",
+      },
     };
   }
 }
