@@ -14,10 +14,10 @@ const logger = container.resolve<Logger>("Logger");
 
 const app: Express.Express = Express();
 app.set("view engine", "pug");
-app.set("views", `${__dirname}/../resource/view`);
+app.set("views", "resource/view");
 app.use(Express.json());
 app.use(Express.urlencoded({ extended: true }));
-app.use(Express.static(`${__dirname}/../resource/public`));
+app.use(Express.static("resource/public"));
 
 const controllers: ControllerInterface[] = [
   container.resolve<IndexController>("IndexController"),

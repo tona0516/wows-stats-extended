@@ -9,8 +9,8 @@ export class UnregisteredShipRepository {
   constructor(@inject("Logger") private logger: Logger) {}
 
   getShips(): { [shipID: number]: BasicShipInfo } {
-    return load(
-      readFileSync(`${__dirname}/../../resource/wargamings/ships.yaml`, "utf8")
-    ) as { [shipID: number]: BasicShipInfo };
+    return load(readFileSync("resource/wargamings/ships.yaml", "utf8")) as {
+      [shipID: number]: BasicShipInfo;
+    };
   }
 }
