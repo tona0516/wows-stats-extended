@@ -17,6 +17,7 @@ import { GameClientRepository } from "./infrastructure/repository/GameClientRepo
 import { Logger } from "./infrastructure/repository/Logger";
 import { NumbersRepository } from "./infrastructure/repository/NumbersRepository";
 import { TempArenaInfoRepository } from "./infrastructure/repository/TempArenaInfoRepository";
+import { UnregisteredShipRepository } from "./infrastructure/repository/UnregisteredShipRepository";
 import { UserSettingRepository } from "./infrastructure/repository/UserSettingRepository";
 import { WargamingRepositpory } from "./infrastructure/repository/WargamingRepository";
 
@@ -58,6 +59,9 @@ export class DependencyInjection {
     });
     container.register("GameClientRepository", {
       useClass: GameClientRepository,
+    });
+    container.register("UnregisteredShipRepository", {
+      useClass: UnregisteredShipRepository,
     });
 
     // validator

@@ -5,7 +5,6 @@ import "../../common/util.extensions";
 import { NumbersURLGenerator } from "../../domain/NumbersURLGenerator";
 import { PlayerInfo, ShipInfo, Player } from "../../domain/Player";
 import { StatsCalculator } from "../../domain/StatsCalculator";
-import { UnregisteredShips } from "../../domain/UnregisteredShips";
 import { AccountInfo } from "../../infrastructure/output/AccountInfo";
 import { AccountList } from "../../infrastructure/output/AccountList";
 import { BasicShipInfo } from "../../infrastructure/output/BasicShipInfo";
@@ -16,6 +15,7 @@ import { UserSetting } from "../../infrastructure/output/UserSetting";
 import { BasicShipInfoRepository } from "../../infrastructure/repository/BasicShipInfoRepository";
 import { Logger } from "../../infrastructure/repository/Logger";
 import { NumbersRepository } from "../../infrastructure/repository/NumbersRepository";
+import { UnregisteredShipRepository } from "../../infrastructure/repository/UnregisteredShipRepository";
 import { UserSettingRepository } from "../../infrastructure/repository/UserSettingRepository";
 import { WargamingRepositpory } from "../../infrastructure/repository/WargamingRepository";
 import { BattleStatusValidator } from "../input/BattleStatusValidator";
@@ -33,6 +33,8 @@ export class GetBattleDetailUsecase {
     private numbersRepository: NumbersRepository,
     @inject("UserSettingRepository")
     private userSettingRepository: UserSettingRepository,
+    @inject("UnregisteredShipRepository")
+    private unregisteredShipRepository: UnregisteredShipRepository,
     @inject("BattleStatusValidator")
     private battleStatusValidator: BattleStatusValidator
   ) {}
@@ -167,7 +169,7 @@ export class GetBattleDetailUsecase {
     // workaround:
     //   No submarines information in API. No submarines details, no games played with submarines.
     //   No data for new black warships from black friday.
-    const unregisteredShipInfo = UnregisteredShips.getShipInfo();
+    const unregisteredShipInfo = this.unregisteredShipRepository.getShips();
     for (const key in unregisteredShipInfo) {
       basicShipInfo[key] = unregisteredShipInfo[key];
     }
