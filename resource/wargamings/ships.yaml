@@ -113,3 +113,18 @@
   tier: 11
   type: "Destroyer"
   nation: "usa"
+4183209936:
+  name: "Undine"
+  tier: 6
+  type: "Submarine"
+  nation: "uk"
+4181112784:
+  name: "Sturdy"
+  tier: 8
+  type: "Submarine"
+  nation: "uk"
+3760108912:
+  name: "Brisbane"
+  tier: 10
+  type: "Cruiser"
+  nation: "commonwealth"
