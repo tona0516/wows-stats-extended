@@ -1,12 +1,13 @@
-import { inject, injectable } from "tsyringe";
+import { inject, injectable } from "inversify";
 import { Logger } from "../../infrastructure/repository/Logger";
 import { UserSettingRepository } from "../../infrastructure/repository/UserSettingRepository";
+import { Types } from "../../types";
 
 @injectable()
 export class IndexUsecase {
   constructor(
-    @inject("Logger") private logger: Logger,
-    @inject("UserSettingRepository")
+    @inject(Types.Logger) private logger: Logger,
+    @inject(Types.UserSettingRepository)
     private userSettingRepository: UserSettingRepository
   ) {}
 

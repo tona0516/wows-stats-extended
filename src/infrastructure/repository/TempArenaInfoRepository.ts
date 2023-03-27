@@ -1,15 +1,16 @@
 import fs from "fs";
 import path from "path";
-import { inject, injectable } from "tsyringe";
+import { inject, injectable } from "inversify";
 import { ErrorResponseType } from "../../application/output/ErrorResponse";
+import { Types } from "../../types";
 import { Logger } from "./Logger";
 import { UserSettingRepository } from "./UserSettingRepository";
 
 @injectable()
 export class TempArenaInfoRepository {
   constructor(
-    @inject("Logger") private logger: Logger,
-    @inject("UserSettingRepository")
+    @inject(Types.Logger) private logger: Logger,
+    @inject(Types.UserSettingRepository)
     private userSettingRepository: UserSettingRepository
   ) {}
 

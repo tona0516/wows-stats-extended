@@ -1,5 +1,6 @@
 import axios, { AxiosInstance } from "axios";
-import { inject, injectable } from "tsyringe";
+import { inject, injectable } from "inversify";
+import { Types } from "../../types";
 import { ExpectedStats } from "../output/ExpectedStats";
 import { AbstractCacheRepository } from "./AbstractCacheRepository";
 import { Logger } from "./Logger";
@@ -9,7 +10,7 @@ export class NumbersRepository extends AbstractCacheRepository<ExpectedStats> {
   protected prefix = "numbers";
   private httpClient: AxiosInstance;
 
-  constructor(@inject("Logger") private logger: Logger) {
+  constructor(@inject(Types.Logger) private logger: Logger) {
     super();
     this.httpClient = axios.create({
       baseURL: `https://api.wows-numbers.com`,

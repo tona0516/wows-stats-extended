@@ -1,6 +1,5 @@
 /* eslint-disable */
 
-import { inject, injectable } from "tsyringe";
 import { Failure, Result, Success } from "../../common/Result";
 import { Region } from "../../domain/Region";
 import {
@@ -10,6 +9,8 @@ import {
 import { ValidatorInterface } from "./ValidatorInterface";
 import { GameClientRepository } from "../../infrastructure/repository/GameClientRepository";
 import { WargamingRepositpory } from "../../infrastructure/repository/WargamingRepository";
+import { inject, injectable } from "inversify";
+import { Types } from "../../types";
 
 export interface ConfigureInput {
   readonly appid: string;
@@ -22,9 +23,9 @@ export class ConfigureInputValidator
   implements ValidatorInterface<ConfigureInput, ConfigureValidateResult>
 {
   constructor(
-    @inject("WargamingRepository")
+    @inject(Types.WargamingRepository)
     private wargamingRepository: WargamingRepositpory,
-    @inject("GameClientRepository")
+    @inject(Types.GameClientRepository)
     private gameClientRepository: GameClientRepository
   ) {}
 

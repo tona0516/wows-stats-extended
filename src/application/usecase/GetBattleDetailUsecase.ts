@@ -1,7 +1,7 @@
 import { Buffer } from "buffer";
 import async from "async";
-import { inject, injectable } from "tsyringe";
 import "../../common/util.extensions";
+import { inject, injectable } from "inversify";
 import { NumbersURLGenerator } from "../../domain/NumbersURLGenerator";
 import { PlayerInfo, ShipInfo, Player } from "../../domain/Player";
 import { StatsCalculator } from "../../domain/StatsCalculator";
@@ -18,24 +18,25 @@ import { NumbersRepository } from "../../infrastructure/repository/NumbersReposi
 import { UnregisteredShipRepository } from "../../infrastructure/repository/UnregisteredShipRepository";
 import { UserSettingRepository } from "../../infrastructure/repository/UserSettingRepository";
 import { WargamingRepositpory } from "../../infrastructure/repository/WargamingRepository";
+import { Types } from "../../types";
 import { BattleStatusValidator } from "../input/BattleStatusValidator";
 import { BattleDetail, FormattedPlayer, Team } from "../output/BattleDetail";
 
 @injectable()
 export class GetBattleDetailUsecase {
   constructor(
-    @inject("Logger") private logger: Logger,
-    @inject("WargamingRepository")
+    @inject(Types.Logger) private logger: Logger,
+    @inject(Types.WargamingRepository)
     private wargamingRepository: WargamingRepositpory,
-    @inject("BasicShipInfoRepository")
+    @inject(Types.BasicShipInfoRepository)
     private basicShipInfoRepository: BasicShipInfoRepository,
-    @inject("NumbersRepository")
+    @inject(Types.NumbersRepository)
     private numbersRepository: NumbersRepository,
-    @inject("UserSettingRepository")
+    @inject(Types.UserSettingRepository)
     private userSettingRepository: UserSettingRepository,
-    @inject("UnregisteredShipRepository")
+    @inject(Types.UnregisteredShipRepository)
     private unregisteredShipRepository: UnregisteredShipRepository,
-    @inject("BattleStatusValidator")
+    @inject(Types.BattleStatusValidator)
     private battleStatusValidator: BattleStatusValidator
   ) {}
 

@@ -1,13 +1,14 @@
+import { inject, injectable } from "inversify";
 import { Logger } from "log4js";
-import { inject, injectable } from "tsyringe";
 import { TempArenaInfoRepository } from "../../infrastructure/repository/TempArenaInfoRepository";
+import { Types } from "../../types";
 import { BattleStatus } from "../output/BattleStatus";
 
 @injectable()
 export class GetBattleStatusUsecase {
   constructor(
-    @inject("Logger") private logger: Logger,
-    @inject("TempArenaInfoRepository")
+    @inject(Types.Logger) private logger: Logger,
+    @inject(Types.TempArenaInfoRepository)
     private tempArenaInfoRepository: TempArenaInfoRepository
   ) {}
 

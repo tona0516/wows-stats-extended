@@ -8,9 +8,10 @@ import { IndexController } from "./application/controller/IndexController";
 import { ErrorResponse } from "./application/output/ErrorResponse";
 import { DependencyInjection } from "./dependency_injection";
 import { Logger } from "./infrastructure/repository/Logger";
+import { Types } from "./types";
 
 const container = DependencyInjection.getInstance().container;
-const logger = container.resolve<Logger>("Logger");
+const logger = container.get<Logger>(Types.Logger);
 
 const app: Express.Express = Express();
 app.set("view engine", "pug");
@@ -20,9 +21,9 @@ app.use(Express.urlencoded({ extended: true }));
 app.use(Express.static("resource/public"));
 
 const controllers: ControllerInterface[] = [
-  container.resolve<IndexController>("IndexController"),
-  container.resolve<ConfigureController>("ConfigureController"),
-  container.resolve<BattleController>("BattleController"),
+  container.get<IndexController>(Types.IndexController),
+  container.get<ConfigureController>(Types.ConfigureController),
+  container.get<BattleController>(Types.BattleController),
 ];
 controllers.forEach((it) => {
   app.use(it.getPath(), it.getRouter());

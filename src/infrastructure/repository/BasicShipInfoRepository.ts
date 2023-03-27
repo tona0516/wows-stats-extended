@@ -1,4 +1,5 @@
-import { inject, injectable } from "tsyringe";
+import { inject, injectable } from "inversify";
+import { Types } from "../../types";
 import { BasicShipInfo } from "../output/BasicShipInfo";
 import { EncyclopediaShips } from "../output/EncyclopediaShips";
 import { AbstractCacheRepository } from "./AbstractCacheRepository";
@@ -12,8 +13,8 @@ export class BasicShipInfoRepository extends AbstractCacheRepository<{
   protected prefix = "basic_ship_info";
 
   constructor(
-    @inject("Logger") private logger: Logger,
-    @inject("WargamingRepository")
+    @inject(Types.Logger) private logger: Logger,
+    @inject(Types.WargamingRepository)
     private wargamingRepository: WargamingRepositpory
   ) {
     super();

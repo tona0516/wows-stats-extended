@@ -1,6 +1,7 @@
 import Express from "express";
-import { inject, injectable } from "tsyringe";
+import { inject, injectable } from "inversify";
 import { Logger } from "../../infrastructure/repository/Logger";
+import { Types } from "../../types";
 import { GetConfigureUsecase } from "../usecase/GetConfigureUsecase";
 import { PostConfigureUsecase } from "../usecase/PostConfigureUsecase";
 import { ControllerInterface } from "./ControllerInterface";
@@ -10,10 +11,10 @@ export class ConfigureController implements ControllerInterface {
   readonly router: Express.Router;
 
   constructor(
-    @inject("Logger") private logger: Logger,
-    @inject("GetConfigureUsecase")
+    @inject(Types.Logger) private logger: Logger,
+    @inject(Types.GetConfigureUsecase)
     private getConfigureUsecase: GetConfigureUsecase,
-    @inject("PostConfigureUsecase")
+    @inject(Types.PostConfigureUsecase)
     private postConfigureUsecase: PostConfigureUsecase
   ) {
     this.router = Express.Router();

@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { injectable } from "tsyringe";
+import { injectable } from "inversify";
 
 @injectable()
 export class GameClientRepository {

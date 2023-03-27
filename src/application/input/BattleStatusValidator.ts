@@ -1,6 +1,6 @@
 /* eslint-disable */
 
-import { injectable } from "tsyringe";
+import { injectable } from "inversify";
 import { Failure, Result, Success } from "../../common/Result";
 import { BattleStatus } from "../output/BattleStatus";
 import { ErrorResponse, ErrorResponseType } from "../output/ErrorResponse";

@@ -1,18 +1,19 @@
-import { inject, injectable } from "tsyringe";
+import { inject, injectable } from "inversify";
 import { UserSettingVersion } from "../../domain/UserSettingVersion";
 import { UserSetting } from "../../infrastructure/output/UserSetting";
 import { Logger } from "../../infrastructure/repository/Logger";
 import { UserSettingRepository } from "../../infrastructure/repository/UserSettingRepository";
+import { Types } from "../../types";
 import { ConfigureInputValidator } from "../input/ConfigureInputValidator";
 import { ConfigureResponse } from "../output/ConfigureResponse";
 
 @injectable()
 export class PostConfigureUsecase {
   constructor(
-    @inject("Logger") private logger: Logger,
-    @inject("UserSettingRepository")
+    @inject(Types.Logger) private logger: Logger,
+    @inject(Types.UserSettingRepository)
     private userSettingRepository: UserSettingRepository,
-    @inject("ConfigureInputValidator")
+    @inject(Types.ConfigureInputValidator)
     private configureInputValidator: ConfigureInputValidator
   ) {}
 

@@ -1,4 +1,4 @@
-import { injectable } from "tsyringe";
+import { injectable } from "inversify";
 import { Pvp as AccountInfoPvp } from "../infrastructure/output/AccountInfo";
 import { BasicShipInfo } from "../infrastructure/output/BasicShipInfo";
 import { ExpectedValues } from "../infrastructure/output/ExpectedStats";

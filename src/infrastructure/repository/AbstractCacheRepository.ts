@@ -1,5 +1,7 @@
+import { injectable } from "inversify";
 import storage from "node-persist";
 
+@injectable()
 export abstract class AbstractCacheRepository<T> {
   protected abstract prefix: string;
 

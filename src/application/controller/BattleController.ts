@@ -1,6 +1,7 @@
 import Express from "express";
-import { inject, injectable } from "tsyringe";
+import { inject, injectable } from "inversify";
 import { Logger } from "../../infrastructure/repository/Logger";
+import { Types } from "../../types";
 import { GetBattleDetailUsecase } from "../usecase/GetBattleDetailUsecase";
 import { GetBattleStatusUsecase } from "../usecase/GetBattleStatusUsecase";
 import { ControllerInterface } from "./ControllerInterface";
@@ -10,10 +11,10 @@ export class BattleController implements ControllerInterface {
   readonly router: Express.Router;
 
   constructor(
-    @inject("Logger") private logger: Logger,
-    @inject("GetBattleDetailUsecase")
+    @inject(Types.Logger) private logger: Logger,
+    @inject(Types.GetBattleDetailUsecase)
     private getBattleDetailUsecase: GetBattleDetailUsecase,
-    @inject("GetBattleStatusUsecase")
+    @inject(Types.GetBattleStatusUsecase)
     private getBattleStatusUsecase: GetBattleStatusUsecase
   ) {
     this.router = Express.Router();

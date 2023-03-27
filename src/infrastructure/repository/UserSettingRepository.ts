@@ -1,6 +1,6 @@
 import fs from "fs";
+import { injectable } from "inversify";
 import JSON5 from "json5";
-import { injectable } from "tsyringe";
 import { UserSetting } from "../output/UserSetting";
 
 @injectable()

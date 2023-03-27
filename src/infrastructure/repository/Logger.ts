@@ -1,13 +1,14 @@
 /* eslint-disable */
 
-import { inject, singleton } from "tsyringe";
+import { inject, injectable } from "inversify";
 import Log4js from "log4js";
+import { Types } from "../../types";
 
-@singleton()
+@injectable()
 export class Logger {
   logger: Log4js.Logger;
 
-  constructor(@inject("LogLevel") level: string) {
+  constructor(@inject(Types.LogLevel) level: string) {
     this.logger = Log4js.getLogger();
     this.logger.level = level;
   }

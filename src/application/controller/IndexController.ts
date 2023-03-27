@@ -1,6 +1,7 @@
 import Express from "express";
-import { inject, injectable } from "tsyringe";
+import { inject, injectable } from "inversify";
 import { Logger } from "../../infrastructure/repository/Logger";
+import { Types } from "../../types";
 import { IndexUsecase } from "../usecase/IndexUsecase";
 import { ControllerInterface } from "./ControllerInterface";
 
@@ -9,8 +10,8 @@ export class IndexController implements ControllerInterface {
   readonly router: Express.Router;
 
   constructor(
-    @inject("Logger") private logger: Logger,
-    @inject("IndexUsecase") private indexUsecase: IndexUsecase
+    @inject(Types.Logger) private logger: Logger,
+    @inject(Types.IndexUsecase) private indexUsecase: IndexUsecase
   ) {
     this.router = Express.Router();
 

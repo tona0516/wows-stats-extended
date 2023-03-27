@@ -1,6 +1,7 @@
 import axios, { AxiosInstance } from "axios";
-import { inject, injectable } from "tsyringe";
+import { inject, injectable } from "inversify";
 import { ErrorResponseType } from "../../application/output/ErrorResponse";
+import { Types } from "../../types";
 import { AccountInfo } from "../output/AccountInfo";
 import { AccountList } from "../output/AccountList";
 import { ClansAccountInfo } from "../output/ClansAccountInfo";
@@ -16,8 +17,8 @@ export class WargamingRepositpory {
   httpClient: AxiosInstance;
 
   constructor(
-    @inject("Logger") private logger: Logger,
-    @inject("UserSettingRepository")
+    @inject(Types.Logger) private logger: Logger,
+    @inject(Types.UserSettingRepository)
     private userSettingRepository: UserSettingRepository
   ) {
     this.httpClient = axios.create({

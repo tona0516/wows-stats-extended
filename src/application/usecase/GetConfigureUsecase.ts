@@ -1,14 +1,15 @@
-import { inject, injectable } from "tsyringe";
+import { inject, injectable } from "inversify";
 import { Region } from "../../domain/Region";
 import { Logger } from "../../infrastructure/repository/Logger";
 import { UserSettingRepository } from "../../infrastructure/repository/UserSettingRepository";
+import { Types } from "../../types";
 import { ConfigureResponse } from "../output/ConfigureResponse";
 
 @injectable()
 export class GetConfigureUsecase {
   constructor(
-    @inject("Logger") private logger: Logger,
-    @inject("UserSettingRepository")
+    @inject(Types.Logger) private logger: Logger,
+    @inject(Types.UserSettingRepository)
     private userSettingRepository: UserSettingRepository
   ) {}
 
