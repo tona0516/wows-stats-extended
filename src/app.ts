@@ -1,5 +1,6 @@
 import "reflect-metadata";
 import "pug";
+import * as path from "path";
 import Express, { NextFunction, Request, Response } from "express";
 import { BattleController } from "./application/controller/BattleController";
 import { ConfigureController } from "./application/controller/ConfigureController";
@@ -15,10 +16,10 @@ const logger = container.get<Logger>(Types.Logger);
 
 const app: Express.Express = Express();
 app.set("view engine", "pug");
-app.set("views", "resource/view");
+app.set("views", path.join(__dirname, "../resource/view"));
 app.use(Express.json());
 app.use(Express.urlencoded({ extended: true }));
-app.use(Express.static("resource/public"));
+app.use(Express.static(path.join(__dirname, "../resource/public")));
 
 const controllers: ControllerInterface[] = [
   container.get<IndexController>(Types.IndexController),
