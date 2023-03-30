@@ -140,4 +140,4 @@ user_setting.json5
 replays/*.json
 
 # binary
-wows-stats-extended-1.1.0-*
+wows-stats-extended-*
