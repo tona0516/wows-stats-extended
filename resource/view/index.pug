@@ -103,7 +103,8 @@ block content
               image.info-icon(src='../images/information.png')
             | {{ player.shipInfo.name }}
           // Tier
-          td.align-right {{ player.shipInfo.tier }}
+          td.align-right(v-if="player.shipInfo.tier === '11'") ★
+          td.align-right(v-else) {{ player.shipInfo.tier }}
           // 艦別統計
           // 与ダメ
           td.align-right {{ player.shipStats.averageDamage }}
