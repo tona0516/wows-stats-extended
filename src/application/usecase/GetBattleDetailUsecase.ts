@@ -22,6 +22,15 @@ import { Types } from "../../types";
 import { BattleStatusValidator } from "../input/BattleStatusValidator";
 import { BattleDetail, FormattedPlayer, Team } from "../output/BattleDetail";
 
+const SHIP_TYPES: { [type: string]: number } = {
+  AirCarrier: 0,
+  Battleship: 1,
+  Cruiser: 2,
+  Destroyer: 3,
+  Submarine: 4,
+  Auxiliary: 5,
+};
+
 @injectable()
 export class GetBattleDetailUsecase {
   constructor(
@@ -340,8 +349,10 @@ export class GetBattleDetailUsecase {
 
       // compare ship type
       if (firstShip.type && secondShip.type) {
-        const typeCompare = firstShip.type.localeCompare(secondShip.type);
-        if (typeCompare !== 0) return typeCompare;
+        const firstShipIndex = SHIP_TYPES[firstShip.type] ?? 999;
+        const secondShipIndex = SHIP_TYPES[secondShip.type] ?? 999;
+        if (firstShipIndex < secondShipIndex) return -1;
+        if (firstShipIndex > secondShipIndex) return 1;
       }
 
       // compare ship tier
